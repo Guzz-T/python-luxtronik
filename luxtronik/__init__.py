@@ -70,23 +70,32 @@ class Luxtronik:
 
     @property
     def calculations(self):
-        """ Property to get the internal calculations data buffer (outdated)"""
-        LOGGER.debug("%s: 'calculations' is outdated. " \
-            "Please use the return value of 'read()' instead", self._host)
+        """Property to get the internal calculations data buffer (outdated)"""
+        LOGGER.debug(
+            "%s: 'calculations' is outdated. "
+            "Please use the return value of 'read()' instead",
+            self._host,
+        )
         return self._calculations
 
     @property
     def parameters(self):
-        """ Property to get the internal parameters data buffer (outdated)"""
-        LOGGER.debug("%s: 'parameters' is outdated. " \
-            "Please use the return value of 'read()' or 'write(params)' instead", self._host)
+        """Property to get the internal parameters data buffer (outdated)"""
+        LOGGER.debug(
+            "%s: 'parameters' is outdated. "
+            "Please use the return value of 'read()' or 'write(params)' instead",
+            self._host,
+        )
         return self._parameters
 
     @property
     def visibilities(self):
-        """ Property to get the internal visibilities data buffer (outdated)"""
-        LOGGER.debug("%s: 'visibilities' is outdated. " \
-            "Please use the return value of 'read()' instead", self._host)
+        """Property to get the internal visibilities data buffer (outdated)"""
+        LOGGER.debug(
+            "%s: 'visibilities' is outdated. "
+            "Please use the return value of 'read()' instead",
+            self._host,
+        )
         return self._visibilities
 
     def read(self):
@@ -142,7 +151,10 @@ class Luxtronik:
         for index, value in queue.items():
             if not isinstance(index, int) or not isinstance(value, int):
                 LOGGER.warning(
-                    "%s: Parameter id '%s' or value '%s' invalid!", self._host, index, value
+                    "%s: Parameter id '%s' or value '%s' invalid!",
+                    self._host,
+                    index,
+                    value,
                 )
                 continue
             LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, index, value)
