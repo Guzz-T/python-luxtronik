@@ -37,7 +37,7 @@ while True:
     for number, param in this_params:
         key = f"para_{number}"
         prev_param = prev_params.get(number)
-        if param.raw != prev_param.raw:
+        if param and prev_param and (param.raw != prev_param.raw):
             changes[key] = (
                 f"para: Number: {number:<5} Name: {prev_param.name:<60} "
                 + f"Value: {prev_param} -> {param}"
@@ -51,7 +51,7 @@ while True:
     for number, calc in this_calcs:
         key = f"calc_{number}"
         prev_calc = prev_calcs.get(number)
-        if calc.raw != prev_calc.raw:
+        if calc and prev_calc and (calc.raw != prev_calc.raw):
             changes[key] = (
                 f"calc: Number: {number:<5} Name: {prev_calc.name:<60} "
                 + f"Value: {prev_calc} -> {calc}"
@@ -65,7 +65,7 @@ while True:
     for number, visi in this_visis:
         key = f"visi_{number}"
         prev_visi = prev_visis.get(number)
-        if visi.raw != prev_visi.raw:
+        if visi and prev_visi and (visi.raw != prev_visi.raw):
             changes[key] = (
                 f"visi: Number: {number:<5} Name: {prev_visi.name:<60} "
                 + f"Value: {prev_visi} -> {visi}"

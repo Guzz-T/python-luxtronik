@@ -1,7 +1,18 @@
 """datatype conversions."""
+import logging
 import datetime
 import socket
 import struct
+from collections import namedtuple
+
+
+LuxtronikDataFieldDefinition = namedtuple(
+    "LuxtronikDataFieldDefinition",
+    ["index", "name", "datatype", "writeable"],
+    defaults=[False],
+)
+
+LOGGER = logging.getLogger("Luxtronik.DataTypes")
 
 
 class Base:
@@ -9,19 +20,28 @@ class Base:
 
     measurement_type = None
 
-    def __init__(self, name, writeable=False):
-        """Initialize the base data field class. Set the initial raw value to None"""
-        # save the raw value only since the user value
-        # could be build at any time
+    def __init__(self, data_field_def):
+        """Initialize the data field class."""
         self._raw = None
-        self.name = name
-        self.writeable = writeable
+        self._data_field_def = data_field_def
 
-    def to_heatpump(self, value):
+    @property
+    def name(self) -> str:
+        """Returns the name of the data field."""
+        return self._data_field_def.name
+
+    @property
+    def writeable(self) -> bool:
+        """Returns true if the data field is marked as writeable."""
+        return self._data_field_def.writeable
+
+    @classmethod
+    def to_heatpump(cls, value):
         """Converts value into heatpump units."""
         return value
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         """Converts value from heatpump units."""
         return value
 
@@ -60,18 +80,20 @@ class SelectionBase(Base):
 
     codes = {}
 
-    @property
-    def options(self):
+    @classmethod
+    def options(cls):
         """Return list of all available options."""
-        return [value for _, value in self.codes.items()]
+        return [value for _, value in cls.codes.items()]
 
-    def from_heatpump(self, value):
-        if value in self.codes:
-            return self.codes.get(value)
+    @classmethod
+    def from_heatpump(cls, value):
+        if value in cls.codes:
+            return cls.codes.get(value)
         return None
 
-    def to_heatpump(self, value):
-        for index, code in self.codes.items():
+    @classmethod
+    def to_heatpump(cls, value):
+        for index, code in cls.codes.items():
             if code == value:
                 return index
         return None
@@ -82,10 +104,12 @@ class Celsius(Base):
 
     measurement_type = "celsius"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 10
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(float(value) * 10)
 
 
@@ -94,10 +118,12 @@ class Bool(Base):
 
     measurement_type = "boolean"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return bool(value)
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value)
 
 
@@ -124,10 +150,12 @@ class IPAddress(Base):
 
     measurement_type = "ipaddress"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return socket.inet_ntoa(struct.pack(">i", value))
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return struct.unpack(">i", socket.inet_aton(value))[0]
 
 
@@ -136,12 +164,14 @@ class Timestamp(Base):
 
     measurement_type = "timestamp"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         if value > 0:
             return datetime.datetime.fromtimestamp(value)
         return datetime.datetime.fromtimestamp(0)
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return datetime.datetime.timestamp(value)
 
 
@@ -156,10 +186,12 @@ class Kelvin(Base):
 
     measurement_type = "kelvin"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 10
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(float(value) * 10)
 
 
@@ -168,10 +200,12 @@ class Pressure(Base):
 
     measurement_type = "bar"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 100
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value * 100)
 
 
@@ -180,10 +214,12 @@ class Percent(Base):
 
     measurement_type = "percent"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 10
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value * 10)
 
 
@@ -192,10 +228,12 @@ class Percent2(Base):
 
     measurement_type = "percent"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value)
 
 
@@ -216,10 +254,12 @@ class Energy(Base):
 
     measurement_type = "energy"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 10
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value * 10)
 
 
@@ -228,10 +268,12 @@ class Voltage(Base):
 
     measurement_type = "voltage"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 10
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value * 10)
 
 
@@ -240,10 +282,12 @@ class Hours(Base):
 
     measurement_type = "hours"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return value / 10
 
-    def to_heatpump(self, value):
+    @classmethod
+    def to_heatpump(cls, value):
         return int(value * 10)
 
 
@@ -276,7 +320,8 @@ class Version(Base):
 
     measurement_type = "version"
 
-    def from_heatpump(self, value):
+    @classmethod
+    def from_heatpump(cls, value):
         return "".join([chr(c) for c in value]).strip("\x00")
 
 
@@ -575,3 +620,129 @@ class Unknown(Base):
     """Unknown datatype, fallback for unknown data."""
 
     measurement_type = None
+
+
+class LuxtronikDataFieldFactory:
+    """Factory to look-up data field definitions or to create data fields."""
+
+    _data_field_defs = []
+
+    @classmethod
+    def count(cls) -> int:
+        """Get the number of data field definitions."""
+        return len(cls._data_field_defs)
+
+    @classmethod
+    def _lookup_by_index(cls, index: int) -> LuxtronikDataFieldDefinition:
+        """Look-up a data field definition by its index."""
+        if 0 <= index < cls.count():
+            return cls._data_field_defs[index]
+        return None
+
+    @classmethod
+    def _lookup_by_name(cls, name: str) -> LuxtronikDataFieldDefinition:
+        """Look-up a data field definition by its name."""
+        for data_field_def in cls._data_field_defs:
+            if (str(data_field_def.index) == name) or (data_field_def.name == name):
+                return data_field_def
+        return None
+
+    @classmethod
+    def lookup(cls, target) -> LuxtronikDataFieldDefinition:
+        """Look-up a data field definition by either its index or name."""
+        if isinstance(target, int):
+            # look-up by index
+            return cls._lookup_by_index(target)
+        if isinstance(target, str):
+            # look-up by name
+            return cls._lookup_by_name(target)
+        return None
+
+    @classmethod
+    def create(cls, target):
+        """Create a data field out of a data field definition."""
+        if isinstance(target, LuxtronikDataFieldDefinition):
+            # create data field class and assign its data field definition
+            return target.index, target.datatype(target)
+        # look-up the data field definition
+        data_field_def = cls.lookup(target)
+        if data_field_def:
+            # call this function again with a data field definition as parameter
+            return cls.create(data_field_def)
+        return None, None
+
+
+class LuxtronikDataFieldDict:
+    """Class that holds all data fields."""
+
+    def __init__(self, name, factory):
+        """Initialize luxtronik data field dict."""
+        self._name = name
+        self._factory = factory
+        self._data_dict = {}
+
+    def __iter__(self):
+        """Iterate over all assigned data fields."""
+        return iter(self._data_dict.items())
+
+    def _extract_data(self, index, raw_data):
+        """Return the data for the data field and the next index where to proceed."""
+        return index + 1, raw_data[index]
+
+    def parse(self, raw_data, start_idx=0):
+        """Parse raw data."""
+        index = start_idx
+        length = len(raw_data)
+        # loop over all raw data bytes starting at data field index "start_idx"
+        while index < (length + start_idx):
+            # get the raw data for this data field and the index of the next data field to process
+            next_index, data = self._extract_data(index, raw_data)
+            # create a new data field class
+            data_field = self._factory.create(index)[1]
+            if not data_field:
+                # LOGGER.warning("%s '%d' not in list of %ss", self._name, index, self._name)
+                # create a new data field definition and class for this unknown raw data
+                data_field_def = LuxtronikDataFieldDefinition(
+                    index, f"Unknown_{self._name}_{index}", Unknown
+                )
+                data_field = Unknown(data_field_def)
+            # assign the raw data to the new data field class
+            data_field.raw = data
+            # add the data field to the dictionary
+            self._data_dict[index] = data_field
+            # proceed with the next data field
+            index = next_index
+
+    def _get_data_field(self, target) -> (LuxtronikDataFieldDefinition, Base):
+        """Look-up a data field definition and class."""
+        data_field_def = self._factory.lookup(target)
+        if data_field_def:
+            return data_field_def, self._data_dict.get(data_field_def.index, None)
+        if isinstance(target, int):
+            return None, self._data_dict.get(target, None)
+        return None, None
+
+    def get(self, target) -> Base:
+        """Get data field either by index or name."""
+        # try get the data field
+        data_field = self._get_data_field(target)[1]
+        if not data_field:
+            LOGGER.warning("%s '%s' not found", self._name, target)
+        return data_field
+
+    def set(self, target, value):
+        """Set value of a data field, looked-up either by its index or name."""
+        # try get the data field
+        data_field_def, data_field = self._get_data_field(target)
+        if data_field_def:
+            if data_field:
+                idx = data_field_def.index
+            else:
+                # Create a new data field
+                idx, data_field = self._factory.create(data_field_def)
+            # Set the value of the data field
+            data_field.value = value
+            # Re-assign the data field to the dictionary
+            self._data_dict[idx] = data_field
+        else:
+            LOGGER.warning("%s '%s' not found", self._name, target)
