@@ -12,6 +12,7 @@ import time
 from luxtronik.calculations import Calculations
 from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
+from luxtronik.datatypes import Base
 from luxtronik.discover import discover  # noqa: F401
 
 # endregion Imports
@@ -51,7 +52,6 @@ class Luxtronik:
         self._port = port
         self._safe = safe
         self._socket = None
-        self.read()
 
     def __del__(self):
         if self._socket is not None:
@@ -62,15 +62,17 @@ class Luxtronik:
                 "Disconnected from Luxtronik heatpump %s:%s", self._host, self._port
             )
 
-    def read(self):
+    def read(self) -> (Calculations, Parameters, Visibilities):
         """Read data from heatpump."""
         return self._read_after_write(parameters=None)
 
-    def write(self, parameters):
+    def write(self, parameters: Parameters) -> (Calculations, Parameters, Visibilities):
         """Write parameter to heatpump."""
         return self._read_after_write(parameters=parameters)
 
-    def _read_after_write(self, parameters):
+    def _read_after_write(
+        self, parameters: Parameters
+    ) -> (Calculations, Parameters, Visibilities):
         """
         Read and/or write value from and/or to heatpump.
         This method is essentially a wrapper for the _read() and _write()
@@ -100,32 +102,44 @@ class Luxtronik:
                 return self._write(parameters)
             return self._read()
 
-    def _read(self):
+    def _read(self) -> (Calculations, Parameters, Visibilities):
         parameters = self._read_parameters()
         calculations = self._read_calculations()
         visibilities = self._read_visibilities()
         return calculations, parameters, visibilities
 
-    def _write(self, parameters):
-        for index, value in parameters.queue.items():
-            if not isinstance(index, int) or not isinstance(value, int):
+    def _write(
+        self, parameters: Parameters
+    ) -> (Calculations, Parameters, Visibilities):
+        for index, param in parameters:
+            if not isinstance(index, int) or not isinstance(param, Base):
                 LOGGER.warning(
                     "%s: Parameter id '%s' or value '%s' invalid!",
                     self._host,
                     index,
-                    value,
+                    param,
                 )
                 continue
-            LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, index, value)
-            data = struct.pack(">iii", 3002, index, value)
+            if not param.writeable and self._safe:
+                LOGGER.warning(
+                    "%s: Parameter '%s' not safe for writing!", self._host, param.name
+                )
+                continue
+            heatpump_value = param.raw
+            LOGGER.info(
+                "%s: Parameter '%d' set to '%s' = '%s'",
+                self._host,
+                index,
+                param.value,
+                heatpump_value,
+            )
+            data = struct.pack(">iii", 3002, index, heatpump_value)
             LOGGER.debug("%s: Data %s", self._host, data)
             self._socket.sendall(data)
             cmd = struct.unpack(">i", self._socket.recv(4))[0]
             LOGGER.debug("%s: Command %s", self._host, cmd)
             val = struct.unpack(">i", self._socket.recv(4))[0]
             LOGGER.debug("%s: Value %s", self._host, val)
-        # Flush queue after writing all values
-        parameters.queue = {}
         # Give the heatpump a short time to handle the value changes/calculations:
         time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
         # Read the new values based on our parameter changes:
@@ -145,7 +159,7 @@ class Luxtronik:
                 # not logging this as error as it would be logged on every read cycle
                 LOGGER.debug("%s: %s", self._host, err)
         LOGGER.info("%s: Read %d parameters", self._host, length)
-        parameters = Parameters(safe=self._safe)
+        parameters = Parameters()
         parameters.parse(data)
         return parameters
 
