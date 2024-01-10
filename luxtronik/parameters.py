@@ -3,9 +3,12 @@
 """Parse luxtronik parameters."""
 import logging
 
+from luxtronik.data_vector import DataVector
+
 from luxtronik.datatypes import (
     AccessLevel,
     Bool,
+    Count,
     Energy,
     Kelvin,
     Celsius,
@@ -17,23 +20,27 @@ from luxtronik.datatypes import (
     Minutes,
     MixedCircuitMode,
     PoolMode,
+    Seconds,
     SolarMode,
+    Timestamp,
     Unknown,
     VentilationMode,
 )
 
-LOGGER = logging.getLogger("Luxtronik.Parameters")
 
-
-class Parameters:
+class Parameters(DataVector):
     """Class that holds all parameters."""
+
+    logger = logging.getLogger("Luxtronik.Parameters")
+    name = "Parameter"
 
     def __init__(self, safe=True):
         """Initialize parameters class."""
+        super().__init__()
         self.safe = safe
         self.queue = {}
 
-        self._parameters = {
+        self._data = {
             0: Unknown("ID_Transfert_LuxNet"),
             1: Celsius("ID_Einst_WK_akt", True),
             2: Celsius("ID_Einst_BWS_akt", True),
@@ -48,9 +55,9 @@ class Parameters:
             11: Celsius("ID_Einst_HzHwHKE_akt", True),
             12: Celsius("ID_Einst_HzHKRANH_akt", True),
             13: Celsius("ID_Einst_HzHKRABS_akt", True),
-            14: Unknown("ID_Einst_HzMK1E_akt"),
-            15: Unknown("ID_Einst_HzMK1ANH_akt"),
-            16: Unknown("ID_Einst_HzMK1ABS_akt"),
+            14: Celsius("ID_Einst_HzMK1E_akt", True),
+            15: Celsius("ID_Einst_HzMK1ANH_akt", True),
+            16: Celsius("ID_Einst_HzMK1ABS_akt", True),
             17: Unknown("ID_Einst_HzFtRl_akt"),
             18: Unknown("ID_Einst_HzFtMK1Vl_akt"),
             19: Unknown("ID_Einst_SUBW_akt"),
@@ -175,9 +182,9 @@ class Parameters:
             138: Unknown("ID_Einst_TV2VDSWB_akt"),
             139: Unknown("ID_Einst_MinSwan_Time_akt"),
             140: Unknown("ID_Einst_SuMk2_akt"),
-            141: Unknown("ID_Einst_HzMK2E_akt"),
-            142: Unknown("ID_Einst_HzMK2ANH_akt"),
-            143: Unknown("ID_Einst_HzMK2ABS_akt"),
+            141: Celsius("ID_Einst_HzMK2E_akt", True),
+            142: Celsius("ID_Einst_HzMK2ANH_akt", True),
+            143: Celsius("ID_Einst_HzMK2ABS_akt", True),
             144: Unknown("ID_Einst_HzMK2Hgr_akt"),
             145: Unknown("ID_Einst_HzFtMK2Vl_akt"),
             146: Unknown("ID_Temp_THG_BwHD_saved"),
@@ -702,14 +709,14 @@ class Parameters:
             665: Unknown("ID_Einst_SuSwbTg_zeit_1_13"),
             666: Unknown("ID_Einst_SuSwbTg_zeit_2_12"),
             667: Unknown("ID_Einst_SuSwbTg_zeit_2_13"),
-            668: Unknown("ID_Zaehler_BetrZeitWP"),
-            669: Unknown("ID_Zaehler_BetrZeitVD1"),
-            670: Unknown("ID_Zaehler_BetrZeitVD2"),
-            671: Unknown("ID_Zaehler_BetrZeitZWE1"),
-            672: Unknown("ID_Zaehler_BetrZeitZWE2"),
-            673: Unknown("ID_Zaehler_BetrZeitZWE3"),
-            674: Unknown("ID_Zaehler_BetrZeitImpVD1"),
-            675: Unknown("ID_Zaehler_BetrZeitImpVD2"),
+            668: Seconds("ID_Zaehler_BetrZeitWP"),
+            669: Seconds("ID_Zaehler_BetrZeitVD1"),
+            670: Seconds("ID_Zaehler_BetrZeitVD2"),
+            671: Seconds("ID_Zaehler_BetrZeitZWE1"),
+            672: Seconds("ID_Zaehler_BetrZeitZWE2"),
+            673: Seconds("ID_Zaehler_BetrZeitZWE3"),
+            674: Count("ID_Zaehler_BetrZeitImpVD1"),
+            675: Count("ID_Zaehler_BetrZeitImpVD2"),
             676: Unknown("ID_Zaehler_BetrZeitEZMVD1"),
             677: Unknown("ID_Zaehler_BetrZeitEZMVD2"),
             678: Unknown("ID_Einst_Entl_Typ_0"),
@@ -762,9 +769,9 @@ class Parameters:
             725: Unknown("ID_Switchoff_file_4_1"),
             726: Unknown("ID_DauerDatenLoggerAktiv"),
             727: Unknown("ID_Laufvar_Heizgrenze"),
-            728: Unknown("ID_Zaehler_BetrZeitHz"),
-            729: Unknown("ID_Zaehler_BetrZeitBW"),
-            730: Unknown("ID_Zaehler_BetrZeitKue"),
+            728: Seconds("ID_Zaehler_BetrZeitHz"),
+            729: Seconds("ID_Zaehler_BetrZeitBW"),
+            730: Seconds("ID_Zaehler_BetrZeitKue"),
             731: Unknown("ID_SU_FstdHz"),
             732: Unknown("ID_SU_FstdBw"),
             733: Unknown("ID_SU_FstdSwb"),
@@ -808,9 +815,9 @@ class Parameters:
             771: Unknown("ID_IP_PB_Slave_5"),
             772: Unknown("ID_Einst_BwHup_akt_backup"),
             773: Unknown("ID_Einst_SuMk3_akt"),
-            774: Unknown("ID_Einst_HzMK3E_akt"),
-            775: Unknown("ID_Einst_HzMK3ANH_akt"),
-            776: Unknown("ID_Einst_HzMK3ABS_akt"),
+            774: Celsius("ID_Einst_HzMK3E_akt", True),
+            775: Celsius("ID_Einst_HzMK3ANH_akt", True),
+            776: Celsius("ID_Einst_HzMK3ABS_akt", True),
             777: Unknown("ID_Einst_HzMK3Hgr_akt"),
             778: Unknown("ID_Einst_HzFtMK3Vl_akt"),
             779: MixedCircuitMode("ID_Ba_Hz_MK3_akt", True),
@@ -886,14 +893,14 @@ class Parameters:
             849: Unknown("ID_Ba_Hz_MK3_saved"),
             850: Hours("ID_Einst_Kuhl_Zeit_Ein_akt", True),
             851: Hours("ID_Einst_Kuhl_Zeit_Aus_akt", True),
-            852: Unknown("ID_Waermemenge_Seit"),
+            852: Energy("ID_Waermemenge_Seit"),
             853: Unknown("ID_Waermemenge_WQ"),
-            854: Unknown("ID_Waermemenge_Hz"),
+            854: Energy("ID_Waermemenge_Hz"),
             855: Unknown("ID_Waermemenge_WQ_ges"),
             856: Unknown("ID_Einst_Entl_Typ_13"),
             857: Unknown("ID_Einst_Entl_Typ_14"),
             858: Unknown("ID_Einst_Entl_Typ_15"),
-            859: Unknown("ID_Zaehler_BetrZeitSW"),
+            859: Seconds("ID_Zaehler_BetrZeitSW"),
             860: Unknown("ID_Einst_Fernwartung_akt"),
             861: Unknown("ID_AdresseIPServ_akt"),
             862: Unknown("ID_Einst_TA_EG_akt"),
@@ -912,9 +919,9 @@ class Parameters:
             875: Unknown("ID_WP_SerienNummer_HEX"),
             876: Unknown("ID_WP_SerienNummer_INDEX"),
             877: Unknown("ID_ProgWerteWebSrvBeobarten"),
-            878: Unknown("ID_Waermemenge_BW"),
-            879: Unknown("ID_Waermemenge_SW"),
-            880: Unknown("ID_Waermemenge_Datum"),
+            878: Energy("ID_Waermemenge_BW"),
+            879: Energy("ID_Waermemenge_SW"),
+            880: Timestamp("ID_Waermemenge_Datum"),
             881: SolarMode("ID_Einst_Solar_akt", True),
             882: Unknown("ID_BSTD_Solar"),
             883: Celsius("ID_Einst_TDC_Koll_Max_akt"),
@@ -1094,7 +1101,7 @@ class Parameters:
             1057: Unknown("ID_Einst_Vorlauf_ZUP"),
             1058: Unknown("ID_Einst_Abtauen_im_Warmwasser"),
             1059: Energy("ID_Waermemenge_ZWE"),
-            1060: Unknown("ID_Waermemenge_Reset"),
+            1060: Energy("ID_Waermemenge_Reset"),
             1061: Unknown("ID_Waermemenge_Reset_2"),
             1062: Unknown("ID_Einst_Brunnenpumpe_min"),
             1063: Unknown("ID_Einst_Brunnenpumpe_max"),
@@ -1160,63 +1167,44 @@ class Parameters:
             1123: Unknown("Unknown_Parameter_1123"),
             1124: Unknown("Unknown_Parameter_1124"),
             1125: Unknown("Unknown_Parameter_1125"),
+            1126: Unknown("Unknown_Parameter_1126"),
+            1127: Unknown("Unknown_Parameter_1127"),
+            1128: Unknown("Unknown_Parameter_1128"),
+            1129: Unknown("Unknown_Parameter_1129"),
+            1130: Unknown("Unknown_Parameter_1130"),
+            1131: Unknown("Unknown_Parameter_1131"),
+            1132: Unknown("Unknown_Parameter_1132"),
+            1133: Unknown("Unknown_Parameter_1133"),
+            1134: Unknown("Unknown_Parameter_1134"),
+            1135: Unknown("Unknown_Parameter_1135"),
+            1136: Unknown("Unknown_Parameter_1136"),
+            1137: Unknown("Unknown_Parameter_1137"),
+            1138: Unknown("Unknown_Parameter_1138"),
+            1139: Unknown("Unknown_Parameter_1139"),
+            1140: Unknown("Unknown_Parameter_1140"),
+            1141: Unknown("Unknown_Parameter_1141"),
+            1142: Unknown("Unknown_Parameter_1142"),
+            1143: Unknown("Unknown_Parameter_1143"),
+            1144: Unknown("Unknown_Parameter_1144"),
+            1145: Unknown("Unknown_Parameter_1145"),
+            1146: Unknown("Unknown_Parameter_1146"),
+            1147: Unknown("Unknown_Parameter_1147"),
+            1148: Unknown("Unknown_Parameter_1148"),
+            1149: Unknown("Unknown_Parameter_1149"),
+            1150: Unknown("Unknown_Parameter_1150"),
+            1151: Unknown("Unknown_Parameter_1151"),
+            1152: Unknown("Unknown_Parameter_1152"),
         }
-
-    def __iter__(self):
-        return iter(self._parameters.items())
-
-    def parse(self, raw_data):
-        """Parse raw parameter data."""
-        for index, data in enumerate(raw_data):
-            parameter = self._parameters.get(index, False)
-            if parameter is not False:
-                parameter.raw = data
-            else:
-                # LOGGER.warning("Parameter '%d' not in list of parameters", index)
-                parameter = Unknown(f"Unknown_Parameter_{index}")
-                parameter.raw = data
-                self._parameters[index] = parameter
-
-    def _lookup(self, target, with_index=False):
-        # pylint: disable=too-many-return-statements,fixme
-        # TODO Evaluate whether logic can be re-arranged to get rid of the
-        # pylint error regarding too many return statements.
-        """Lookup parameter by either id or name."""
-        # Get parameter by id
-        if isinstance(target, int):
-            if with_index:
-                return target, self._parameters.get(target, None)
-            return self._parameters.get(target, None)
-        # Get parameter by name
-        if isinstance(target, str):
-            try:
-                target = int(target)
-                if with_index:
-                    return target, self._parameters.get(target, None)
-                return self._parameters.get(target, None)
-            except ValueError:
-                for index, parameter in self._parameters.items():
-                    if parameter.name == target:
-                        if with_index:
-                            return index, parameter
-                        return parameter
-        LOGGER.warning("Parameter '%s' not found", target)
-        if with_index:
-            return None, None
-        return None
-
-    def get(self, target):
-        """Get parameter by id or name."""
-        parameter = self._lookup(target)
-        return parameter
 
     def set(self, target, value):
         """Set parameter to new value."""
         index, parameter = self._lookup(target, with_index=True)
-        if index:
+        if index is not None:
             if parameter.writeable or not self.safe:
                 self.queue[index] = parameter.to_heatpump(value)
             else:
-                LOGGER.warning("Parameter '%s' not safe for writing!", parameter.name)
+                self.logger.warning(
+                    "Parameter '%s' not safe for writing!", parameter.name
+                )
         else:
-            LOGGER.warning("Parameter '%s' not found", target)
+            self.logger.warning("Parameter '%s' not found", target)
