@@ -47,7 +47,7 @@ class DataVector:
                 # Get entry by name
                 target_index = None
                 for index, entry in self._data.items():
-                    if entry.name == target:
+                    if target in entry.get_supported_names():
                         target_index = index
         elif isinstance(target, int):
             # Get entry by id
