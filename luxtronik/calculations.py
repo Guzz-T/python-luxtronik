@@ -315,3 +315,6 @@ class Calculations(DataVector):
             266: Unknown("Unknown_Calculation_266"),
             267: Celsius("Desired_Room_Temperature"),
         }
+
+    def get_firmware_version(self):
+        return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])
