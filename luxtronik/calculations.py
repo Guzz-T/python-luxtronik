@@ -5,6 +5,7 @@ import logging
 from luxtronik.data_vector import DataVector
 
 from luxtronik.datatypes import (
+    Base,
     BivalenceLevel,
     Bool,
     Celsius,
@@ -318,3 +319,14 @@ class Calculations(DataVector):
 
     def get_firmware_version(self):
         return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])
+
+    def _get_firmware_version(self):
+        return self.get_firmware_version().strip("\x00") 
+
+    def get(self, target):
+        if target == "ID_WEB_SoftStand":
+            entry = Base("ID_WEB_SoftStand")
+            entry.raw = self._get_firmware_version()
+            return entry
+        else:
+            return super().get(target)
