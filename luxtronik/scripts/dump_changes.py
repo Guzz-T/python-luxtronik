@@ -74,7 +74,7 @@ def dump_changes():
                 )
 
         # Print changes
-        os.system("clear")
+        os.system("cls" if os.name == "nt" else "clear")
         print("=" * 80)
         for key, values in changes.items():
             print(values)
