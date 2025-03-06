@@ -21,6 +21,7 @@ class Base:
         self._raw = None
         self.name = name
         self.writeable = writeable
+        self._set_by_user = False
 
     @classmethod
     def to_heatpump(cls, value):
@@ -41,6 +42,7 @@ class Base:
     def value(self, value):
         """Converts the value into heatpump units and store it."""
         self._raw = self.to_heatpump(value)
+        self._set_by_user = True
 
     @property
     def raw(self):
@@ -51,6 +53,12 @@ class Base:
     def raw(self, raw):
         """Store the raw data."""
         self._raw = raw
+        self._set_by_user = False
+
+    @property
+    def set_by_user(self):
+        """Return if the data was set by the user."""
+        return self._set_by_user
 
     def __repr__(self):
         """Returns a printable representation of the datatype object"""
@@ -931,6 +939,62 @@ class LevelMode(SelectionBase):
                          # within the smart-home-interface-settings
                          # TODO: Function unknown – requires further analysis
     }
+
+class PowerLimit(ScalingBase):
+    """PowerLimit datatype, converts from and to PowerLimit."""
+
+    datatype_class = "power"
+    datatype_unit = "kW"
+    scaling_factor = 0.1
+
+
+class FullVersion(Base):
+    """FullVersion datatype, converts from and to a RBEVersion"""
+
+    datatype_class = "version"
+
+    @classmethod
+    def from_heatpump(cls, value):
+        if isinstance(value, list) and len(value) >= 3:
+            return f"{value[0]}.{value[1]}.{value[2]}"
+        else:
+            return "0"
+
+
+class ShiMode(SelectionBase):
+    """ShiMode datatype, converts from and to list of ShiMode codes."""
+
+    datatype_class = "selection"
+
+    codes = {
+        0: "Off",       # System value is used
+        1: "Setpoint",  # Setpoint register value is used
+        2: "Offset",    # System values + offset register value is used
+    }
+
+
+class LpcMode(SelectionBase):
+    """LpcMode datatype, converts from and to list of LpcMode codes."""
+
+    datatype_class = "selection"
+
+    codes = {
+        0: "No-Limit",
+        1: "Soft-Limit",
+        1: "Hard-Limit",
+    }
+
+
+class LockMode(SelectionBase):
+    """LockMode datatype, converts from and to list of LockMode codes."""
+
+    datatype_class = "selection"
+
+    codes = {
+        0: "Unlocked / Off",
+        1: "Locked / On",
+    }
+
 
 class PowerLimit(ScalingBase):
     """PowerLimit datatype, converts from and to PowerLimit."""

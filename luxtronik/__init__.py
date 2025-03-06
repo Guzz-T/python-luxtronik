@@ -13,9 +13,11 @@ import time
 from luxtronik.calculations import Calculations
 from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
+from luxtronik.modbus import LuxtronikSmartHomeData, LuxtronikModbusTcpInterface
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (
     LUXTRONIK_DEFAULT_PORT,
+    LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
     LUXTRONIK_PARAMETERS_READ,
     LUXTRONIK_CALCULATIONS_READ,
@@ -23,32 +25,32 @@ from luxtronik.constants import (
     LUXTRONIK_SOCKET_READ_SIZE_PEEK,
     LUXTRONIK_SOCKET_READ_SIZE_INTEGER,
     LUXTRONIK_SOCKET_READ_SIZE_CHAR,
+    LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
 )
 
 # endregion Imports
 
 LOGGER = logging.getLogger("Luxtronik")
 
-# Wait time (in seconds) after writing parameters to give controller
-# some time to re-calculate values, etc.
-WAIT_TIME_AFTER_PARAMETER_WRITE = 1
-
 
 def is_socket_closed(sock: socket.socket) -> bool:
     """Check is socket closed."""
+	# Alternative to socket.MSG_DONTWAIT in recv.
+	# Works on Windows and Linux.
+    sock.setblocking(False)
     try:
         # this will try to read bytes without blocking and also without removing them from buffer
-        data = sock.recv(LUXTRONIK_SOCKET_READ_SIZE_PEEK, socket.MSG_DONTWAIT | socket.MSG_PEEK)
-        if len(data) == 0:
-            return True
+        data = sock.recv(LUXTRONIK_SOCKET_READ_SIZE_PEEK, socket.MSG_PEEK)
+        closed = len(data) == 0
     except BlockingIOError:
-        return False  # socket is open and reading from it would block
+        closed = False  # socket is open and reading from it would block
     except ConnectionResetError:  # pylint: disable=broad-except
-        return True  # socket was closed for some other reason
+        closed = True  # socket was closed for some other reason
     except Exception as err:  # pylint: disable=broad-except
         LOGGER.exception("Unexpected exception when checking if socket is closed", exc_info=err)
-        return False
-    return False
+        closed = False
+    sock.setblocking(True)
+    return closed
 
 
 class LuxtronikData:
@@ -175,7 +177,7 @@ class LuxtronikSocketInterface:
     def _write_and_read(self, parameters, data):
         self._write(parameters)
         # Give the heatpump a short time to handle the value changes/calculations:
-        time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
+        time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
         return self._read(data)
 
     def _write(self, parameters):
@@ -275,38 +277,62 @@ class LuxtronikSocketInterface:
         return struct.unpack(">b", reading)[0]
 
 
-class Luxtronik(LuxtronikData):
+class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
+
+    def __init__(self, host, port_controller=LUXTRONIK_DEFAULT_PORT, port_modbus=LUXTRONIK_DEFAULT_MODBUS_PORT):
+        LuxtronikSocketInterface.__init__(self, host, port_controller)
+        LuxtronikModbusTcpInterface.__init__(self, host, port_modbus)
+
+
+class Luxtronik(LuxtronikData, LuxtronikSmartHomeData):
     """
     Wrapper around the data and the read/write interface.
     Mainly to ensure backwards compatibility
     of the read/write interface to other projects.
     """
 
-    def __init__(self, host, port=LUXTRONIK_DEFAULT_PORT, safe=True):
-        super().__init__(safe=safe)
-        self.interface = LuxtronikSocketInterface(host, port)
+    def __init__(self, host, port=LUXTRONIK_DEFAULT_PORT, safe=True, port_modbus=LUXTRONIK_DEFAULT_MODBUS_PORT):
+        LuxtronikData.__init__(self, safe=safe)
+        LuxtronikSmartHomeData.__init__(self, safe=safe)
+        self.controller_interface = LuxtronikSocketInterface(host, port)
+        self.modbus_interface = LuxtronikModbusTcpInterface(host, port_modbus)
         self.read()
 
     def read(self):
-        return self.interface.read(self)
+        self.controller_interface.read(self)
+        self.modbus_interface.read(self)
+        return self
 
     def read_parameters(self):
-        return self.interface.read_parameters(self.parameters)
+        return self.controller_interface.read_parameters(self.parameters)
 
     def read_calculations(self):
-        return self.interface.read_calculations(self.calculations)
+        return self.controller_interface.read_calculations(self.calculations)
 
     def read_visibilities(self):
-        return self.interface.read_visibilities(self.visibilities)
+        return self.controller_interface.read_visibilities(self.visibilities)
 
-    def write(self, parameters=None):
-        if parameters is None:
-            self.interface.write(self.parameters)
-        else:
-            self.interface.write(parameters)
+    def read_holdings(self):
+        return self.modbus_interface.read_holdings(self.holdings)
 
-    def write_and_read(self, parameters=None):
-        if parameters is None:
-            return self.interface.write_and_read(self.parameters, self)
-        else:
-            return self.interface.write_and_read(parameters, self)
+    def read_inputs(self):
+        return self.modbus_interface.read_inputs(self.inputs)
+
+    def write(self, parameters_or_holdings=None):
+        if parameters_or_holdings is None:
+            self.controller_interface.write(self.parameters)
+            self.modbus_interface.write(self.holdings)
+        elif isinstance(parameters_or_holdings, Parameters):
+            self.controller_interface.write(parameters_or_holdings)
+        elif isinstance(parameters_or_holdings, Holdings):
+            self.modbus_interface.write(parameters_or_holdings)
+
+    def write_and_read(self, parameters_or_holdings=None):
+        if parameters_or_holdings is None:
+            self.controller_interface.write_and_read(self.parameters, self)
+            self.modbus_interface.write_and_read(self.holdings, self)
+            return self
+        elif isinstance(parameters_or_holdings, Parameters):
+            return self.controller_interface.write_and_read(parameters_or_holdings, self)
+        elif isinstance(parameters_or_holdings, Holdings):
+            return self.modbus_interface.write_and_read(parameters_or_holdings, self)

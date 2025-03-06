@@ -2,6 +2,7 @@
 
 # Default port to be used to connect to Luxtronik controller.
 LUXTRONIK_DEFAULT_PORT = 8889
+LUXTRONIK_DEFAULT_MODBUS_PORT = 502
 
 LUXTRONIK_PARAMETERS_WRITE = 3002
 LUXTRONIK_PARAMETERS_READ = 3003
@@ -18,6 +19,12 @@ LUXTRONIK_DISCOVERY_PORTS = [4444, 47808]
 
 # Time (in seconds) to wait for response after sending discovery broadcast
 LUXTRONIK_DISCOVERY_TIMEOUT = 2
+
+LUXTRONIK_DEFAULT_MODBUS_TIMEOUT = 30 # 30s
+
+# Wait time (in seconds) after writing parameters to give controller
+# some time to re-calculate values, etc.
+LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE = 1
 
 # Content of packet that will be sent for discovering heat pumps
 LUXTRONIK_DISCOVERY_MAGIC_PACKET = "2000;111;1;\x00"
