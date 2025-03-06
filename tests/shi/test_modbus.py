@@ -94,6 +94,9 @@ class FakeModbusClient(ModbusClient):
 # Tests
 ###############################################################################
 
+class DummyTelegram(LuxtronikSmartHomeReadInputsTelegram)
+    pass
+
 class TestModbusInterface:
     host = "local_host"
     port = 9876
@@ -356,3 +359,12 @@ class TestModbusInterface:
         assert list[0].data == [2, 3]
         assert list[1].data == [11, 21]
         assert list[2].data == []
+
+    def test_not_defined(self):
+        telegram = DummyTelegram()
+
+        try:
+            self.modbus_interface.send(telegram)
+            assert False
+        except Exception as e:
+            pass

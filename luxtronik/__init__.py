@@ -7,12 +7,15 @@ from __future__ import annotations
 import logging
 import socket
 import struct
-import threading
 import time
 
+from luxtronik.common import get_host_lock
 from luxtronik.calculations import Calculations
 from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
+from luxtronik.shi.holdings import Holdings
+from luxtronik.shi.inputs import Inputs
+from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (
     LUXTRONIK_DEFAULT_PORT,
@@ -23,6 +26,9 @@ from luxtronik.constants import (
     LUXTRONIK_SOCKET_READ_SIZE_PEEK,
     LUXTRONIK_SOCKET_READ_SIZE_INTEGER,
     LUXTRONIK_SOCKET_READ_SIZE_CHAR,
+)
+from luxtronik.shi.constants import (
+    LUXTRONIK_DEFAULT_MODBUS_PORT,
 )
 
 # endregion Imports
@@ -36,19 +42,22 @@ WAIT_TIME_AFTER_PARAMETER_WRITE = 1
 
 def is_socket_closed(sock: socket.socket) -> bool:
     """Check is socket closed."""
+	# Alternative to socket.MSG_DONTWAIT in recv.
+	# Works on Windows and Linux.
+    sock.setblocking(False)
     try:
         # this will try to read bytes without blocking and also without removing them from buffer
-        data = sock.recv(LUXTRONIK_SOCKET_READ_SIZE_PEEK, socket.MSG_DONTWAIT | socket.MSG_PEEK)
-        if len(data) == 0:
-            return True
+        data = sock.recv(LUXTRONIK_SOCKET_READ_SIZE_PEEK, socket.MSG_PEEK)
+        closed = len(data) == 0
     except BlockingIOError:
-        return False  # socket is open and reading from it would block
+        closed = False  # socket is open and reading from it would block
     except ConnectionResetError:  # pylint: disable=broad-except
-        return True  # socket was closed for some other reason
+        closed = True  # socket was closed for some other reason
     except Exception as err:  # pylint: disable=broad-except
         LOGGER.exception("Unexpected exception when checking if socket is closed", exc_info=err)
-        return False
-    return False
+        closed = False
+    sock.setblocking(True)
+    return closed
 
 
 class LuxtronikData:
@@ -70,7 +79,8 @@ class LuxtronikSocketInterface:
     """Luxtronik read/write interface via socket."""
 
     def __init__(self, host, port=LUXTRONIK_DEFAULT_PORT):
-        self._lock = threading.Lock()
+        get_host_lock(host)
+
         self._host = host
         self._port = port
         self._socket = None
@@ -78,6 +88,10 @@ class LuxtronikSocketInterface:
 
     def __del__(self):
         self._disconnect()
+
+    @property
+    def _lock(self):
+        return hosts_locks[self._host]
 
     def _connect(self):
         """Connect the socket if not already done."""
@@ -174,8 +188,6 @@ class LuxtronikSocketInterface:
 
     def _write_and_read(self, parameters, data):
         self._write(parameters)
-        # Give the heatpump a short time to handle the value changes/calculations:
-        time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
         return self._read(data)
 
     def _write(self, parameters):
@@ -196,6 +208,8 @@ class LuxtronikSocketInterface:
             LOGGER.debug("%s: Value %s", self._host, val)
         # Flush queue after writing all values
         parameters.queue = {}
+        # Give the heatpump a short time to handle the value changes/calculations:
+        time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
 
     def _read_parameters(self, parameters):
         data = []
@@ -275,38 +289,94 @@ class LuxtronikSocketInterface:
         return struct.unpack(">b", reading)[0]
 
 
-class Luxtronik(LuxtronikData):
+class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
+
+    def __init__(self, parameters=None, calculations=None, visibilities=None, holdings=None, inputs=None, safe=True):
+        LuxtronikData.__init__(self, parameters, calculations, visibilities, safe)
+        LuxtronikSmartHomeData.__init__(self, holdings, inputs, safe)
+
+class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
+
+    def __init__(self, host, port_controller=LUXTRONIK_DEFAULT_PORT, port_modbus=LUXTRONIK_DEFAULT_MODBUS_PORT):
+        get_host_lock(host)
+
+        self._host = host
+        LuxtronikSocketInterface.__init__(self, host, port_controller)
+        LuxtronikSmartHomeInterface.ModbusTcp(self, host, port_modbus)
+
+    @property
+    def _lux_lock(self):
+        return hosts_locks[self._host]
+
+    def _read_all(self, data):
+        if data is None:
+            data = LuxtronikAllData()
+        with self._lux_lock:
+            LuxtronikSocketInterface.read(self, data)
+            LuxtronikSmartHomeInterface.read(self, data)
+        return data
+
+    def read(self, data=None):
+        return self._read_all(data)
+
+    def _write_any(self, parameters_or_holdings):
+            if isinstance(parameters_or_holdings, Parameters):
+                LuxtronikSocketInterface.write(self, parameters_or_holdings)
+            elif isinstance(parameters_or_holdings, Holdings):
+                LuxtronikSmartHomeInterface.write(self, parameters_or_holdings)
+
+    def write(self, parameters_or_holdings, holdings=None):
+        with self._lux_lock:
+            self._write_any(parameters_or_holdings)
+            self._write_any(holdings)
+
+    def write_and_read(self, parameters_or_holdings, holdings=None, data=None):
+        with self._lux_lock:
+            self._write_any(parameters_or_holdings)
+            self._write_any(holdings)
+            data = self._read_all(data)
+        return data
+
+class Luxtronik(LuxtronikAllData):
     """
     Wrapper around the data and the read/write interface.
     Mainly to ensure backwards compatibility
     of the read/write interface to other projects.
     """
 
-    def __init__(self, host, port=LUXTRONIK_DEFAULT_PORT, safe=True):
+    def __init__(self, host, port=LUXTRONIK_DEFAULT_PORT, safe=True, port_modbus=LUXTRONIK_DEFAULT_MODBUS_PORT):
         super().__init__(safe=safe)
-        self.interface = LuxtronikSocketInterface(host, port)
+        self._interface = LuxtronikInterface(host, port, port_modbus)
         self.read()
 
     def read(self):
-        return self.interface.read(self)
+        self._interface.read(self)
+        return self
 
     def read_parameters(self):
-        return self.interface.read_parameters(self.parameters)
+        return self._interface.read_parameters(self.parameters)
 
     def read_calculations(self):
-        return self.interface.read_calculations(self.calculations)
+        return self._interface.read_calculations(self.calculations)
 
     def read_visibilities(self):
-        return self.interface.read_visibilities(self.visibilities)
+        return self._interface.read_visibilities(self.visibilities)
 
-    def write(self, parameters=None):
-        if parameters is None:
-            self.interface.write(self.parameters)
-        else:
-            self.interface.write(parameters)
+    def read_holdings(self):
+        return self._interface.read_holdings(self.holdings)
 
-    def write_and_read(self, parameters=None):
-        if parameters is None:
-            return self.interface.write_and_read(self.parameters, self)
+    def read_inputs(self):
+        return self._interface.read_inputs(self.inputs)
+
+    def write(self, parameters_or_holdings=None):
+        if parameters_or_holdings is None:
+            self._interface.write(self.parameters, self.holdings)
         else:
-            return self.interface.write_and_read(parameters, self)
+            self._interface.write(parameters_or_holdings)
+
+    def write_and_read(self, parameters_or_holdings=None):
+        if parameters_or_holdings is None:
+            self._interface.write_and_read(self.parameters, self.holdings, data=self)
+        else:
+            self._interface.write_and_read(parameters_or_holdings, data=self)
+        return self
