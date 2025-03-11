@@ -6,9 +6,9 @@ from typing import Final
 from luxtronik.data_vector import DataVectorModbus, LuxtronikModbusField
 
 from luxtronik.datatypes import (
+    Energy,
     FullVersion,
     Kelvin,
-    Power,
     OperationMode,
     Unknown,
 )
