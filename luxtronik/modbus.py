@@ -337,6 +337,8 @@ class LuxtronikModbusTcpInterface:
             if not success:
                 print(f"Modbus write error: addr={addr}, data={data_arr}")
             self._client.close()
+            # Give the heatpump a short time to handle the value changes:
+            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
 
     def _write_register_by_name(self, name, data_vector_class, write_raw_cb, data, safe):
         """
@@ -489,6 +491,8 @@ class LuxtronikModbusTcpInterface:
                 if not write_raw_cb(addr, data_arr):
                     print(f"Modbus write failure: addr={addr}, data={data_arr}")
             self._client.close()
+            # Give the heatpump a short time to handle the value changes:
+            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
 
 
 # Holding methods #############################################################
@@ -583,10 +587,8 @@ class LuxtronikModbusTcpInterface:
     def write(self, holdings):
         with self._modbus_lock:
             self.write_holdings(holdings)
-            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
 
     def write_and_read(self, holdings, data=None):
         with self._modbus_lock:
             self.write(holdings)
-            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
             return self.read(data)
