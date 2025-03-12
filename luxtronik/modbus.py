@@ -1,8 +1,8 @@
 
 import logging
-import threading
 from pyModbusTCP.client import ModbusClient
 
+from luxtronik.common import *
 from luxtronik.datatypes import Base
 from luxtronik.holdings import Holdings
 from luxtronik.inputs import Inputs
@@ -96,18 +96,11 @@ class LuxtronikModbusTcpInterface:
     This class is implemented as thread-safe.
     """
 
-    _management_lock = threading.Lock()
-    _interfaces_locks = {}
-
     def __init__(self, host, port=LUXTRONIK_DEFAULT_MODBUS_PORT, timeout=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT):
-        self._interface_id = f"{host}_{port}"
-
-        # Ensure a dedicated lock is created for each unique IP/port pair.
-        with self._management_lock:
-            if not self._interface_id in self._interfaces_locks:
-                self._interfaces_locks[self._interface_id] = threading.Lock()
+        add_host_to_locks(host)
 
         # Create modbus client
+        self._host = host
         self._client = ModbusClient(
             host=host,
             port=port,
@@ -120,9 +113,8 @@ class LuxtronikModbusTcpInterface:
         pass
 
     @property
-    def _if_lock(self):
-        """Return the lock for this interface instance."""
-        return self._interfaces_locks[self._interface_id]
+    def _modbus_lock(self):
+        return hosts_locks[self._host]
 
 
 # Helper methods ##############################################################
@@ -148,7 +140,7 @@ class LuxtronikModbusTcpInterface:
             print(f"Modbus read operation aborted. No data requested: addr={addr}, count={count}")
             return [None]
 
-        with self._if_lock:
+        with self._modbus_lock:
             if not self._client.open():
                 print(f"Modbus connection failed: addr={addr}, count={count}")
                 self._client.close()
@@ -297,7 +289,7 @@ class LuxtronikModbusTcpInterface:
             contiguous[-1].add(index, count, field, definition)
             next_index = index + count
 
-        with self._if_lock:
+        with self._modbus_lock:
             if not self._client.open():
                 print(f"Modbus connection failed.")
                 self._client.close()
@@ -334,7 +326,7 @@ class LuxtronikModbusTcpInterface:
             print(f"Modbus write operation aborted. No data to write: addr={addr}, data={data_arr}")
             return
 
-        with self._if_lock:
+        with self._modbus_lock:
             if not self._client.open():
                 print(f"Modbus connection failed: addr={addr}, count={count}")
                 self._client.close()
@@ -482,7 +474,7 @@ class LuxtronikModbusTcpInterface:
             contiguous[-1].add(index, count, field, definition, data_arr)
             next_index = index + count
 
-        with self._if_lock:
+        with self._modbus_lock:
             if not self._client.open():
                 print(f"Modbus connection failed.")
                 self._client.close()
@@ -583,14 +575,18 @@ class LuxtronikModbusTcpInterface:
     def read(self, data=None):
         if data is None:
             data = LuxtronikSmartHomeData()
-        self.read_holdings(data.holdings)
-        self.read_inputs(data.inputs)
+        with self._modbus_lock:
+            self.read_holdings(data.holdings)
+            self.read_inputs(data.inputs)
         return data
 
     def write(self, holdings):
-        self.write_holdings(holdings)
+        with self._modbus_lock:
+            self.write_holdings(holdings)
+            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
 
     def write_and_read(self, holdings, data=None):
-        self.write(holdings)
-        time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
-        return self.read(data)
+        with self._modbus_lock:
+            self.write(holdings)
+            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
+            return self.read(data)
