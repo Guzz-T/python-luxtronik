@@ -575,8 +575,10 @@ class LuxtronikModbusTcpInterface:
 
 
 # Full read/write methods #####################################################
+# Be careful with method names!
+# Identical named methods could be overridden in a derived class.
 
-    def read(self, data=None):
+    def _modbus_read(self, data):
         if data is None:
             data = LuxtronikSmartHomeData()
         with self._modbus_lock:
@@ -584,11 +586,17 @@ class LuxtronikModbusTcpInterface:
             self.read_inputs(data.inputs)
         return data
 
-    def write(self, holdings):
+    def _modbus_write(self, holdings):
         with self._modbus_lock:
             self.write_holdings(holdings)
 
+    def read(self, data=None):
+        return self._modbus_read(data)
+
+    def write(self, holdings):
+        self._modbus_write(holdings)
+
     def write_and_read(self, holdings, data=None):
         with self._modbus_lock:
-            self.write(holdings)
-            return self.read(data)
+            self._modbus_write(holdings)
+            return self._modbus_read(data)

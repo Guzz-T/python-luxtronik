@@ -301,7 +301,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
     def _lux_lock(self):
         return hosts_locks[self._host]
 
-    def read(self, data=None):
+    def _read_all(self, data):
         if data is None:
             data = LuxtronikAllData()
         with self._lux_lock:
@@ -309,7 +309,10 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
             LuxtronikModbusTcpInterface.read(self, data)
         return data
 
-    def _write(self, parameters_or_holdings):
+    def read(self, data=None):
+        return self._read_all(data)
+
+    def _write_any(self, parameters_or_holdings):
             if isinstance(parameters_or_holdings, Parameters):
                 LuxtronikSocketInterface.write(self, parameters_or_holdings)
             elif isinstance(parameters_or_holdings, Holdings):
@@ -317,14 +320,14 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
 
     def write(self, parameters_or_holdings, holdings=None):
         with self._lux_lock:
-            self._write(parameters_or_holdings)
-            self._write(holdings)
+            self._write_any(parameters_or_holdings)
+            self._write_any(holdings)
 
     def write_and_read(self, parameters_or_holdings, holdings=None, data=None):
         with self._lux_lock:
-            self._write(parameters_or_holdings)
-            self._write(holdings)
-            data = self.read(data)
+            self._write_any(parameters_or_holdings)
+            self._write_any(holdings)
+            data = self._read_all(data)
         return data
 
 class Luxtronik(LuxtronikAllData):
