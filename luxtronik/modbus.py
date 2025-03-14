@@ -1,5 +1,6 @@
 
 import logging
+import time
 from pyModbusTCP.client import ModbusClient
 
 from luxtronik.common import *
