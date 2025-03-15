@@ -8,7 +8,9 @@ from luxtronik.data_vector import DataVectorModbus, LuxtronikModbusField
 from luxtronik.datatypes import (
     Energy,
     FullVersion,
+    HeatPumpState,
     Kelvin,
+    ModeState,
     OperationMode,
     Unknown,
 )
@@ -16,10 +18,10 @@ from luxtronik.datatypes import (
 
 INPUTS_DEFINITIONS = [
     # [Index, Count, DataType, Writeable, Names]
-    [   0, 1, Unknown,       False, ["Unknown_Inputs_0"]], # 1 if heatpump runs (either heat or hot_water) else 0 -> Compressor?
+    [   0, 1, HeatPumpState, False, ["Heatpump_state"]],
     [   2, 1, OperationMode, False, ["Operation_mode"]],
-    [   3, 1, Unknown,       False, ["Unknown_Inputs_3"]], # Heat request. 1 -> no request, 2 -> heat request from master / heat requested, 3 -> heat request at slave / heat running
-    [   4, 1, Unknown,       False, ["Unknown_Inputs_4"]], # Hot_water request. 0 -> disabled, 1 -> no request, 3 -> hot_water request at slave / hot_water running
+    [   3, 1, ModeState,     False, ["Heating_state"]],
+    [   4, 1, ModeState,     False, ["Hot_water_state"]],
     [   6, 1, Unknown,       False, ["Unknown_Inputs_6"]],
     [   7, 1, Unknown,       False, ["Unknown_Inputs_7"]],
     [ 100, 1, Kelvin,        False, ["TRL"]],
