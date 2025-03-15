@@ -6,10 +6,10 @@ from typing import Final
 from luxtronik.data_vector import DataVectorModbus, LuxtronikModbusField
 
 from luxtronik.datatypes import (
+    Celsius,
     Energy,
     FullVersion,
     HeatPumpState,
-    Kelvin,
     ModeState,
     OperationMode,
     Unknown,
@@ -24,30 +24,30 @@ INPUTS_DEFINITIONS = [
     [   4, 1, ModeState,     False, ["Hot_water_state"]],
     [   6, 1, Unknown,       False, ["Unknown_Inputs_6"]],
     [   7, 1, Unknown,       False, ["Unknown_Inputs_7"]],
-    [ 100, 1, Kelvin,        False, ["TRL"]],
-    [ 101, 1, Kelvin,        False, ["TRL_target"]],
-    [ 102, 1, Kelvin,        False, ["TRL_ext"]],
-    [ 103, 1, Kelvin,        False, ["TRL_limit"]],
-    [ 104, 1, Kelvin,        False, ["TRL_min_target"]],
-    [ 105, 1, Kelvin,        False, ["TVL"]],
+    [ 100, 1, Celsius,       False, ["TRL"]],
+    [ 101, 1, Celsius,       False, ["TRL_target"]],
+    [ 102, 1, Celsius,       False, ["TRL_ext"]],
+    [ 103, 1, Celsius,       False, ["TRL_limit"]],
+    [ 104, 1, Celsius,       False, ["TRL_min_target"]],
+    [ 105, 1, Celsius,       False, ["TVL"]],
     [ 106, 1, Unknown,       False, ["Unknown_Inputs_106"]],
-    [ 107, 1, Kelvin,        False, ["Inside_temp"]],
-    [ 108, 1, Kelvin,        False, ["Outside_temp"]],
-    [ 120, 1, Kelvin,        False, ["Hot_water_temp"]],
-    [ 121, 1, Kelvin,        False, ["Hot_water_target"]],
-    [ 122, 1, Kelvin,        False, ["Hot_water_min"]],
-    [ 123, 1, Kelvin,        False, ["Hot_water_max"]],
+    [ 107, 1, Celsius,       False, ["Inside_temp"]],
+    [ 108, 1, Celsius,       False, ["Outside_temp"]],
+    [ 120, 1, Celsius,       False, ["Hot_water_temp"]],
+    [ 121, 1, Celsius,       False, ["Hot_water_target"]],
+    [ 122, 1, Celsius,       False, ["Hot_water_min"]],
+    [ 123, 1, Celsius,       False, ["Hot_water_max"]],
     [ 124, 1, Unknown,       False, ["Unknown_Inputs_124"]], # hot_water idle -> 405, hot_water running -> 525
-    [ 140, 1, Kelvin,        False, ["MK1_heat_temp"]],
-    [ 141, 1, Kelvin,        False, ["MK1_heat_target"]],
+    [ 140, 1, Celsius,       False, ["MK1_heat_temp"]],
+    [ 141, 1, Celsius,       False, ["MK1_heat_target"]],
     [ 142, 1, Unknown,       False, ["Unknown_Inputs_142"]], # MK1_cool_temp?
     [ 143, 1, Unknown,       False, ["Unknown_Inputs_143"]], # MK1_cool_target?
-    [ 150, 1, Kelvin,        False, ["MK2_heat_temp"]],
-    [ 151, 1, Kelvin,        False, ["MK2_heat_target"]],
+    [ 150, 1, Celsius,       False, ["MK2_heat_temp"]],
+    [ 151, 1, Celsius,       False, ["MK2_heat_target"]],
     [ 152, 1, Unknown,       False, ["Unknown_Inputs_152"]], # MK2_cool_temp?
     [ 153, 1, Unknown,       False, ["Unknown_Inputs_153"]], # MK2_cool_target?
-    [ 160, 1, Kelvin,        False, ["MK3_heat_temp"]],
-    [ 161, 1, Kelvin,        False, ["MK3_heat_target"]],
+    [ 160, 1, Celsius,       False, ["MK3_heat_temp"]],
+    [ 161, 1, Celsius,       False, ["MK3_heat_target"]],
     [ 162, 1, Unknown,       False, ["Unknown_Inputs_162"]], # MK3_cool_temp?
     [ 163, 1, Unknown,       False, ["Unknown_Inputs_163"]], # MK3_cool_target?
     [ 201, 1, Unknown,       False, ["Unknown_Inputs_201"]],
