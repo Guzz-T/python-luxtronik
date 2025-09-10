@@ -16,7 +16,6 @@ from luxtronik.constants import (
 
 LOGGER = logging.getLogger("Luxtronik.Modbus")
 
-
 class LuxtronikSmartHomeData:
 
     def __init__(self, holdings=None, inputs=None, safe=True):
@@ -120,6 +119,14 @@ class LuxtronikModbusTcpInterface:
 
 # Helper methods ##############################################################
 
+    def _log_warning(self, warning):
+        #print(warning)
+        LOGGER.warning(warning)
+
+    def _log_error(self, error):
+        #print(error)
+        LOGGER.error(error)
+
     def _get_index_from_name(self, name):
         """Extract the index of an 'unknown' identifier (e.g. Unknown_Input_105)."""
         name_parts = name.split("_")
@@ -138,12 +145,12 @@ class LuxtronikModbusTcpInterface:
         Returns a list of read register values.
         """
         if count <= 0:
-            print(f"Modbus read operation aborted. No data requested: addr={addr}, count={count}")
+            self._log_error(f"Modbus read operation aborted. No data requested: addr={addr}, count={count}")
             return [None]
 
         with self._modbus_lock:
             if not self._client.open():
-                print(f"Modbus connection failed: addr={addr}, count={count}")
+                self._log_error(f"Modbus connection failed: addr={addr}, count={count}")
                 self._client.close()
                 return [None] * count
 
@@ -152,15 +159,15 @@ class LuxtronikModbusTcpInterface:
 
             # Return an array as the output if the read operation fails.
             if data_arr is None:
-                print(f"Modbus read operation failed: addr={addr}, count={count}")
+                self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
                 return [None] * count
 
             if len(data_arr) < count:
                 data_arr += [0] * (count - len(data_arr))
-                print(f"Modbus read operation failed: addr={addr}, count={count}")
+                self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
             elif len(data_arr) > count:
                 data_arr = data_arr[:count]
-                print(f"Modbus read operation failed: addr={addr}, count={count}")
+                self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
 
             return data_arr
 
@@ -181,12 +188,12 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' names by extracting the index
             index = self._get_index_from_name(name)
             if index is None:
-                print(f"Abort modbus read. Cannot determine address by name: name={name}")
+                self._log_warning(f"Abort modbus read. Cannot determine address by name: name={name}")
                 return None
             count = 1
             field = data_vector_class.create_unknown(index)
         else:
-            print(f"Abort modbus read. Cannot determine address by name: name={name}")
+            self._log_warning(f"Abort modbus read. Cannot determine address by name: name={name}")
             return None
 
         addr = index + data_vector_class.offset
@@ -210,12 +217,12 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' fields by extracting the index
             index = self._get_index_from_name(field.name)
             if index is None:
-                print(f"Abort modbus read. Cannot determine address by field: name={field.name}")
+                self._log_warning(f"Abort modbus read. Cannot determine address by field: name={field.name}")
                 return None
             count = 1
             field = data_vector_class.create_unknown(index)
         else:
-            print(f"Abort modbus read. Cannot determine address by field: name={field.name}")
+            self._log_warning(f"Abort modbus read. Cannot determine address by field: name={field.name}")
             return None
 
         addr = index + data_vector_class.offset
@@ -261,7 +268,7 @@ class LuxtronikModbusTcpInterface:
         elif isinstance(field_or_name_or_idx, int):
             return self._read_register_by_index(field_or_name_or_idx, data_vector_class, read_raw_cb)
         else:
-            print(f"Abort Modbus read. Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
+            self._log_warning(f"Abort Modbus read. Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
             return None
 
     def _read_fields(self, data_vector, read_raw_cb):
@@ -292,7 +299,7 @@ class LuxtronikModbusTcpInterface:
 
         with self._modbus_lock:
             if not self._client.open():
-                print(f"Modbus connection failed.")
+                self._log_error(f"Modbus connection failed.")
                 self._client.close()
                 return
 
@@ -305,7 +312,7 @@ class LuxtronikModbusTcpInterface:
                 data_arr = read_raw_cb(addr, count)
 
                 if data_arr is None:
-                    print(f"Modbus read operation failed: addr={addr}, count={count}")
+                    self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
                     data_arr = [None]
                 # Integrate the read data into the entry
                 entry.integrate_data(data_arr)
@@ -324,19 +331,19 @@ class LuxtronikModbusTcpInterface:
         if isinstance(data_arr, int):
             data_arr = [data_arr]
         if data_arr is None or len(data_arr) <= 0:
-            print(f"Modbus write operation aborted. No data to write: addr={addr}, data={data_arr}")
+            self._log_warning(f"Modbus write operation aborted. No data to write: addr={addr}, data={data_arr}")
             return
 
         with self._modbus_lock:
             if not self._client.open():
-                print(f"Modbus connection failed: addr={addr}, count={count}")
+                self._log_error(f"Modbus connection failed: addr={addr}, count={count}")
                 self._client.close()
                 return
 
             # Write len(data_arr) x 16 bits registers at modbus address "addr"
             success = write_reg_cb(addr, data_arr)
             if not success:
-                print(f"Modbus write error: addr={addr}, data={data_arr}")
+                self._log_error(f"Modbus write error: addr={addr}, data={data_arr}")
             self._client.close()
             # Give the heatpump a short time to handle the value changes:
             time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
@@ -358,18 +365,18 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' fields by extracting the index
             index = self._get_index_from_name(name)
             if index is None:
-                print(f"Abort modbus write. Cannot determine address by name: name={name}")
+                self._log_warning(f"Abort modbus write. Cannot determine address by name: name={name}")
                 return
             writeable = False
         else:
-            print(f"Abort modbus write. Cannot determine address by name: name={name}")
+            self._log_warning(f"Abort modbus write. Cannot determine address by name: name={name}")
             return
 
         addr = index + data_vector_class.offset
         if (not safe) or writeable:
             self.write_holding_raw(addr, data_arr)
         else:
-            print(f"Modbus write failure. Field marked as non-writeable: name={name}, data={data_arr}")
+            self._log_warning(f"Modbus write failure. Field marked as non-writeable: name={name}, data={data_arr}")
 
     def _write_register_by_field(self, field, data_vector_class, write_raw_cb, data, safe):
         """
@@ -390,18 +397,18 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' fields by extracting the index
             index = self._get_index_from_name(field.name)
             if index is None:
-                print(f"Abort modbus write. Cannot determine address by name: name={field.name}")
+                self._log_warning(f"Abort modbus write. Cannot determine address by name: name={field.name}")
                 return
             writeable = False
         else:
-            print(f"Abort modbus write. Cannot determine address by name: name={field.name}")
+            self._log_warning(f"Abort modbus write. Cannot determine address by name: name={field.name}")
             return
 
         addr = index + data_vector_class.offset
         if (not safe) or writeable:
             self.write_holding_raw(addr, data_arr)
         else:
-            print(f"Modbus write failure. Field marked as non-writeable: name={field.name}, data={data_arr}")
+            self._log_warning(f"Modbus write failure. Field marked as non-writeable: name={field.name}, data={data_arr}")
 
     def _write_register_by_index(self, index, data_vector_class, write_raw_cb, data, safe):
         """
@@ -424,7 +431,7 @@ class LuxtronikModbusTcpInterface:
         if (not safe) or writeable:
             self.write_holding_raw(addr, data_arr)
         else:
-            print(f"Modbus write failure. Field marked as non-writeable: idx={index}, data={data_arr}")
+            self._log_warning(f"Modbus write failure. Field marked as non-writeable: idx={index}, data={data_arr}")
 
     def _write_field(self, field_or_name_or_idx, data_vector_class, write_raw_cb, data, safe):
         """
@@ -439,7 +446,7 @@ class LuxtronikModbusTcpInterface:
         elif isinstance(field_or_name_or_idx, int):
             return self._write_register_by_index(field_or_name_or_idx, data_vector_class, write_raw_cb, data, safe)
         else:
-            print(f"Abort modbus write. Passed data invalid: field_or_name_or_idx={field_or_name_or_idx}")
+            self._log_warning(f"Abort modbus write. Passed data invalid: field_or_name_or_idx={field_or_name_or_idx}")
             return None
 
     def _write_fields(self, data_vector, write_raw_cb):
@@ -467,7 +474,7 @@ class LuxtronikModbusTcpInterface:
                 count = 1
                 writeable = False
             if data_vector.safe and not writeable:
-                print(f"Skip modbus write. Field marked as non-writeable: field={field.name}")
+                self._log_warning(f"Skip modbus write. Field marked as non-writeable: field={field.name}")
                 continue
             data_arr = definition.get_raw(field)
             # Create a new contiguous block if the current index doesn't follow the previous
@@ -479,7 +486,7 @@ class LuxtronikModbusTcpInterface:
 
         with self._modbus_lock:
             if not self._client.open():
-                print(f"Modbus connection failed.")
+                self._log_error(f"Modbus connection failed.")
                 self._client.close()
                 return
 
@@ -490,7 +497,7 @@ class LuxtronikModbusTcpInterface:
                 data_arr = entry.get_data_arr()
                 addr = index + data_vector.offset
                 if not write_raw_cb(addr, data_arr):
-                    print(f"Modbus write failure: addr={addr}, data={data_arr}")
+                    self._log_error(f"Modbus write failure: addr={addr}, data={data_arr}")
             self._client.close()
             # Give the heatpump a short time to handle the value changes:
             time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
