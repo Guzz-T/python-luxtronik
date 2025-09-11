@@ -16,8 +16,8 @@ from luxtronik.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 
 
 def watch_shi():
-    """Watch all value changes from the Smart-Home-Interface of the Luxtronik controller"""
     # pylint: disable=duplicate-code
+    """Watch all value changes from the Smart-Home-Interface of the Luxtronik controller"""
     parser = argparse.ArgumentParser(description="Watch all value changes from the Smart-Home-Interface of the Luxtronik controller")
     parser.add_argument("ip", help="IP address of Luxtronik controller to connect to")
     parser.add_argument(
