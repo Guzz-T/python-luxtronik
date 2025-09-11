@@ -885,6 +885,7 @@ class ControlMode(SelectionBase):
         0: "Off",       # System value is used
         1: "Setpoint",  # Setpoint register value is used
         2: "Offset",    # System values + offset register value is used
+        3: "Level",
     }
 
 
@@ -910,6 +911,27 @@ class LockMode(SelectionBase):
         1: "Locked / On",
     }
 
+class OnOffMode(SelectionBase):
+    """OnOffMode datatype, converts from and to list of OnOffMode codes."""
+
+    datatype_class = "selection"
+
+    codes = {
+        0: "Off",       # Function deactivated
+        1: "On",        # Function activated
+    }
+
+class LevelMode(SelectionBase):
+    """LevelMode datatype, converts from and to list of LevelMode codes."""
+
+    datatype_class = "selection"
+
+    codes = {
+        0: "Normal",     # No correction
+        1: "Increased",  # Increase the temperature by the values within the SHI-settings
+        2: "Increased",  # Increase the temperature by the values within the SHI-settings
+        3: "Decreased",  # Decrease the temperature by the values within the SHI-settings
+    }
 
 class PowerLimit(ScalingBase):
     """PowerLimit datatype, converts from and to PowerLimit."""
