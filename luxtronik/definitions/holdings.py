@@ -1,11 +1,9 @@
 """
-Constant list containing all 'holdings' definitions
-used by the Smart Home Interface (SHI) of the Luxtronik controller.
-
-Unlike the setting registers, these SHI register are volatile and intended for
-communication with smart home systems. 'Holding' registers are readable
-and writable and are used to control the heat pump externally.
+Constant list containing the complete holdings definitions.
 """
+from typing import Final
+
+from luxtronik.data_vector import LuxtronikModbusField
 from luxtronik.datatypes import (
     Celsius,
     ControlMode,
@@ -15,6 +13,7 @@ from luxtronik.datatypes import (
     LpcMode,
     OnOffMode,
     PowerLimit,
+    Unknown,
 )
 
 HOLDINGS_DEFINITIONS_LIST = [
@@ -35,8 +34,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "writeable": True,
         "range": {"min": 15, "max": 75},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for the heating function",
+        "description": "Desired target temperature for heating in °C",
     },
     {
         "index": 2,
@@ -46,8 +44,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "writeable": True,
         "range": {"min": 0, "max": 20},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for the heating function",
+        "description": "Temperature correction in Kelvin for heating",
     },
     {
         "index": 3,
@@ -56,8 +53,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "type": LevelMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Increase or decrease the heating temperature " \
-            "using the SHI offset settings.",
+        "description": "Increase or decrease the temperature by the SHI-offsets-setting",
     },
     {
         "index": 5,
@@ -76,8 +72,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "writeable": True,
         "range": {"min": 30, "max": 75},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for hot water",
+        "description": "Target temperature for hot water in °C",
     },
     {
         "index": 7,
@@ -87,8 +82,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "writeable": True,
         "range": {"min": 0, "max": 20},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for hot water",
+        "description": "Temperature correction in Kelvin for hot water",
     },
     {
         "index": 8,
@@ -97,229 +91,213 @@ HOLDINGS_DEFINITIONS_LIST = [
         "type": LevelMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Increase or decrease the hot water temperature " \
-            "using the SHI offset settings.",
+        "description": "Increase or decrease the temperature by the SHI-offsets-setting",
     },
     {
         "index": 10,
         "count": 1,
-        "names": ["mc1_heat_mode"],
+        "names": ["MK1_heat_mode"],
         "type": ControlMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Operating mode for mixing circuit 1 in heating mode",
+        "description": "Operating mode for heating circuit 1",
     },
     {
         "index": 11,
         "count": 1,
-        "names": ["mc1_heat_setpoint"],
+        "names": ["MK1_heat_setpoint"],
         "type": Celsius,
         "writeable": True,
         "range": {"min": 20, "max": 65},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for mixing circuit 1 in heating mode",
+        "description": "Target temperature for heating circuit 1 in °C",
     },
     {
         "index": 12,
         "count": 1,
-        "names": ["mc1_heat_offset"],
+        "names": ["MK1_heat_offset"],
         "type": Kelvin,
         "writeable": True,
         "range": {"min": 0, "max": 5},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for mixing circuit 1 in heating mode",
+        "description": "Temperature correction in Kelvin for heating circuit 1",
     },
     {
         "index": 13,
         "count": 1,
-        "names": ["mc1_heat_level"],
+        "names": ["MK1_heat_level"],
         "type": LevelMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Increase or decrease the mixing circuit 1 temperature " \
-            "using the SHI offset settings.",
+        "description": "Increase or decrease the temperature by the SHI-offsets-setting",
     },
     {
         "index": 15,
         "count": 1,
-        "names": ["mc1_cool_mode"],
+        "names": ["MK1_cool_mode"],
         "type": ControlMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Operating mode for mixing circuit 1 in cooling mode",
+        "description": "Operating mode for cooling circuit 1",
     },
     {
         "index": 16,
         "count": 1,
-        "names": ["mc1_cool_setpoint"],
+        "names": ["MK1_cool_setpoint"],
         "type": Celsius,
         "writeable": True,
         "range": {"min": 5, "max": 25},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for mixing circuit 1 in cooling mode",
+        "description": "Target temperature for cooling circuit 1 in °C",
     },
     {
         "index": 17,
         "count": 1,
-        "names": ["mc1_cool_offset"],
+        "names": ["MK1_cool_offset"],
         "type": Kelvin,
         "writeable": True,
         "range": {"min": 0, "max": 5},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for mixing circuit 1 in cooling mode",
+        "description": "Temperature correction in Kelvin for cooling circuit 1",
     },
     {
         "index": 20,
         "count": 1,
-        "names": ["mc2_heat_mode"],
+        "names": ["MK2_heat_mode"],
         "type": ControlMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Operating mode for mixing circuit 2 in heating mode",
+        "description": "Operating mode for heating circuit 2",
     },
     {
         "index": 21,
         "count": 1,
-        "names": ["mc2_heat_setpoint"],
+        "names": ["MK2_heat_setpoint"],
         "type": Celsius,
         "writeable": True,
         "range": {"min": 20, "max": 65},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for mixing circuit 2 in heating mode",
+        "description": "Target temperature for heating circuit 2 in °C",
     },
     {
         "index": 22,
         "count": 1,
-        "names": ["mc2_heat_offset"],
+        "names": ["MK2_heat_offset"],
         "type": Kelvin,
         "writeable": True,
         "range": {"min": 0, "max": 5},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for mixing circuit 2 in heating mode",
+        "description": "Temperature correction in Kelvin for heating circuit 2",
     },
     {
         "index": 23,
         "count": 1,
-        "names": ["mc2_heat_level"],
+        "names": ["MK2_heat_level"],
         "type": LevelMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Increase or decrease the mixing circuit 2 temperature " \
-            "using the SHI offset settings.",
+        "description": "Increase or decrease the temperature by the SHI-offsets-setting",
     },
     {
         "index": 25,
         "count": 1,
-        "names": ["mc2_cool_mode"],
+        "names": ["MK2_cool_mode"],
         "type": ControlMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Operating mode for mixing circuit 2 in cooling mode",
+        "description": "Operating mode for cooling circuit 2",
     },
     {
         "index": 26,
         "count": 1,
-        "names": ["mc2_cool_setpoint"],
+        "names": ["MK2_cool_setpoint"],
         "type": Celsius,
         "writeable": True,
         "range": {"min": 5, "max": 25},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for mixing circuit 2 in cooling mode",
+        "description": "Target temperature for cooling circuit 2 in °C",
     },
     {
         "index": 27,
         "count": 1,
-        "names": ["mc2_cool_offset"],
+        "names": ["MK2_cool_offset"],
         "type": Kelvin,
         "writeable": True,
         "range": {"min": 0, "max": 5},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for mixing circuit 2 in cooling mode",
+        "description": "Temperature correction in Kelvin for cooling circuit 2",
     },
     {
         "index": 30,
         "count": 1,
-        "names": ["mc3_heat_mode"],
+        "names": ["MK3_heat_mode"],
         "type": ControlMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Operating mode for mixing circuit 3 in heating mode",
+        "description": "Operating mode for heating circuit 3",
     },
     {
         "index": 31,
         "count": 1,
-        "names": ["mc3_heat_setpoint"],
+        "names": ["MK3_heat_setpoint"],
         "type": Celsius,
         "writeable": True,
         "range": {"min": 20, "max": 65},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for mixing circuit 3 in heating mode",
+        "description": "Target temperature for heating circuit 3 in °C",
     },
     {
         "index": 32,
         "count": 1,
-        "names": ["mc3_heat_offset"],
+        "names": ["MK3_heat_offset"],
         "type": Kelvin,
         "writeable": True,
         "range": {"min": 0, "max": 5},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for mixing circuit 3 in heating mode",
+        "description": "Temperature correction in Kelvin for heating circuit 3",
     },
     {
         "index": 33,
         "count": 1,
-        "names": ["mc3_heat_level"],
+        "names": ["MK3_heat_level"],
         "type": LevelMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Increase or decrease the mixing circuit 3 temperature " \
-            "using the SHI offset settings.",
+        "description": "Increase or decrease the temperature by the SHI-offsets-setting",
     },
     {
         "index": 35,
         "count": 1,
-        "names": ["mc3_cool_mode"],
+        "names": ["MK3_cool_mode"],
         "type": ControlMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Operating mode for mixing circuit 3 in cooling mode",
+        "description": "Operating mode for cooling circuit 3",
     },
     {
         "index": 36,
         "count": 1,
-        "names": ["mc3_cool_setpoint"],
+        "names": ["MK3_cool_setpoint"],
         "type": Celsius,
         "writeable": True,
         "range": {"min": 5, "max": 25},
         "since": "3.90.1",
-        "description": "Desired target temperature in °C " \
-            "for mixing circuit 3 in cooling mode",
+        "description": "Target temperature for cooling circuit 3 in °C",
     },
     {
         "index": 37,
         "count": 1,
-        "names": ["mc3_cool_offset"],
+        "names": ["MK3_cool_offset"],
         "type": Kelvin,
         "writeable": True,
         "range": {"min": 0, "max": 5},
         "since": "3.90.1",
-        "description": "Temperature correction in Kelvin " \
-            "for mixing circuit 3 in cooling mode",
+        "description": "Temperature correction in Kelvin for cooling circuit 3",
     },
     {
         "index": 40,
         "count": 1,
-        "names": ["lpc_mode"],
+        "names": ["LPC_mode"],
         "type": LpcMode,
         "writeable": True,
         "since": "3.90.1",
@@ -328,7 +306,7 @@ HOLDINGS_DEFINITIONS_LIST = [
     {
         "index": 41,
         "count": 1,
-        "names": ["pc_limit"],
+        "names": ["PC_limit"],
         "type": PowerLimit,
         "writeable": True,
         "range": {"min": 0, "max": 30},
@@ -342,7 +320,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "type": LockMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Lock state for the heating function",
+        "description": "Lock state for heating",
     },
     {
         "index": 51,
@@ -351,7 +329,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "type": LockMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Lock state for the hot water system",
+        "description": "Lock state for hot water",
     },
     {
         "index": 52,
@@ -360,7 +338,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "type": LockMode,
         "writeable": True,
         "since": "3.90.1",
-        "description": "Lock state for the cooling function",
+        "description": "Lock state for cooling",
     },
     {
         "index": 53,
@@ -388,8 +366,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "writeable": True,
         "range": {"min": 0, "max": 20},
         "since": "3.92.0",
-        "description": "Temperature correction in Kelvin " \
-            "for all heating functions",
+        "description": "Temperature correction in Kelvin for all heating functions",
     },
     {
         "index": 67,
@@ -398,8 +375,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "type": LevelMode,
         "writeable": True,
         "since": "3.92.0",
-        "description": "Increase or decrease all heating temperatures " \
-            "using the SHI offset settings.",
+        "description": "Increase or decrease all temperatures by the SHI-offsets-setting",
     },
     {
         "index": 70,
@@ -420,3 +396,7 @@ HOLDINGS_DEFINITIONS_LIST = [
         "description": "When set to ON, the hot water heating is activated and will run until the maximum temperature is reached.",
     },
 ]
+
+
+HOLDINGS_DEFINITIONS: Final = [LuxtronikModbusField(definition) for definition in HOLDINGS_DEFINITIONS_LIST]
+HOLDINGS_IDX_TO_DEF: Final = {definition.index: definition for definition in HOLDINGS_DEFINITIONS}

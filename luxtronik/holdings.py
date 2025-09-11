@@ -4,52 +4,7 @@ import logging
 from typing import Final
 
 from luxtronik.data_vector import DataVectorModbus, LuxtronikModbusField
-
-from luxtronik.datatypes import (
-    Celsius,
-    ControlMode,
-    Kelvin,
-    LockMode,
-    LpcMode,
-    PowerLimit,
-    Unknown,
-)
-
-
-HOLDINGS_DEFINITIONS = [
-    # [Index, Count, DataType, Writeable, Names]
-    [   0, 1, ControlMode,True,  ["Heating_mode"]],
-    [   1, 1, Celsius,    True,  ["Heating_setpoint"]],     # 15 - 75 °C
-    [   2, 1, Kelvin,     True,  ["Heating_offset"]],       # 0 - 20 K
-    [   5, 1, ControlMode,True,  ["Hot_water_mode"]],
-    [   6, 1, Celsius,    True,  ["Hot_water_setpoint"]],   # 30 - 75 °C
-    [   7, 1, Kelvin,     True,  ["Hot_water_offset"]],     # 0 - 20 K
-    [  10, 1, ControlMode,True,  ["MK1_heat_mode"]],
-    [  11, 1, Celsius,    True,  ["MK1_heat_setpoint"]],    # 20 - 65 °C
-    [  12, 1, Kelvin,     True,  ["MK1_heat_offset"]],      # 0 - 5 K
-    [  15, 1, ControlMode,True,  ["MK1_cool_mode"]],
-    [  16, 1, Celsius,    True,  ["MK1_cool_setpoint"]],    # 5 - 25 °C
-    [  17, 1, Kelvin,     True,  ["MK1_cool_offset"]],      # 0 - 5 K
-    [  20, 1, ControlMode,True,  ["MK2_heat_mode"]],
-    [  21, 1, Celsius,    True,  ["MK2_heat_setpoint"]],    # 20 - 65 °C
-    [  22, 1, Kelvin,     True,  ["MK2_heat_offset"]],      # 0 - 5 K
-    [  25, 1, ControlMode,True,  ["MK2_cool_mode"]],
-    [  26, 1, Celsius,    True,  ["MK2_cool_setpoint"]],    # 5 - 25 °C
-    [  27, 1, Kelvin,     True,  ["MK2_cool_offset"]],      # 0 - 5 K
-    [  30, 1, ControlMode,True,  ["MK3_heat_mode"]],
-    [  31, 1, Celsius,    True,  ["MK3_heat_setpoint"]],    # 20 - 65 °C
-    [  32, 1, Kelvin,     True,  ["MK3_heat_offset"]],      # 0 - 5 K
-    [  35, 1, ControlMode,True,  ["MK3_cool_mode"]],
-    [  36, 1, Celsius,    True,  ["MK3_cool_setpoint"]],    # 5 - 25 °C
-    [  37, 1, Kelvin,     True,  ["MK3_cool_offset"]],      # 0 - 5 K
-    [  40, 1, LpcMode,    True,  ["LPC_Mode"]],
-    [  41, 1, PowerLimit, True,  ["PC_Limit"]],             # 0 - 30 kW
-    [  52, 1, LockMode,   True,  ["Lock_Cooling"]],
-    [  53, 1, LockMode,   True,  ["Lock_Swimming_pool"]],
-]
-HOLDINGS_DEFINITIONS: Final = [LuxtronikModbusField(definition) for definition in HOLDINGS_DEFINITIONS]
-HOLDINGS_IDX_TO_DEF: Final = {definition.index: definition for definition in HOLDINGS_DEFINITIONS}
-
+from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS, HOLDINGS_IDX_TO_DEF
 
 class Holdings(DataVectorModbus):
     """Class that holds all Holdings."""
