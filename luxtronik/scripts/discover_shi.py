@@ -4,6 +4,7 @@
 
 """Script to scan all inputs/holdings of the Smart-Home-Interface from 10000 to 19999. Only unknown fields will be dumped."""
 import argparse
+import logging
 
 from luxtronik.scripts import *
 from luxtronik import LuxtronikModbusTcpInterface
@@ -12,6 +13,9 @@ from luxtronik.data_vector import LuxtronikModbusField
 from luxtronik.datatypes import Unknown
 from luxtronik.inputs import Inputs
 from luxtronik.holdings import Holdings
+
+LOGGER = logging.getLogger("Luxtronik.Modbus")
+logging.disable(logging.CRITICAL)
 
 def fill_with_unknown(data_vector, start, count):
     skip_count = 0

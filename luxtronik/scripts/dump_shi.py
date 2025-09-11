@@ -27,6 +27,8 @@ def dump_shi():
     client = LuxtronikModbusTcpInterface(args.ip, args.port)
     # pylint: enable=duplicate-code#
 
+    print(f"Dump SHI of {args.ip}:{args.port}")
+
     print_dump_header("Inputs")
     inputs = client.read_inputs()
     for number, field in inputs:
