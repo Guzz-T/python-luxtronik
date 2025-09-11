@@ -2,6 +2,7 @@
 
 import logging
 
+from luxtronik.constants import LUXTRONIK_MODBUS_FIRST_VERSION
 from luxtronik.datatypes import Unknown
 
 
@@ -69,17 +70,27 @@ class DataVector:
 
 
 class LuxtronikModbusField:
-    def __init__(self, args):
-        self._valid = True
-        self._index = args[0]
-        self._count = args[1]
-        self._data_type = args[2]
-        self._writeable = args[3]
-        self._names = args[4]
+    def __init__(self, dict):
+        try:
+            self._count = dict.get('count', 1)
+            self._data_type = dict.get('type', Unknown)
+            self._writeable = dict.get('writeable', False)
+            names = dict.get('names', [])
+            if isinstance(names, str):
+                names = [names]
+            self._names = names
+            self._since = dict.get('since', LUXTRONIK_MODBUS_FIRST_VERSION)
+            self._until = dict.get('until', "")
+            self._description = dict.get('description', "")
+            self._index = dict.get('index')
+            self._valid = True
+        except:
+            self._valid = False
+            self._index = 0
 
     @classmethod
     def invalid(cls):
-        obj = cls([0, 0, Unknown, False, [""]])
+        obj = cls({})
         obj._valid = False
         return obj
 
