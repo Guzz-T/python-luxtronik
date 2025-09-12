@@ -48,7 +48,7 @@ class DataVector:
                 # Get entry by name
                 target_index = None
                 for index, entry in self._data.items():
-                    if entry.name == target:
+                    if entry.name.lower() == target.lower():
                         target_index = index
         elif isinstance(target, int):
             # Get entry by id
@@ -168,10 +168,10 @@ class DataVectorModbus(DataVector):
     @classmethod
     def _get_definition_by_name(cls, name):
         for definition in cls._get_definitions():
-            if name == definition.name:
+            if name.lower() == definition.name.lower():
                 return definition
             for def_name in definition.names:
-                if name == def_name:
+                if name.lower() == def_name.lower():
                     self.logger.warning(f"'{name}' is outdated! Use '{definition.name}' instead.")
                     return definition
         return LuxtronikModbusField.invalid()
