@@ -398,5 +398,5 @@ HOLDINGS_DEFINITIONS_LIST = [
 ]
 
 
-HOLDINGS_DEFINITIONS: Final = [LuxtronikModbusField(definition) for definition in HOLDINGS_DEFINITIONS_LIST]
+HOLDINGS_DEFINITIONS: Final = [LuxtronikModbusField(definition, 'Holdings') for definition in HOLDINGS_DEFINITIONS_LIST]
 HOLDINGS_IDX_TO_DEF: Final = {definition.index: definition for definition in HOLDINGS_DEFINITIONS}

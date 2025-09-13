@@ -845,5 +845,5 @@ INPUTS_DEFINITIONS_LIST = [
     },
 ]
 
-INPUTS_DEFINITIONS: Final = [LuxtronikModbusField(definition) for definition in INPUTS_DEFINITIONS_LIST]
+INPUTS_DEFINITIONS: Final = [LuxtronikModbusField(definition, 'Inputs') for definition in INPUTS_DEFINITIONS_LIST]
 INPUTS_IDX_TO_DEF: Final = {definition.index: definition for definition in INPUTS_DEFINITIONS}

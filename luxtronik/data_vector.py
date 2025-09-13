@@ -70,7 +70,7 @@ class DataVector:
 
 
 class LuxtronikModbusField:
-    def __init__(self, dict):
+    def __init__(self, dict, type):
         try:
             self._count = dict.get('count', 1)
             self._data_type = dict.get('type', Unknown)
@@ -78,6 +78,7 @@ class LuxtronikModbusField:
             names = dict.get('names', [])
             if isinstance(names, str):
                 names = [names]
+            names += [f"Unknown_{type}_{self._count}"]
             self._names = names
             self._since = dict.get('since', LUXTRONIK_MODBUS_FIRST_VERSION)
             self._until = dict.get('until', "")
@@ -90,7 +91,7 @@ class LuxtronikModbusField:
 
     @classmethod
     def invalid(cls):
-        obj = cls({})
+        obj = cls({}, "Invalids")
         obj._valid = False
         return obj
 
@@ -156,7 +157,7 @@ class DataVectorModbus(DataVector):
     @classmethod
     def _get_definitions(cls):
         """Override this to return the field definitions."""
-        return LuxtronikModbusField.invalid()
+        return [LuxtronikModbusField.invalid()]
 
     @classmethod
     def _get_definition(cls, name_or_idx):
