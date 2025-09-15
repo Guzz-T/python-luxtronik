@@ -47,3 +47,6 @@ def main() -> int:
     sys.argv.pop(1)
     # call the corresponding command
     commands[args.command]()
+
+if __name__ == "__main__":
+    main()

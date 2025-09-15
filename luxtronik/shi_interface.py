@@ -1,9 +1,5 @@
-
 import logging
-import time
-from pyModbusTCP.client import ModbusClient
 
-from luxtronik.common import *
 from luxtronik.datatypes import Base
 from luxtronik.holdings import Holdings
 from luxtronik.inputs import Inputs
@@ -12,9 +8,16 @@ from luxtronik.constants import (
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
     LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
 )
+from luxtronik.shi_common import (
+    LuxtronikSmartHomeReadTelegram,
+    LuxtronikSmartHomeWriteTelegram,
+    ContiguousBlockData,
+    ContiguousBlock,
+)
+from luxtronik.shi_modbus import LuxtronikModbusTcpInterface
 
 
-LOGGER = logging.getLogger("Luxtronik.Modbus")
+LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
 
 class LuxtronikSmartHomeData:
 
@@ -24,108 +27,24 @@ class LuxtronikSmartHomeData:
 
 
 ###############################################################################
-# Helper classes for contiguos data
+# Smart home interface
 ###############################################################################
 
-class ContiguousBlockData:
-
-    def __init__(self, index, count, field, definition, data_arr):
-        self.index = index
-        self.count = count
-        self.field = field
-        self.definition = definition
-        self.data_arr = data_arr
-
-    def __str__(self):
-        return f"({self.index}, {self.count})"
-
-class ContiguousBlock:
-
-    def __init__(self):
-        self._contiguous_list = []
-
-    def __iter__(self):
-        return iter(self._contiguous_list)
-
-    def __str__(self):
-        list_str = ""
-        for entry in self._contiguous_list:
-            list_str += f" {entry},"
-        list_str = "[" + list_str[1:-1] + "]"
-        return f"index: {self.first_index}, count: {self.overall_count}, list: {list_str}"
-
-    def add(self, index, count, field, definition, data_arr=[None]):
-        entry = ContiguousBlockData(index, count, field, definition, data_arr)
-        self._contiguous_list += [entry]
-
-    @property
-    def first_index(self):
-        if len(self._contiguous_list) > 0:
-            return self._contiguous_list[0].index
-        else:
-            return 0
-
-    @property
-    def overall_count(self):
-        count = 0
-        for entry in self._contiguous_list:
-            count += entry.count
-        return count
-
-    def integrate_data(self, data_arr):
-        first = self.first_index
-        for entry in self._contiguous_list:
-            offset = entry.index - first
-            entry.field.raw = entry.definition.extract_raw(data_arr, offset)
-
-    def get_data_arr(self):
-        data_arr = []
-        for entry in self._contiguous_list:
-            data_arr += entry.data_arr
-        return data_arr
-
-
-###############################################################################
-# Modbus interface
-###############################################################################
-
-class LuxtronikModbusTcpInterface:
+class LuxtronikSmartHomeInterface:
     """
-    Luxtronik read/write interface using Modbus-TCP.
-    The connection is established only for reading and writing purposes.
-    This class is implemented as thread-safe.
+    Luxtronik read/write interface for the smart home registers.
     """
 
-    def __init__(self, host, port=LUXTRONIK_DEFAULT_MODBUS_PORT, timeout=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT):
-        add_host_to_locks(host)
+    def __init__(self, interface):
+        self._interface = interface
 
-        # Create modbus client
-        self._host = host
-        self._client = ModbusClient(
-            host=host,
-            port=port,
-            timeout=timeout, # in seconds
-            auto_open=False,
-            auto_close=False
-        )
-
-    def __del__(self):
-        pass
-
-    @property
-    def _modbus_lock(self):
-        return hosts_locks[self._host]
+    @classmethod
+    def ModbusTcp(cls, host, port=LUXTRONIK_DEFAULT_MODBUS_PORT, timeout=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT):
+        modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout)
+        return cls(modbus_interface)
 
 
 # Helper methods ##############################################################
-
-    def _log_warning(self, warning):
-        #print(warning)
-        LOGGER.warning(warning)
-
-    def _log_error(self, error):
-        #print(error)
-        LOGGER.error(error)
 
     def _get_index_from_name(self, name):
         """Extract the index of an 'unknown' identifier (e.g. Unknown_Input_105)."""
@@ -134,44 +53,9 @@ class LuxtronikModbusTcpInterface:
             return int(name_parts[2])
         return None
 
-
 # Common read methods #########################################################
 
-    def _read_register(self, read_reg_cb, addr, count=1):
-        """
-        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
-        The address is used directly without applying additional offsets.
-        The provided callback method determines whether input or holding registers are read.
-        Returns a list of read register values.
-        """
-        if count <= 0:
-            self._log_error(f"Modbus read operation aborted. No data requested: addr={addr}, count={count}")
-            return [None]
-
-        with self._modbus_lock:
-            if not self._client.open():
-                self._log_error(f"Modbus connection failed: addr={addr}, count={count}")
-                self._client.close()
-                return [None] * count
-
-            data_arr = read_reg_cb(addr, count)
-            self._client.close()
-
-            # Return an array as the output if the read operation fails.
-            if data_arr is None:
-                self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
-                return [None] * count
-
-            if len(data_arr) < count:
-                data_arr += [0] * (count - len(data_arr))
-                self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
-            elif len(data_arr) > count:
-                data_arr = data_arr[:count]
-                self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
-
-            return data_arr
-
-    def _read_register_by_name(self, name, data_vector_class, read_raw_cb):
+    def _read_register_by_name(self, name, data_vector_class, read_cb):
         """
         Read a field (this may correspond to multiple registers) based on its name.
         If possible, return the field object along with the read data.
@@ -188,20 +72,21 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' names by extracting the index
             index = self._get_index_from_name(name)
             if index is None:
-                self._log_warning(f"Abort modbus read. Cannot determine address by name: name={name}")
+                self.LOGGER.warning(f"Abort SHI read. Cannot determine address by name: name={name}")
                 return None
             count = 1
             field = data_vector_class.create_unknown(index)
         else:
-            self._log_warning(f"Abort modbus read. Cannot determine address by name: name={name}")
+            self.LOGGER.warning(f"Abort SHI read. Cannot determine address by name: name={name}")
             return None
 
         addr = index + data_vector_class.offset
-        data_arr = read_raw_cb(addr, count)
-        field.raw = definition.extract_raw(data_arr, 0)
+        telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+        read_cb(telegram)
+        field.raw = definition.extract_raw(telegram.data, 0)
         return field
 
-    def _read_register_by_field(self, field, data_vector_class, read_raw_cb):
+    def _read_register_by_field(self, field, data_vector_class, read_cb):
         """
         Read a field (this may correspond to multiple registers) based on its field object.
         If possible, return the field object along with the read data.
@@ -217,20 +102,21 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' fields by extracting the index
             index = self._get_index_from_name(field.name)
             if index is None:
-                self._log_warning(f"Abort modbus read. Cannot determine address by field: name={field.name}")
+                self.LOGGER.warning(f"Abort SHI read. Cannot determine address by field: name={field.name}")
                 return None
             count = 1
             field = data_vector_class.create_unknown(index)
         else:
-            self._log_warning(f"Abort modbus read. Cannot determine address by field: name={field.name}")
+            self.LOGGER.warning(f"Abort SHI read. Cannot determine address by field: name={field.name}")
             return None
 
         addr = index + data_vector_class.offset
-        data_arr = read_raw_cb(addr, count)
-        field.raw = definition.extract_raw(data_arr, 0)
+        telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+        read_cb(telegram)
+        field.raw = definition.extract_raw(telegram.data, 0)
         return field
 
-    def _read_register_by_index(self, index, data_vector_class, read_raw_cb):
+    def _read_register_by_index(self, index, data_vector_class, read_cb):
         """
         Read a field (this may correspond to multiple registers) based on its index.
         If possible, return the field object along with the read data.
@@ -250,11 +136,12 @@ class LuxtronikModbusTcpInterface:
             field = data_vector_class.create_unknown(index)
 
         addr = index + data_vector_class.offset
-        data_arr = read_raw_cb(addr, count)
-        field.raw = definition.extract_raw(data_arr, 0)
+        telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+        read_cb(telegram)
+        field.raw = definition.extract_raw(telegram.data, 0)
         return field
 
-    def _read_field(self, field_or_name_or_idx, data_vector_class, read_raw_cb):
+    def _read_field(self, field_or_name_or_idx, data_vector_class, read_cb):
         """
         Read a field (this may correspond to multiple registers) by name, index, or directly as a field object.
         Supports str (name), int (index), or field objects.
@@ -262,21 +149,21 @@ class LuxtronikModbusTcpInterface:
         The provided callback method determines whether input or holding registers are read.
         """
         if isinstance(field_or_name_or_idx, Base):
-            return self._read_register_by_field(field_or_name_or_idx, data_vector_class, read_raw_cb)
+            return self._read_register_by_field(field_or_name_or_idx, data_vector_class, read_cb)
         elif isinstance(field_or_name_or_idx, str):
-            return self._read_register_by_name(field_or_name_or_idx, data_vector_class, read_raw_cb)
+            return self._read_register_by_name(field_or_name_or_idx, data_vector_class, read_cb)
         elif isinstance(field_or_name_or_idx, int):
-            return self._read_register_by_index(field_or_name_or_idx, data_vector_class, read_raw_cb)
+            return self._read_register_by_index(field_or_name_or_idx, data_vector_class, read_cb)
         else:
-            self._log_warning(f"Abort Modbus read. Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
+            self.LOGGER.warning(f"Abort SHI read. Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
             return None
 
-    def _read_fields(self, data_vector, read_raw_cb):
+    def _read_fields(self, data_vector, read_cb):
         """Read all fields within the data_vector."""
 
         # Each register must be read individually to avoid transmission errors
         # caused by non-existent intervening registers.
-        # Contiguous register groups to optimize Modbus reads
+        # Contiguous register groups to optimize reads
         contiguous = []
         next_index = -1
         # Organize data into contiguous blocks
@@ -297,58 +184,26 @@ class LuxtronikModbusTcpInterface:
             contiguous[-1].add(index, count, field, definition)
             next_index = index + count
 
-        with self._modbus_lock:
-            if not self._client.open():
-                self._log_error(f"Modbus connection failed.")
-                self._client.close()
-                return
+        # Process each contiguous block and read the data
+        telegrams = []
+        items = []
+        for entry in contiguous:
+            index = entry.first_index
+            count = entry.overall_count
+            addr = index + data_vector.offset
+            telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+            telegrams += [telegram]
+            items += [(entry, telegram)]
 
-            # Process each contiguous block and read the data
-            for entry in contiguous:
+        read_cb(telegrams)
 
-                index = entry.first_index
-                count = entry.overall_count
-                addr = index + data_vector.offset
-                data_arr = read_raw_cb(addr, count)
-
-                if data_arr is None:
-                    self._log_error(f"Modbus read operation failed: addr={addr}, count={count}")
-                    data_arr = [None]
-                # Integrate the read data into the entry
-                entry.integrate_data(data_arr)
-
-            self._client.close()
-
+        for item in items:
+            # Integrate the read data into the entry
+            item[0].integrate_data(item[1].data)
 
 # Common write methods ########################################################
 
-    def _write_register(self, write_reg_cb, addr, data_arr):
-        """
-        Write all provided data (`data_arr`) to 16-bit registers at the specified Modbus address (`addr`).
-        The address is used directly without applying additional offsets.
-        The provided callback method determines whether input or holding registers are written.
-        """
-        if isinstance(data_arr, int):
-            data_arr = [data_arr]
-        if data_arr is None or len(data_arr) <= 0:
-            self._log_warning(f"Modbus write operation aborted. No data to write: addr={addr}, data={data_arr}")
-            return
-
-        with self._modbus_lock:
-            if not self._client.open():
-                self._log_error(f"Modbus connection failed: addr={addr}, count={count}")
-                self._client.close()
-                return
-
-            # Write len(data_arr) x 16 bits registers at modbus address "addr"
-            success = write_reg_cb(addr, data_arr)
-            if not success:
-                self._log_error(f"Modbus write error: addr={addr}, data={data_arr}")
-            self._client.close()
-            # Give the heatpump a short time to handle the value changes:
-            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
-
-    def _write_register_by_name(self, name, data_vector_class, write_raw_cb, data, safe):
+    def _write_register_by_name(self, name, data_vector_class, write_cb, data, safe):
         """
         Write all provided data (`data`) to a field (this may correspond to multiple registers) based on its name.
         The provided callback method determines whether input or holding registers are written.
@@ -365,20 +220,21 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' fields by extracting the index
             index = self._get_index_from_name(name)
             if index is None:
-                self._log_warning(f"Abort modbus write. Cannot determine address by name: name={name}")
+                self.LOGGER.warning(f"Abort SHI write. Cannot determine address by name: name={name}")
                 return
             writeable = False
         else:
-            self._log_warning(f"Abort modbus write. Cannot determine address by name: name={name}")
+            self.LOGGER.warning(f"Abort SHI write. Cannot determine address by name: name={name}")
             return
 
         addr = index + data_vector_class.offset
         if (not safe) or writeable:
-            self.write_holding_raw(addr, data_arr)
+            telegram = LuxtronikSmartHomeWriteTelegram(addr, data_arr)
+            write_cb(telegram)
         else:
-            self._log_warning(f"Modbus write failure. Field marked as non-writeable: name={name}, data={data_arr}")
+            self.LOGGER.warning(f"SHI write failure. Field marked as non-writeable: name={name}, data={data_arr}")
 
-    def _write_register_by_field(self, field, data_vector_class, write_raw_cb, data, safe):
+    def _write_register_by_field(self, field, data_vector_class, write_cb, data, safe):
         """
         Write all provided data (`data`) or the field-data to a field (this may correspond to multiple registers) based on its field object.
         The provided callback method determines whether input or holding registers are written.
@@ -397,20 +253,21 @@ class LuxtronikModbusTcpInterface:
             # Handle 'Unknown' fields by extracting the index
             index = self._get_index_from_name(field.name)
             if index is None:
-                self._log_warning(f"Abort modbus write. Cannot determine address by name: name={field.name}")
+                self.LOGGER.warning(f"Abort SHI write. Cannot determine address by name: name={field.name}")
                 return
             writeable = False
         else:
-            self._log_warning(f"Abort modbus write. Cannot determine address by name: name={field.name}")
+            self.LOGGER.warning(f"Abort SHI write. Cannot determine address by name: name={field.name}")
             return
 
         addr = index + data_vector_class.offset
         if (not safe) or writeable:
-            self.write_holding_raw(addr, data_arr)
+            telegram = LuxtronikSmartHomeWriteTelegram(addr, data_arr)
+            write_cb(telegram)
         else:
-            self._log_warning(f"Modbus write failure. Field marked as non-writeable: name={field.name}, data={data_arr}")
+            self.LOGGER.warning(f"SHI write failure. Field marked as non-writeable: name={field.name}, data={data_arr}")
 
-    def _write_register_by_index(self, index, data_vector_class, write_raw_cb, data, safe):
+    def _write_register_by_index(self, index, data_vector_class, write_cb, data, safe):
         """
         Write all provided data (`data`) to a field (this may correspond to multiple registers) based on its index.
         The provided callback method determines whether input or holding registers are written.
@@ -429,32 +286,33 @@ class LuxtronikModbusTcpInterface:
 
         addr = index + data_vector_class.offset
         if (not safe) or writeable:
-            self.write_holding_raw(addr, data_arr)
+            telegram = LuxtronikSmartHomeWriteTelegram(addr, data_arr)
+            write_cb(telegram)
         else:
-            self._log_warning(f"Modbus write failure. Field marked as non-writeable: idx={index}, data={data_arr}")
+            self.LOGGER.warning(f"SHI write failure. Field marked as non-writeable: idx={index}, data={data_arr}")
 
-    def _write_field(self, field_or_name_or_idx, data_vector_class, write_raw_cb, data, safe):
+    def _write_field(self, field_or_name_or_idx, data_vector_class, write_cb, data, safe):
         """
         Write all provided data (`data`) or the field-data to a field (this may correspond to multiple registers) by name, index, or directly as a field object.
         Supports str (name), int (index), or field objects.
         The provided callback method determines whether input or holding registers are read.
         """
         if isinstance(field_or_name_or_idx, Base):
-            return self._write_register_by_field(field_or_name_or_idx, data_vector_class, write_raw_cb, data, safe)
+            return self._write_register_by_field(field_or_name_or_idx, data_vector_class, write_cb, data, safe)
         elif isinstance(field_or_name_or_idx, str):
-            return self._write_register_by_name(field_or_name_or_idx, data_vector_class, write_raw_cb, data, safe)
+            return self._write_register_by_name(field_or_name_or_idx, data_vector_class, write_cb, data, safe)
         elif isinstance(field_or_name_or_idx, int):
-            return self._write_register_by_index(field_or_name_or_idx, data_vector_class, write_raw_cb, data, safe)
+            return self._write_register_by_index(field_or_name_or_idx, data_vector_class, write_cb, data, safe)
         else:
-            self._log_warning(f"Abort modbus write. Passed data invalid: field_or_name_or_idx={field_or_name_or_idx}")
+            self.LOGGER.warning(f"Abort SHI write. Passed data invalid: field_or_name_or_idx={field_or_name_or_idx}")
             return None
 
-    def _write_fields(self, data_vector, write_raw_cb):
+    def _write_fields(self, data_vector, write_cb):
         """Write all fields within the data_vector."""
 
         # Each register must be written individually to avoid transmission errors
         # caused by non-existent intervening registers.
-        # Contiguous register groups to optimize Modbus writes
+        # Contiguous register groups to optimize writes
         contiguous = []
         next_index = -1
         # Organize data into contiguous blocks
@@ -474,7 +332,7 @@ class LuxtronikModbusTcpInterface:
                 count = 1
                 writeable = False
             if data_vector.safe and not writeable:
-                self._log_warning(f"Skip modbus write. Field marked as non-writeable: field={field.name}")
+                self.LOGGER.warning(f"Skip SHI write. Field marked as non-writeable: field={field.name}")
                 continue
             data_arr = definition.get_raw(field)
             # Create a new contiguous block if the current index doesn't follow the previous
@@ -484,34 +342,28 @@ class LuxtronikModbusTcpInterface:
             contiguous[-1].add(index, count, field, definition, data_arr)
             next_index = index + count
 
-        with self._modbus_lock:
-            if not self._client.open():
-                self._log_error(f"Modbus connection failed.")
-                self._client.close()
-                return
+        # Process each contiguous block and read the data
+        telegrams = []
+        for entry in contiguous:
+            index = entry.first_index
+            data_arr = entry.get_data_arr()
+            addr = index + data_vector.offset
+            telegram = LuxtronikSmartHomeWriteTelegram(addr, data_arr)
+            telegrams += [telegram]
 
-            # Process each contiguous block and write the data
-            for entry in contiguous:
-
-                index = entry.first_index
-                data_arr = entry.get_data_arr()
-                addr = index + data_vector.offset
-                if not write_raw_cb(addr, data_arr):
-                    self._log_error(f"Modbus write failure: addr={addr}, data={data_arr}")
-            self._client.close()
-            # Give the heatpump a short time to handle the value changes:
-            time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
+        write_cb(telegrams)
 
 
 # Holding methods #############################################################
 
-    def read_holding_raw(self, addr, count=1):
+    def read_holding_raw(self, index, count=1):
         """
-        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
-        The address is used directly without applying additional offsets.
+        Read the specified number of 16-bit registers ('count') from the given index ('index').
         Returns a list of read register values.
         """
-        return self._read_register(self._client.read_holding_registers, addr, count)
+        telegram = LuxtronikSmartHomeReadTelegram(index + Holdings.offset, count)
+        self._interface.read_holdings(telegram)
+        return telegram.data
 
     def read_holding(self, field_or_name_or_idx):
         """
@@ -519,7 +371,7 @@ class LuxtronikModbusTcpInterface:
         Supports str (name), int (index), or field objects.
         If possible, return the field object along with the read data.
         """
-        return self._read_field(field_or_name_or_idx, Holdings, self.read_holding_raw)
+        return self._read_field(field_or_name_or_idx, Holdings, self._interface.read_holdings)
 
     def read_holdings(self, holdings=None):
         """
@@ -528,40 +380,42 @@ class LuxtronikModbusTcpInterface:
         """
         if holdings is None:
             holdings = Holdings()
-        self._read_fields(holdings, self._client.read_holding_registers)
+        self._read_fields(holdings, self._interface.read_holdings)
         return holdings
 
-    def write_holding_raw(self, addr, data_arr):
+    def write_holding_raw(self, index, data_arr):
         """
-        Write all provided data (`data_arr`) to 16-bit registers at the specified Modbus address (`addr`).
+        Write all provided data (`data_arr`) to 16-bit registers at the specified address (`index`).
         The address is used directly without applying additional offsets.
         """
-        self._write_register(self._client.write_multiple_registers, addr, data_arr)
+        telegram = LuxtronikSmartHomeWriteTelegram(index + Holdings.offset, data_arr)
+        self._interface.write_holdings(telegram)
 
     def write_holding(self, field_or_name_or_idx, data=None, safe=True):
         """
         Write all provided data (`data`) or the field-data to a field (this may correspond to multiple registers) by name, index, or directly as a field object.
         Supports str (name), int (index), or field objects.
         """
-        self._write_field(field_or_name_or_idx, Holdings, self.write_holding_raw, data, safe)
+        self._write_field(field_or_name_or_idx, Holdings, self._interface.write_holdings, data, safe)
 
     def write_holdings(self, holdings):
         """
         Write all fields within the data_vector.
         Return the provided object, or if none is provided, return the newly created object.
         """
-        self._write_fields(holdings, self._client.write_multiple_registers)
-
+        self._write_fields(holdings, self._interface.write_holdings)
 
 # Inputs methods ##############################################################
 
-    def read_input_raw(self, register, count=1):
+    def read_input_raw(self, index, count=1):
         """
-        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
+        Read the specified number of 16-bit registers ('count') from the given address ('index').
         The address is used directly without applying additional offsets.
         Returns a list of read register values.
         """
-        return self._read_register(self._client.read_input_registers, register, count)
+        telegram = LuxtronikSmartHomeReadTelegram(index + Inputs.offset, count)
+        self._interface.read_inputs(telegram)
+        return telegram.data
 
     def read_input(self, field_or_name_or_idx):
         """
@@ -569,7 +423,7 @@ class LuxtronikModbusTcpInterface:
         Supports str (name), int (index), or field objects.
         If possible, return the field object along with the read data.
         """
-        return self._read_field(field_or_name_or_idx, Inputs, self.read_input_raw)
+        return self._read_field(field_or_name_or_idx, Inputs, self._interface.read_inputs)
 
     def read_inputs(self, inputs=None):
         """
@@ -578,33 +432,29 @@ class LuxtronikModbusTcpInterface:
         """
         if inputs is None:
             inputs = Inputs()
-        self._read_fields(inputs, self._client.read_input_registers)
+        self._read_fields(inputs, self._interface.read_inputs)
         return inputs
-
 
 # Full read/write methods #####################################################
 # Be careful with method names!
 # Identical named methods could be overridden in a derived class.
 
-    def _modbus_read(self, data):
+    def _shi_read(self, data):
         if data is None:
             data = LuxtronikSmartHomeData()
-        with self._modbus_lock:
-            self.read_holdings(data.holdings)
-            self.read_inputs(data.inputs)
+        self.read_holdings(data.holdings)
+        self.read_inputs(data.inputs)
         return data
 
-    def _modbus_write(self, holdings):
-        with self._modbus_lock:
-            self.write_holdings(holdings)
+    def _shi_write(self, holdings):
+        self.write_holdings(holdings)
 
     def read(self, data=None):
-        return self._modbus_read(data)
+        return self._shi_read(data)
 
     def write(self, holdings):
-        self._modbus_write(holdings)
+        self._shi_write(holdings)
 
     def write_and_read(self, holdings, data=None):
-        with self._modbus_lock:
-            self._modbus_write(holdings)
-            return self._modbus_read(data)
+        self._shi_write(holdings)
+        return self._shi_read(data)

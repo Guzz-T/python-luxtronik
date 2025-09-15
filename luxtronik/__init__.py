@@ -15,7 +15,7 @@ from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
 from luxtronik.holdings import Holdings
 from luxtronik.inputs import Inputs
-from luxtronik.modbus import LuxtronikSmartHomeData, LuxtronikModbusTcpInterface
+from luxtronik.shi_interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (
     LUXTRONIK_DEFAULT_PORT,
@@ -290,14 +290,14 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
         LuxtronikData.__init__(self, parameters, calculations, visibilities, safe)
         LuxtronikSmartHomeData.__init__(self, holdings, inputs, safe)
 
-class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
+class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
 
     def __init__(self, host, port_controller=LUXTRONIK_DEFAULT_PORT, port_modbus=LUXTRONIK_DEFAULT_MODBUS_PORT):
         add_host_to_locks(host)
 
         self._host = host
         LuxtronikSocketInterface.__init__(self, host, port_controller)
-        LuxtronikModbusTcpInterface.__init__(self, host, port_modbus)
+        LuxtronikSmartHomeInterface.ModbusTcp(self, host, port_modbus)
 
     @property
     def _lux_lock(self):
@@ -308,7 +308,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
             data = LuxtronikAllData()
         with self._lux_lock:
             LuxtronikSocketInterface.read(self, data)
-            LuxtronikModbusTcpInterface.read(self, data)
+            LuxtronikSmartHomeInterface.read(self, data)
         return data
 
     def read(self, data=None):
@@ -318,7 +318,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikModbusTcpInterface):
             if isinstance(parameters_or_holdings, Parameters):
                 LuxtronikSocketInterface.write(self, parameters_or_holdings)
             elif isinstance(parameters_or_holdings, Holdings):
-                LuxtronikModbusTcpInterface.write(self, parameters_or_holdings)
+                LuxtronikSmartHomeInterface.write(self, parameters_or_holdings)
 
     def write(self, parameters_or_holdings, holdings=None):
         with self._lux_lock:
