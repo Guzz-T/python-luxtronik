@@ -901,7 +901,7 @@ class LpcMode(SelectionBase):
     codes = {
         0: "No-Limit",
         1: "Soft-Limit",
-        1: "Hard-Limit",
+        2: "Hard-Limit",
     }
 
 

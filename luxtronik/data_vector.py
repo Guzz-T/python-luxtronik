@@ -99,7 +99,7 @@ class LuxtronikFieldDefinition:
             self._since = dict.get('since', "")
             self._until = dict.get('until', "")
             self._description = dict.get('description', "")
-        except:
+        except Exception:
             self._valid = False
             self._index = 0
 

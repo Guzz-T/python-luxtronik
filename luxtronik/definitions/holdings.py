@@ -13,7 +13,6 @@ from luxtronik.datatypes import (
     LpcMode,
     OnOffMode,
     PowerLimit,
-    Unknown,
 )
 
 HOLDINGS_DEFINITIONS_LIST = [
