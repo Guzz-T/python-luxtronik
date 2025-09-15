@@ -3,7 +3,7 @@ Constant list containing the complete holdings definitions.
 """
 from typing import Final
 
-from luxtronik.data_vector import LuxtronikModbusField
+from luxtronik.data_vector import LuxtronikFieldDefinition
 from luxtronik.datatypes import (
     Celsius,
     ControlMode,
@@ -398,5 +398,5 @@ HOLDINGS_DEFINITIONS_LIST = [
 ]
 
 
-HOLDINGS_DEFINITIONS: Final = [LuxtronikModbusField(definition, 'Holdings') for definition in HOLDINGS_DEFINITIONS_LIST]
+HOLDINGS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Holdings') for definition in HOLDINGS_DEFINITIONS_LIST]
 HOLDINGS_IDX_TO_DEF: Final = {definition.index: definition for definition in HOLDINGS_DEFINITIONS}

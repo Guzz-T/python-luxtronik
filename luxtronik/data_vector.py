@@ -2,7 +2,6 @@
 
 import logging
 
-from luxtronik.constants import LUXTRONIK_MODBUS_FIRST_VERSION
 from luxtronik.datatypes import Unknown
 
 
@@ -69,7 +68,7 @@ class DataVector:
         return entry
 
 
-class LuxtronikModbusField:
+class LuxtronikFieldDefinition:
     def __init__(self, dict, type):
         try:
             self._count = dict.get('count', 1)
@@ -80,7 +79,7 @@ class LuxtronikModbusField:
                 names = [names]
             names += [f"Unknown_{type}_{self._count}"]
             self._names = names
-            self._since = dict.get('since', LUXTRONIK_MODBUS_FIRST_VERSION)
+            self._since = dict.get('since', "")
             self._until = dict.get('until', "")
             self._description = dict.get('description', "")
             self._index = dict.get('index')
@@ -157,7 +156,7 @@ class DataVectorModbus(DataVector):
     @classmethod
     def _get_definitions(cls):
         """Override this to return the field definitions."""
-        return [LuxtronikModbusField.invalid()]
+        return [LuxtronikFieldDefinition.invalid()]
 
     @classmethod
     def _get_definition(cls, name_or_idx):
@@ -175,14 +174,14 @@ class DataVectorModbus(DataVector):
                 if name.lower() == def_name.lower():
                     self.logger.warning(f"'{name}' is outdated! Use '{definition.name}' instead.")
                     return definition
-        return LuxtronikModbusField.invalid()
+        return LuxtronikFieldDefinition.invalid()
 
     @classmethod
     def _get_definition_by_idx(cls, idx):
         for definition in cls._get_definitions():
             if idx == definition.index:
                 return definition
-        return LuxtronikModbusField.invalid()
+        return LuxtronikFieldDefinition.invalid()
 
     @classmethod
     def create_unknown(cls, idx):

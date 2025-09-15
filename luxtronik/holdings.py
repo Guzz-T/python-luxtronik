@@ -3,7 +3,7 @@
 import logging
 from typing import Final
 
-from luxtronik.data_vector import DataVectorModbus, LuxtronikModbusField
+from luxtronik.data_vector import DataVectorModbus, LuxtronikFieldDefinition
 from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS, HOLDINGS_IDX_TO_DEF
 
 class Holdings(DataVectorModbus):
@@ -19,7 +19,7 @@ class Holdings(DataVectorModbus):
 
     @classmethod
     def _get_definition_by_idx(cls, idx):
-        return HOLDINGS_IDX_TO_DEF.get(idx, LuxtronikModbusField.invalid())
+        return HOLDINGS_IDX_TO_DEF.get(idx, LuxtronikFieldDefinition.invalid())
 
     def __init__(self, safe=True):
         """Initialize Holdings class."""

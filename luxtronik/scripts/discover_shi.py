@@ -9,7 +9,7 @@ import logging
 from luxtronik.scripts import *
 from luxtronik import LuxtronikModbusTcpInterface
 from luxtronik.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
-from luxtronik.data_vector import LuxtronikModbusField
+from luxtronik.data_vector import LuxtronikFieldDefinition
 from luxtronik.datatypes import Unknown
 from luxtronik.inputs import Inputs
 from luxtronik.holdings import Holdings

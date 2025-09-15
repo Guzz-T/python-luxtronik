@@ -3,7 +3,7 @@ Constant list containing the complete inputs definitions.
 """
 from typing import Final
 
-from luxtronik.data_vector import LuxtronikModbusField
+from luxtronik.data_vector import LuxtronikFieldDefinition
 from luxtronik.datatypes import (
     Celsius,
     Energy,
@@ -845,5 +845,5 @@ INPUTS_DEFINITIONS_LIST = [
     },
 ]
 
-INPUTS_DEFINITIONS: Final = [LuxtronikModbusField(definition, 'Inputs') for definition in INPUTS_DEFINITIONS_LIST]
+INPUTS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Inputs') for definition in INPUTS_DEFINITIONS_LIST]
 INPUTS_IDX_TO_DEF: Final = {definition.index: definition for definition in INPUTS_DEFINITIONS}
