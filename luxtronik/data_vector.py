@@ -69,62 +69,86 @@ class DataVector:
 
 
 class LuxtronikFieldDefinition:
+    """
+    Object that contains all metadata for a data field.
+    Additionally, there are some convenience functions that utilize this data to,
+    for example, extract relevant information from a data array.
+    """
+
     def __init__(self, dict, type):
+        """
+        Create a field definition object from a definition entry.
+        Use default values if values are not set. Only the 'index' is strictly required.
+        Additionally, Unknown_xxx_yy is added as a possible name if the definition is valid.
+        """
         try:
+            self._index = dict.get('index', -1)
+            self._valid = self._index >= 0
             self._count = dict.get('count', 1)
             self._data_type = dict.get('type', Unknown)
             self._writeable = dict.get('writeable', False)
             names = dict.get('names', [])
             if isinstance(names, str):
                 names = [names]
-            names += [f"Unknown_{type}_{self._count}"]
+            names = [name.strip() for name in names if name.strip()]
+            if self._valid:
+                names += [f"Unknown_{type}_{self._index}"]
+            else:
+                names = ['_invalid_']
             self._names = names
             self._since = dict.get('since', "")
             self._until = dict.get('until', "")
             self._description = dict.get('description', "")
-            self._index = dict.get('index')
-            self._valid = True
         except:
             self._valid = False
             self._index = 0
 
     @classmethod
     def invalid(cls):
+        "Create an invalid field definition."
         obj = cls({}, "Invalids")
-        obj._valid = False
         return obj
 
     def __bool__(self):
+        "Returns the valid flag."
         return self._valid
 
     @property
     def index(self):
+        "Returns the assigned index."
         return self._index
 
     @property
     def count(self):
+        "Returns the assigned number of used bytes/words."
         return self._count
 
     @property
     def data_type(self):
+        "Returns the assigned data type."
         return self._data_type
 
     @property
     def writeable(self):
+        "Returns the assigned writeable flag."
         return self._writeable
 
     @property
     def names(self):
+        "Returns all assigned names."
         return self._names
 
     @property
     def name(self):
+        "Returns the preferred name."
         return self._names[0]
 
     def create_field(self):
+        "Creates a data field from the assigned information."
         return self.data_type(self.name, self.writeable)
 
     def extract_raw(self, raw_data, offset):
+        "Extract the number of bytes/words from an array of bytes/words."
         if self:
             # Use the information of the definition to extract the raw-value
             if self.count == 1:
@@ -137,12 +161,14 @@ class LuxtronikFieldDefinition:
         return raw
 
     def get_raw(self, field):
+        "Returns the field's raw value always as a list."
         if self and self.count == 1:
             return [field.raw]
         else:
             return field.raw
 
     def get_data_arr(self, data):
+        "Returns data always as a list."
         if not self or self.count == 1:
             return [data]
         else:
