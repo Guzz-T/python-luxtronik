@@ -1,11 +1,8 @@
-import unittest.mock as mock
 import pytest
 
 from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
 from luxtronik.shi_common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram
-import luxtronik.shi_modbus as shi
-
-print("ModbusClient in shi_modbus:", shi.ModbusClient)
+from luxtronik.shi_modbus import LuxtronikModbusTcpInterface
 
 ###############################################################################
 # Fake modbus clients
@@ -79,7 +76,7 @@ class TestModbusInterface:
 
     @classmethod
     def setup_class(cls):
-        cls.modbus_interface = shi.LuxtronikModbusTcpInterface(cls.host, cls.port)
+        cls.modbus_interface = LuxtronikModbusTcpInterface(cls.host, cls.port)
         cls.modbus_interface._client = FakeModbusClient(cls.host, cls.port)
         assert isinstance(cls.modbus_interface._client, FakeModbusClient)
 

@@ -11,8 +11,7 @@ from luxtronik.constants import (
 from luxtronik.shi_common import (
     LuxtronikSmartHomeReadTelegram,
     LuxtronikSmartHomeWriteTelegram,
-    ContiguousBlockData,
-    ContiguousBlock,
+    ContiguousDataBlock,
 )
 from luxtronik.shi_modbus import LuxtronikModbusTcpInterface
 
@@ -179,7 +178,7 @@ class LuxtronikSmartHomeInterface:
                 count = 1
             # Create a new contiguous block if the current index doesn't follow the previous
             if index != next_index:
-                contiguous.append(ContiguousBlock())
+                contiguous.append(ContiguousDataBlock())
             # Add the current field's details to the contiguous block
             contiguous[-1].add(index, count, field, definition)
             next_index = index + count
@@ -337,7 +336,7 @@ class LuxtronikSmartHomeInterface:
             data_arr = definition.get_raw(field)
             # Create a new contiguous block if the current index doesn't follow the previous
             if index != next_index:
-                contiguous.append(ContiguousBlock())
+                contiguous.append(ContiguousDataBlock())
             # Add the current field's details to the contiguous block
             contiguous[-1].add(index, count, field, definition, data_arr)
             next_index = index + count

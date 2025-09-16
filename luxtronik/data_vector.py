@@ -109,6 +109,17 @@ class LuxtronikFieldDefinition:
         obj = cls({}, "Invalids")
         return obj
 
+    @classmethod
+    def from_field(cls, index, field):
+        "Create an invalid field definition."
+        obj = cls({
+            'index': index,
+            'type': type(field),
+            'writeable': field.writeable,
+            'names': [field.name]
+        }, "Invalids")
+        return obj
+
     def __bool__(self):
         "Returns the valid flag."
         return self._valid
