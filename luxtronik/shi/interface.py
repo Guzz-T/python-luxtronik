@@ -8,12 +8,12 @@ from luxtronik.constants import (
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
     LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
 )
-from luxtronik.shi_common import (
+from luxtronik.shi.common import (
     LuxtronikSmartHomeReadTelegram,
     LuxtronikSmartHomeWriteTelegram,
     ContiguousDataBlock,
 )
-from luxtronik.shi_modbus import LuxtronikModbusTcpInterface
+from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
 
 LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")

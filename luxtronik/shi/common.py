@@ -83,10 +83,10 @@ class ContiguousDataBlock:
         """
         Add a subsequent part to this contiguous data block.
         """
-        part = ContiguousDataPart(field, definition)
         if len(self._part_list) > 0:
             assert self._part_list[-1].index + self._part_list[-1].count == definition.index, """
                 Added data part is not contiguous!"""
+        part = ContiguousDataPart(field, definition)
         self._part_list += [part]
 
     @property

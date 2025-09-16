@@ -15,7 +15,7 @@ from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
 from luxtronik.holdings import Holdings
 from luxtronik.inputs import Inputs
-from luxtronik.shi_interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
+from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (
     LUXTRONIK_DEFAULT_PORT,

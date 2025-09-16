@@ -1,8 +1,8 @@
 import pytest
 
 from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
-from luxtronik.shi_common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram
-from luxtronik.shi_modbus import LuxtronikModbusTcpInterface
+from luxtronik.shi.common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram
+from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
 ###############################################################################
 # Fake modbus clients

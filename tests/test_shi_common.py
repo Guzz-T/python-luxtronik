@@ -2,7 +2,7 @@ import pytest
 
 from luxtronik.data_vector import LuxtronikFieldDefinition
 from luxtronik.datatypes import Base
-from luxtronik.shi_common import *
+from luxtronik.shi.common import *
 
 ###############################################################################
 # Tests

@@ -9,7 +9,7 @@ from luxtronik.constants import (
     LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
     LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
 )
-from luxtronik.shi_common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram
+from luxtronik.shi.common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram
 
 LOGGER = logging.getLogger("Luxtronik.Modbus")
 
