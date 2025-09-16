@@ -1,3 +1,8 @@
+import pytest
+
+from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS
+from luxtronik.definitions.inputs import INPUTS_DEFINITIONS
+
 
 class RunTestDefinitions:
 
@@ -26,3 +31,16 @@ class RunTestDefinitions:
                             index i = {self.definitions[i].index}
                             index j = {self.definitions[j].index}
                         """
+
+###############################################################################
+# Tests
+###############################################################################
+
+class TestHoldingsDefinitions(RunTestDefinitions):
+
+    definitions = HOLDINGS_DEFINITIONS
+
+
+class TestInputsDefinitions(RunTestDefinitions):
+
+    definitions = INPUTS_DEFINITIONS
