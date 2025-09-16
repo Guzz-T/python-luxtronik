@@ -174,6 +174,12 @@ class TestModbusInterface:
         assert result == valid
         assert data_item.data == data
 
+        data_arr = self.modbus_interface.read_holdings_raw(addr, count)
+        if valid:
+            assert data_arr == data
+        else:
+            assert data_arr == None
+
 
     @pytest.mark.parametrize(
         "addr, count, valid, data",
@@ -193,6 +199,12 @@ class TestModbusInterface:
         assert result == valid
         assert data_item.data == data
 
+        data_arr = self.modbus_interface.read_inputs_raw(addr, count)
+        if valid:
+            assert data_arr == data
+        else:
+            assert data_arr == None
+
 
     @pytest.mark.parametrize(
         "addr, data, valid",
@@ -208,3 +220,9 @@ class TestModbusInterface:
 
         result = self.modbus_interface.write_holdings(data_item)
         assert result == valid
+
+        result = self.modbus_interface.write_holdings_raw(addr, data)
+        if valid:
+            assert result == valid
+        else:
+            assert result == None

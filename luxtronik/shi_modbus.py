@@ -170,6 +170,16 @@ class LuxtronikModbusTcpInterface:
 
 # Holding methods #############################################################
 
+    def read_holdings_raw(self, addr, count):
+        """
+        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
+        The address is used directly without applying additional offsets.
+        In case of an error these arrays are filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        """
+        telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+        result = self.read_holdings(telegram)
+        return telegram.data if result else None
+
     def read_holdings(self, telegrams):
         """
         For each provided telegram read the specified number of 16-bit registers ('count')
@@ -179,6 +189,15 @@ class LuxtronikModbusTcpInterface:
         """
         return self._read_register(self._client.read_holding_registers, telegrams)
 
+    def write_holdings_raw(self, addr, data):
+        """
+        Write all provided data (`data`) to 16-bit registers at the
+        specified Modbus address (`addr`). The address is used directly without applying additional offsets.
+        """
+        telegram = LuxtronikSmartHomeWriteTelegram(addr, data)
+        result = self.write_holdings(telegram)
+        return True if result else None
+
     def write_holdings(self, telegrams):
         """
         For each provided telegram write all provided data (`data`) to 16-bit registers at the
@@ -187,6 +206,16 @@ class LuxtronikModbusTcpInterface:
         return self._write_register(self._client.write_multiple_registers, telegrams)
 
 # Inputs methods ##############################################################
+
+    def read_inputs_raw(self, addr, count):
+        """
+        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
+        The address is used directly without applying additional offsets.
+        In case of an error these arrays are filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        """
+        telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+        result = self.read_inputs(telegram)
+        return telegram.data if result else None
 
     def read_inputs(self, telegrams):
         """
