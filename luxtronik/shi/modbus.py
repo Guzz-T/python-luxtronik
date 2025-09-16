@@ -3,10 +3,10 @@ import time
 from pyModbusTCP.client import ModbusClient
 
 from luxtronik.common import *
-from luxtronik.constants import (
+from luxtronik.constants import LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE
+from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-    LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
     LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
 )
 from luxtronik.shi.common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram

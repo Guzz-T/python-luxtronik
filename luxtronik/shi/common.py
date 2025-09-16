@@ -110,6 +110,9 @@ class ContiguousDataBlock:
         return count
 
     def integrate_data(self, data_arr):
+        """
+        Integrate a array of bytes/words into the raw values of the corresponding data fields.
+        """
         assert len(data_arr) == self.overall_count, "Incorrect length of the provided data."
         first = self.first_index
         for part in self._part_list:
@@ -117,6 +120,9 @@ class ContiguousDataBlock:
             part.field.raw = part.definition.extract_raw(data_arr, offset)
 
     def get_data_arr(self):
+        """
+        Get a array of bytes/words out of the raw values of the corresponding data fields.
+        """
         data_arr = []
         for part in self._part_list:
             data_arr += part.definition.get_raw(part.field)
