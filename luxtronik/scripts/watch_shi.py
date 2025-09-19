@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 from luxtronik.scripts import *
 from luxtronik import LuxtronikModbusTcpInterface
-from luxtronik.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
+from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 
 
 def watch_shi():

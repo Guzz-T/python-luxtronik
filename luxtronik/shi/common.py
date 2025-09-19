@@ -1,34 +1,75 @@
+from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+
 ###############################################################################
 # Smart home telegrams
 ###############################################################################
 
 class LuxtronikSmartHomeReadTelegram:
     """
-    Wrapper around all data of a smart home data field read operation.
-    This includes the request data ('addr', 'count') as well as the response data (data).
-    It is mainly used to implement a list-read function.
+    Represents a single smart home data field read operation.
+
+    A telegram encapsulates both the request parameters (`addr`, `count`)
+    and the response data (`data`). It is primarily used to support
+    list‑based read operations.
     """
 
     def __init__(self, addr, count):
+        """
+        Initialize a read telegram.
+
+        Args:
+            addr: Starting Modbus register address to read from.
+            count: Number of 16‑bit registers to read.
+        """
         self.addr = addr
         self.count = count
         self.data = []
 
+    def normalize_data(self):
+        """
+        Ensure that `self.data` is a list of exactly `self.count` elements.
+        Missing values are filled with `LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE`,
+        and excess values are truncated.
+
+        Returns:
+            True if the original data was valid (list of correct length),
+            False otherwise.
+        """
+        data = self.data if isinstance(self.data, list) else None
+        length = len(data) if data is not None else 0
+        valid = data is not None and length == self.count
+
+        if data is None:
+            self.data = [LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE] * self.count
+        elif length < self.count:
+            self.data += [LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE] * (self.count - length)
+        elif length > self.count:
+            self.data = data[:self.count]
+
+        return valid
+
+
 class LuxtronikSmartHomeWriteTelegram:
     """
-    Wrapper around all data of a smart home data field write operation.
-    This consists only of the request data ('addr', 'count', 'data').
-    It is mainly used to implement a list-write function.
+    Represents a smart home data field write operation.
+
+    A write telegram encapsulates the request parameters (`addr`, `count`)
+    and the payload (`data`). It is primarily used to support list‑based
+    write operations.
     """
 
     def __init__(self, addr, data):
+        """
+        Initialize a write telegram.
+
+        Args:
+            addr: Starting Modbus register address to write to.
+            data: Values to be written. If None or not a list,
+                the telegram will be initialized with an empty payload.
+        """
         self.addr = addr
-        if data is None or not isinstance(data, list):
-            self.count = 0
-            self.data = []
-        else:
-            self.count = len(data)
-            self.data = data
+        self.data = data if isinstance(data, list) else []
+        self.count = len(self.data)
 
 
 ###############################################################################
@@ -37,16 +78,25 @@ class LuxtronikSmartHomeWriteTelegram:
 
 class ContiguousDataPart:
     """
-    Single element of a contiguous data block.
-    See 'ContiguousDataBlock' for further information.
+    Represents a single element of a contiguous data block.
+
+    Each part references a `field` and its associated `definition`.
+    See `ContiguousDataBlock` for further details.
     """
 
     def __init__(self, field, definition):
+        """
+        Initialize a contiguous data part.
+
+        Args:
+            field: The field object to read or write.
+            definition: The definition for this field.
+        """
         self.field = field
         self.definition = definition
 
     def __str__(self):
-        return f"({self.definition.index}, {self.definition.count})"
+        return f"({self.index}, {self.count})"
 
     @property
     def index(self):
@@ -56,75 +106,173 @@ class ContiguousDataPart:
     def count(self):
         return self.definition.count
 
+
 class ContiguousDataBlock:
     """
-    To reduce the number of accesses, contiguous data are written/read together as a 'block'.
-    This class is used to link the read/written data with the individual fields and definitions.
-    Note: An invalid address or a non-existent register within a block leads to a transmission error.
+    Represents a contiguous block of data for efficient Modbus access.
+
+    Contiguous data fields are grouped into a single block to minimize
+    the number of read/write operations. Each block links the raw data
+    with the corresponding fields and definitions.
+
+    Note:
+        An invalid address or a non‑existent register within a block
+        will result in a transmission error.
     """
 
     def __init__(self):
-        self._part_list = []
+        self._parts = []
 
     def __iter__(self):
-        return iter(self._part_list)
+        return iter(self._parts)
 
     def __getitem__(self, index):
-        return self._part_list[index]
+        return self._parts[index]
 
     def __str__(self):
-        block_str = ""
-        for part in self._part_list:
-            block_str += f" {part},"
-        block_str = "[" + block_str[1:-1] + "]"
-        return f"index: {self.first_index}, count: {self.overall_count}, parts: {block_str}"
+        parts_str = ", ".join(str(part) for part in self._parts)
+        return f"ContiguousDataBlock(index={self.first_index}, count={self.overall_count}, parts=[{parts_str}])"
 
     def add(self, field, definition):
         """
         Add a subsequent part to this contiguous data block.
+
+        Args:
+            field: The field associated with this part.
+            definition: The definition associated with this part.
         """
-        if len(self._part_list) > 0:
-            assert self._part_list[-1].index + self._part_list[-1].count == definition.index, """
-                Added data part is not contiguous!"""
-        part = ContiguousDataPart(field, definition)
-        self._part_list += [part]
+        if self._parts:
+            assert (
+                self._parts[-1].index + self._parts[-1].count == definition.index
+            ), "Added data part is not contiguous!"
+        self._parts.append(ContiguousDataPart(field, definition))
 
     @property
     def first_index(self):
-        """
-        Returns the first index of the list. Returns '0' if empty.
-        """
-        if len(self._part_list) > 0:
-            return self._part_list[0].index
-        else:
-            return 0
+        """Return the first index of the block, or 0 if empty."""
+        return self._parts[0].index if self._parts else 0
 
     @property
     def overall_count(self):
-        """
-        Returns the overall count of contiguous bytes/words.
-        """
-        count = 0
-        for part in self._part_list:
-            count += part.count
-        return count
+        """Return the total number of contiguous registers in this block."""
+        return sum(part.count for part in self._parts)
 
     def integrate_data(self, data_arr):
         """
-        Integrate a array of bytes/words into the raw values of the corresponding data fields.
+        Integrate an array of registers into the raw values of the corresponding fields.
+
+        Args:
+            data_arr: A list of register values.
+
+        Raises:
+            AssertionError: If the provided data length does not match `overall_count`.
         """
         assert len(data_arr) == self.overall_count, "Incorrect length of the provided data."
         first = self.first_index
-        for part in self._part_list:
+        for part in self._parts:
             offset = part.index - first
             part.field.raw = part.definition.extract_raw(data_arr, offset)
 
     def get_data_arr(self):
         """
-        Get a array of bytes/words out of the raw values of the corresponding data fields.
+        Extract an array of registers from the raw values of the corresponding fields.
+
+        Returns:
+            A list of register values.
+
+        Raises:
+            AssertionError: If the generated data length does not match `overall_count`.
         """
         data_arr = []
-        for part in self._part_list:
-            data_arr += part.definition.get_raw(part.field)
+        for part in self._parts:
+            data_arr.extend(part.definition.get_raw(part.field))
         assert len(data_arr) == self.overall_count, "Incorrect length of the assigned data."
         return data_arr
+
+
+class ContiguousDataBlocksHandler:
+    """
+    Manages a collection of contiguous data blocks.
+
+    Contiguous data blocks group adjacent Modbus registers together
+    to minimize the number of read/write operations.
+    """
+
+    def __init__(self):
+        self._blocks = []
+        self._next_index = -1
+        self._telegrams = []
+        self._items = []
+
+    def collect(self, field, definition):
+        """
+        Correctly add a field definition to the list of contiguous blocks.
+
+        Args:
+            field: The field associated with this part.
+            definition: The definition associated with this part.
+        """
+        index = definition.index
+        count = definition.count
+
+        # Create a new contiguous block if the current index doesn't follow the previous
+        if index != self._next_index:
+            self._blocks.append(ContiguousDataBlock())
+
+        # Warn if definitions are not in ascending order
+        if index < self._next_index:
+            LOGGER.warning(
+                f"Field {definition.name} at index {index} is not inserted in ascending order."
+            )
+
+        # Add the field and definition to the current block
+        self._blocks[-1].add(field, definition)
+        self._next_index = index + count
+
+    @property
+    def get_block_list(self):
+        return self._blocks
+
+
+    def create_read_telegrams(self, offset):
+        """
+        Create read telegrams for all blocks.
+
+        Args:
+            offset: Address offset to apply to each block's index.
+
+        Returns:
+            A list of LuxtronikSmartHomeReadTelegram objects.
+        """
+        for block in self._blocks:
+            addr = block.first_index + offset
+            count = block.overall_count
+            telegram = LuxtronikSmartHomeReadTelegram(addr, count)
+            self._telegrams.append(telegram)
+            self._items.append((block, telegram))
+        return self._telegrams
+
+    def create_write_telegrams(self, offset):
+        """
+        Create write telegrams for all blocks.
+
+        Args:
+            offset: Address offset to apply to each block's index.
+
+        Returns:
+            A list of LuxtronikSmartHomeWriteTelegram objects.
+        """
+        for block in self._blocks:
+            addr = block.first_index + offset
+            data_arr = block.get_data_arr()
+            telegram = LuxtronikSmartHomeWriteTelegram(addr, data_arr)
+            self._telegrams.append(telegram)
+            self._items.append((block, telegram))
+        return self._telegrams
+
+    def integrate_data(self):
+        """
+        Integrate the read data from telegrams back into the corresponding blocks.
+        """
+        for block, telegram in self._items:
+            block.integrate_data(telegram.data)

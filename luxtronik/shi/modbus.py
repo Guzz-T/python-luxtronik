@@ -2,16 +2,20 @@ import logging
 import time
 from pyModbusTCP.client import ModbusClient
 
-from luxtronik.common import *
-from luxtronik.constants import LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE
+from luxtronik.common import get_host_lock
+from luxtronik.constants import (
+    LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
+)
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-    LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
 )
-from luxtronik.shi.common import LuxtronikSmartHomeReadTelegram, LuxtronikSmartHomeWriteTelegram
+from luxtronik.shi.common import (
+    LuxtronikSmartHomeReadTelegram,
+    LuxtronikSmartHomeWriteTelegram,
+)
 
-LOGGER = logging.getLogger("Luxtronik.Modbus")
+LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
 
 ###############################################################################
 # Modbus TCP interface
@@ -20,208 +24,334 @@ LOGGER = logging.getLogger("Luxtronik.Modbus")
 class LuxtronikModbusTcpInterface:
     """
     Luxtronik read/write interface using Modbus-TCP.
+    This class is designed to offer a simple addr/count/data interface.
+    There are functions to read or write individual register blocks,
+    or multiple blocks in a row using a list of telegrams.
     The connection is established only for reading and writing purposes.
     This class is implemented as thread-safe.
     """
 
-    def __init__(self, host, port=LUXTRONIK_DEFAULT_MODBUS_PORT, timeout=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT):
-        add_host_to_locks(host)
+    def __init__(
+        self,
+        host,
+        port=LUXTRONIK_DEFAULT_MODBUS_PORT,
+        timeout_in_s=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT
+    ):
+        """
+        Initialize the Modbus TCP interface for a Luxtronik host.
 
-        # Create modbus client
-        self._host = host
+        Args:
+            host: Hostname or IP address of the heat pump.
+            port: TCP port for the Modbus connection
+                  (default: LUXTRONIK_DEFAULT_MODBUS_PORT).
+            timeout_in_s: Timeout in seconds for communication
+                     (default: LUXTRONIK_DEFAULT_MODBUS_TIMEOUT).
+        """
+        # Acquire a lock object for this host to ensure thread safety
+        self._lock = get_host_lock(host)
+
+        # Create the Modbus client (connection is not opened/closed automatically)
         self._client = ModbusClient(
             host=host,
             port=port,
-            timeout=timeout, # in seconds
+            timeout=timeout_in_s,
             auto_open=False,
-            auto_close=False
+            auto_close=False,
         )
 
     @property
-    def _modbus_lock(self):
-        return hosts_locks[self._host]
+    def lock(self):
+        return self._lock
 
 # Connection methods ##########################################################
 
     def _connect(self):
+        """
+        Establish a connection to the heat pump.
+
+        Returns:
+            True if the connection was successfully established, False otherwise.
+        """
+        # Do nothing if client is already opened
+        if self._client.is_open:
+            return True
+
+        self._client.open()
+
         if not self._client.is_open:
-            self._client.open()
-        if not self._client.is_open:
-            LOGGER.error(f"Modbus connection failed!")
+            LOGGER.error("Modbus connection failed (client did not open).")
             self._client.close()
-        return self._client.is_open
+            return False
+
+        return True
 
     def _disconnect(self):
+        """
+        Close the connection to the heat pump.
+
+        Returns:
+            True if the connection was successfully closed, False otherwise.
+        """
+        # Do nothing if already closed
+        if not self._client.is_open:
+            return True
+
+        self._client.close()
+
         if self._client.is_open:
-            self._client.close()
-        if self._client.is_open:
-            LOGGER.error(f"Modbus disconnect failed!")
+            LOGGER.error("Modbus disconnect failed (client still open).")
+            return False
+
+        return True
+
+        from contextlib import contextmanager
+
+    @contextmanager
+    def _connection(self):
+        """
+        Context manager that acquires the host-lock,
+        opens a Modbus connection and ensures
+        it is closed afterwards.
+        """
+        with self._lock:
+            if not self._connect():
+                return
+            try:
+                yield
+            finally:
+                self._disconnect()
+
 
 # Common read methods #########################################################
 
     def _read_register(self, read_reg_cb, telegrams):
         """
-        For each provided telegram read the specified number of 16-bit registers ('count')
-        from the given Modbus address ('addr'). The address is used directly without applying additional offsets.
-        The provided callback method determines whether input or holding registers are read.
-        The read data is returned via the provided telegrams ('data'). In case of an error these arrays are
-        filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        Read Modbus registers for one or more telegrams.
+
+        For each provided telegram, this method reads the specified number of
+        16‑bit registers (`count`) starting at the given Modbus address (`addr`).
+        The address is used directly without applying additional offsets.
+
+        The callback function `read_reg_cb` determines whether input or holding
+        registers are read. The retrieved data is stored in each telegram's
+        `data` field. If an error occurs, the `data` field is filled with
+        `LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE`.
+
+        Args:
+            read_reg_cb: Callback used to perform the actual register read.
+            telegrams: A single `LuxtronikSmartHomeReadTelegram` or a list of them.
+
+        Returns:
+            True if all reads succeeded, False otherwise.
         """
-        # Convert a single telegram into a list
+        # Normalize to a list of telegrams
         _telegrams = telegrams
         if isinstance(_telegrams, LuxtronikSmartHomeReadTelegram):
             _telegrams = [_telegrams]
-        if not isinstance(_telegrams, list) or not all(isinstance(telegram, LuxtronikSmartHomeReadTelegram) for telegram in _telegrams):
-            LOGGER.warning(f"Wrong data type. Please provide a list of LuxtronikSmartHomeReadTelegram!")
+
+        # Validate input
+        if not isinstance(_telegrams, list) or not all(isinstance(t, LuxtronikSmartHomeReadTelegram) for t in _telegrams):
+            LOGGER.warning(f"Invalid argument '{telegrams}': expected a LuxtronikSmartHomeReadTelegram or a list of them.")
             return False
 
-        # Prepare data arrays and count the total number of bytes to read
+        # Prepare data arrays and count total registers
         total_count = 0
-        for telegram in _telegrams:
-            total_count += telegram.count
-            telegram.data = []
+        for t in _telegrams:
+            total_count += t.count
+            t.data = []
 
         # Exit function if no data is requested
         if total_count <= 0:
-            LOGGER.warning(f"Modbus read operation aborted. No data requested.")
+            LOGGER.warning("Modbus read aborted: no data requested.")
             return False
 
-        # Acquire lock for this host
+        # Acquire lock, connect and read data. Disconnect afterwards.
         success = False
-        with self._modbus_lock:
-            if self._connect():
+        with self._connection:
+            success = True
+            for t in _telegrams:
+                if t.count <= 0:
+                    continue
+                # Read len(t.data) × 16‑bit registers from Modbus address t.addr
+                t.data = read_reg_cb(t.addr, t.count)
 
-                success = True
-                # Read all requested data
-                for telegram in _telegrams:
-                    if telegram.count >= 0:
-                        telegram.data = read_reg_cb(telegram.addr, telegram.count)
-
-            self._disconnect()
-
-        # Post-process read data
-        if success:
-            for telegram in _telegrams:
-                data_len = len(telegram.data) if telegram.data and isinstance(telegram.data, list) else 0
-                data_valid = data_len == telegram.count
-                if telegram.data is None:
-                    telegram.data = [LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE] * telegram.count
-                elif data_len < telegram.count:
-                    telegram.data += [LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE] * (telegram.count - data_len)
-                elif data_len > telegram.count:
-                    telegram.data = telegram.data[:telegram.count]
-                if not data_valid:
-                    success = False
-                    LOGGER.error(f"Modbus read operation failed: addr={telegram.addr}, count={telegram.count}")
+        # Validate and post‑process results
+        for t in _telegrams:
+            if not t.normalize_data():
+                success = False
+                LOGGER.error(f"Modbus read failed: addr={t.addr}, count={t.count}, data={t.data}")
 
         if not success:
-            LOGGER.error(f"Modbus read operation failed. {self._client.last_error_as_txt}")
+            LOGGER.error(f"Modbus read operation failed: {self._client.last_error_as_txt}", )
+
         return success
+
 
 # Common write methods ########################################################
 
     def _write_register(self, write_reg_cb, telegrams):
         """
-        For each provided telegram write all provided data (`data`) to 16-bit registers at the
-        specified Modbus address (`addr`). The address is used directly without applying additional offsets.
-        The provided callback method determines whether input or holding registers are written.
+        Write Modbus registers for one or more telegrams.
+
+        For each provided telegram, all values in `data` are written to 16‑bit
+        registers starting at the specified Modbus address (`addr`). The address
+        is used directly without applying additional offsets.
+
+        The callback function `write_reg_cb` performs the actual write operation
+        (currently only valid for holding registers).
+
+        Args:
+            write_reg_cb: Callback used to perform the register write.
+            telegrams: A single LuxtronikSmartHomeWriteTelegram or a list of them.
+
+        Returns:
+            True if all writes succeeded, False otherwise.
         """
-        # Convert a single telegram into a list
+        # Normalize to a list
         _telegrams = telegrams
         if isinstance(_telegrams, LuxtronikSmartHomeWriteTelegram):
             _telegrams = [_telegrams]
-        if not isinstance(_telegrams, list) or not all(isinstance(telegram, LuxtronikSmartHomeWriteTelegram) for telegram in _telegrams):
-            LOGGER.warning(f"Wrong data type. Please provide a list of LuxtronikSmartHomeWriteTelegram!")
+
+        # Validate input
+        if not isinstance(_telegrams, list) or not all(isinstance(t, LuxtronikSmartHomeWriteTelegram) for t in _telegrams):
+            LOGGER.warning(f"Invalid argument '{telegrams}': expected a LuxtronikSmartHomeWriteTelegram or a list of them.")
             return False
 
-        # Check data arrays and count the total number of bytes to read
+        # Count total registers to write
         total_count = 0
         for telegram in _telegrams:
             total_count += telegram.count
 
         # Exit function if no data should be written
         if total_count <= 0:
-            LOGGER.warning(f"Modbus write operation aborted. No data to write.")
+            LOGGER.warning("Modbus write aborted: no data to write.")
             return False
 
-        # Acquire lock for this host
+        # Acquire lock, connect and write data. Disconnect afterwards.
         success = False
-        with self._modbus_lock:
-            if self._connect():
+        with self._connection:
+            success = True
+            for t in _telegrams:
+                if t.count <= 0:
+                    continue
+                # Write len(t.data) × 16‑bit registers at Modbus address t.addr
+                write_ok = write_reg_cb(t.addr, t.data)
+                if not write_ok:
+                    LOGGER.error(f"Modbus write error: addr={t.addr}, data={t.data}")
+                success &= write_ok
 
-                success = True
-                # Write all provided data
-                for telegram in _telegrams:
-                    if telegram.count >= 0:
-                        # Write len(telegram.data) x 16 bits registers at modbus address "telegram.addr"
-                        write_ok = write_reg_cb(telegram.addr, telegram.data)
-                        if not write_ok:
-                            LOGGER.error(f"Modbus write error: addr={telegram.addr}, data={telegram.data}")
-                        success &= write_ok
-
-            self._disconnect()
-
-        # Give the heatpump a short time to handle the value changes:
+        # Allow the heat pump to process the changes
         time.sleep(LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE)
 
         if not success:
-            LOGGER.error(f"Modbus write operation failed. {self._client.last_error_as_txt}")
+            LOGGER.error(f"Modbus write operation failed: {self._client.last_error_as_txt}", )
+
         return success
+
 
 # Holding methods #############################################################
 
     def read_holdings_raw(self, addr, count):
         """
-        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
-        The address is used directly without applying additional offsets.
-        In case of an error these arrays are filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        Read `count` holding 16‑bit registers starting at the given Modbus address `addr`.
+        The address is used directly without additional offsets.
+
+        Args:
+            addr: The starting Modbus register address to read from.
+            count: The number of 16‑bit registers to read.
+
+        Returns:
+            On success, returns the read data as a list of integers.
+            On failure, returns None.
         """
         telegram = LuxtronikSmartHomeReadTelegram(addr, count)
-        result = self.read_holdings(telegram)
-        return telegram.data if result else None
+        success = self.read_holdings(telegram)
+        return telegram.data if success else None
 
     def read_holdings(self, telegrams):
         """
-        For each provided telegram read the specified number of 16-bit registers ('count')
-        from the given Modbus address ('addr'). The address is used directly without applying additional offsets.
-        The read data is returned via the provided telegrams ('data'). In case of an error these arrays are
-        filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        Read holding registers for one or more telegrams.
+
+        For each telegram, the specified number of 16‑bit registers (`count`)
+        is read starting at the given Modbus address (`addr`).
+        The address is used directly without additional offsets.
+        The retrieved data is stored in the telegram's `data` field.
+        On error, the field is filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+
+        Args:
+            telegrams: A LuxtronikSmartHomeReadTelegram or a list of them.
+
+        Returns:
+            True if all reads succeeded, False otherwise.
         """
         return self._read_register(self._client.read_holding_registers, telegrams)
 
     def write_holdings_raw(self, addr, data):
         """
-        Write all provided data (`data`) to 16-bit registers at the
-        specified Modbus address (`addr`). The address is used directly without applying additional offsets.
+        Write all values in `data` to 16‑bit holding registers starting at the given Modbus address `addr`.
+
+        Args:
+            addr: The starting Modbus register address to write to.
+            count: The number of 16‑bit registers to write.
+
+        The address is used directly without additional offsets.
+
+        Returns:
+            True if the write succeeded, False otherwise.
         """
         telegram = LuxtronikSmartHomeWriteTelegram(addr, data)
-        result = self.write_holdings(telegram)
-        return True if result else None
+        return self.write_holdings(telegram)
 
     def write_holdings(self, telegrams):
         """
-        For each provided telegram write all provided data (`data`) to 16-bit registers at the
-        specified Modbus address (`addr`). The address is used directly without applying additional offsets.
+        Write holding registers for one or more telegrams.
+
+        For each telegram, all values in `data` are written to 16‑bit registers
+        starting at the given Modbus address (`addr`).
+        The address is used directly without additional offsets.
+
+        Args:
+            telegrams: A LuxtronikSmartHomeWriteTelegram or a list of them.
+
+        Returns:
+            True if all writes succeeded, False otherwise.
         """
         return self._write_register(self._client.write_multiple_registers, telegrams)
+
 
 # Inputs methods ##############################################################
 
     def read_inputs_raw(self, addr, count):
         """
-        Read the specified number of 16-bit registers ('count') from the given Modbus address ('addr').
-        The address is used directly without applying additional offsets.
-        In case of an error these arrays are filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        Read `count` input 16‑bit registers starting at the given Modbus address `addr`.
+        The address is used directly without additional offsets.
+
+        Args:
+            addr: The starting Modbus register address to read from.
+            count: The number of 16‑bit registers to read.
+
+        Returns:
+            On success, returns the read data as a list of integers.
+            On failure, returns None.
         """
         telegram = LuxtronikSmartHomeReadTelegram(addr, count)
-        result = self.read_inputs(telegram)
-        return telegram.data if result else None
+        success = self.read_inputs(telegram)
+        return telegram.data if success else None
 
     def read_inputs(self, telegrams):
         """
-        For each provided telegram read the specified number of 16-bit registers ('count')
-        from the given Modbus address ('addr'). The address is used directly without applying additional offsets.
-        The read data is returned via the provided telegrams ('data'). In case of an error these arrays are
-        filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+        Read input registers for one or more telegrams.
+
+        For each telegram, the specified number of 16‑bit registers (`count`)
+        is read starting at the given Modbus address (`addr`).
+        The address is used directly without additional offsets.
+        The retrieved data is stored in the telegram's `data` field.
+        On error, the field is filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
+
+        Args:
+            telegrams: A LuxtronikSmartHomeReadTelegram or a list of them.
+
+        Returns:
+            True if all reads succeeded, False otherwise.
         """
         return self._read_register(self._client.read_input_registers, telegrams)

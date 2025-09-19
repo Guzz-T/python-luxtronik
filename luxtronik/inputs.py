@@ -10,7 +10,7 @@ class Inputs(DataVectorModbus):
     """Class that holds all Inputs."""
 
     logger = logging.getLogger("Luxtronik.Inputs")
-    name = "Inputs"
+    name = "Input"
     offset = 10000
 
     @classmethod

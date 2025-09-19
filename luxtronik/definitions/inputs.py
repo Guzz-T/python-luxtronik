@@ -54,7 +54,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 6,
         "count": 1,
-        "names": ["Unknown_Inputs_6"],
+        "names": ["Unknown_Input_6"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -63,7 +63,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 7,
         "count": 1,
-        "names": ["Unknown_Inputs_7"],
+        "names": ["Unknown_Input_7"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -126,7 +126,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 106,
         "count": 1,
-        "names": ["Unknown_Inputs_106"],
+        "names": ["Unknown_Input_106"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -153,7 +153,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 109,
         "count": 1,
-        "names": ["Unknown_Inputs_109"],
+        "names": ["Unknown_Input_109"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -162,7 +162,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 110,
         "count": 1,
-        "names": ["Unknown_Inputs_110"],
+        "names": ["Unknown_Input_110"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -171,7 +171,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 111,
         "count": 1,
-        "names": ["Unknown_Inputs_111"],
+        "names": ["Unknown_Input_111"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -180,7 +180,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 112,
         "count": 1,
-        "names": ["Unknown_Inputs_112"],
+        "names": ["Unknown_Input_112"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -189,7 +189,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 113,
         "count": 1,
-        "names": ["Unknown_Inputs_113"],
+        "names": ["Unknown_Input_113"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -234,7 +234,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 124,
         "count": 1,
-        "names": ["Unknown_Inputs_124"],
+        "names": ["Unknown_Input_124"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -351,7 +351,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 201,
         "count": 1,
-        "names": ["Unknown_Inputs_201"],
+        "names": ["Unknown_Input_201"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -360,7 +360,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 202,
         "count": 1,
-        "names": ["Unknown_Inputs_202"],
+        "names": ["Unknown_Input_202"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -369,7 +369,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 203,
         "count": 1,
-        "names": ["Unknown_Inputs_203"],
+        "names": ["Unknown_Input_203"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -378,7 +378,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 204,
         "count": 1,
-        "names": ["Unknown_Inputs_204"],
+        "names": ["Unknown_Input_204"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -387,7 +387,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 205,
         "count": 1,
-        "names": ["Unknown_Inputs_205"],
+        "names": ["Unknown_Input_205"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -396,7 +396,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 206,
         "count": 1,
-        "names": ["Unknown_Inputs_206"],
+        "names": ["Unknown_Input_206"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -405,7 +405,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 207,
         "count": 1,
-        "names": ["Unknown_Inputs_207"],
+        "names": ["Unknown_Input_207"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -414,7 +414,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 300,
         "count": 1,
-        "names": ["Unknown_Inputs_300"],
+        "names": ["Unknown_Input_300"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -423,7 +423,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 301,
         "count": 1,
-        "names": ["Unknown_Inputs_301"],
+        "names": ["Unknown_Input_301"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -432,7 +432,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 302,
         "count": 1,
-        "names": ["Unknown_Inputs_302"],
+        "names": ["Unknown_Input_302"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -441,7 +441,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 310,
         "count": 1,
-        "names": ["Unknown_Inputs_310"],
+        "names": ["Unknown_Input_310"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -459,7 +459,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 312,
         "count": 1,
-        "names": ["Unknown_Inputs_312"],
+        "names": ["Unknown_Input_312"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -477,7 +477,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 314,
         "count": 1,
-        "names": ["Unknown_Inputs_314"],
+        "names": ["Unknown_Input_314"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -495,7 +495,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 316,
         "count": 1,
-        "names": ["Unknown_Inputs_316"],
+        "names": ["Unknown_Input_316"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -504,7 +504,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 317,
         "count": 1,
-        "names": ["Unknown_Inputs_317"],
+        "names": ["Unknown_Input_317"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -513,7 +513,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 318,
         "count": 1,
-        "names": ["Unknown_Inputs_318"],
+        "names": ["Unknown_Input_318"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -522,7 +522,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 319,
         "count": 1,
-        "names": ["Unknown_Inputs_319"],
+        "names": ["Unknown_Input_319"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -531,7 +531,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 320,
         "count": 1,
-        "names": ["Unknown_Inputs_320"],
+        "names": ["Unknown_Input_320"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -540,7 +540,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 321,
         "count": 1,
-        "names": ["Unknown_Inputs_321"],
+        "names": ["Unknown_Input_321"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -549,7 +549,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 322,
         "count": 1,
-        "names": ["Unknown_Inputs_322"],
+        "names": ["Unknown_Input_322"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -558,7 +558,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 323,
         "count": 1,
-        "names": ["Unknown_Inputs_323"],
+        "names": ["Unknown_Input_323"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -567,7 +567,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 324,
         "count": 1,
-        "names": ["Unknown_Inputs_324"],
+        "names": ["Unknown_Input_324"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -576,7 +576,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 325,
         "count": 1,
-        "names": ["Unknown_Inputs_325"],
+        "names": ["Unknown_Input_325"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -585,7 +585,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 326,
         "count": 1,
-        "names": ["Unknown_Inputs_326"],
+        "names": ["Unknown_Input_326"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -594,7 +594,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 327,
         "count": 1,
-        "names": ["Unknown_Inputs_327"],
+        "names": ["Unknown_Input_327"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -603,7 +603,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 328,
         "count": 1,
-        "names": ["Unknown_Inputs_328"],
+        "names": ["Unknown_Input_328"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -612,7 +612,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 329,
         "count": 1,
-        "names": ["Unknown_Inputs_329"],
+        "names": ["Unknown_Input_329"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -621,7 +621,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 350,
         "count": 1,
-        "names": ["Unknown_Inputs_350"],
+        "names": ["Unknown_Input_350"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -630,7 +630,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 351,
         "count": 1,
-        "names": ["Unknown_Inputs_351"],
+        "names": ["Unknown_Input_351"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -639,7 +639,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 352,
         "count": 1,
-        "names": ["Unknown_Inputs_352"],
+        "names": ["Unknown_Input_352"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -648,7 +648,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 353,
         "count": 1,
-        "names": ["Unknown_Inputs_353"],
+        "names": ["Unknown_Input_353"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -657,7 +657,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 354,
         "count": 1,
-        "names": ["Unknown_Inputs_354"],
+        "names": ["Unknown_Input_354"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -666,7 +666,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 355,
         "count": 1,
-        "names": ["Unknown_Inputs_355"],
+        "names": ["Unknown_Input_355"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -675,7 +675,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 356,
         "count": 1,
-        "names": ["Unknown_Inputs_356"],
+        "names": ["Unknown_Input_356"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -684,7 +684,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 360,
         "count": 1,
-        "names": ["Unknown_Inputs_360"],
+        "names": ["Unknown_Input_360"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -693,7 +693,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 361,
         "count": 1,
-        "names": ["Unknown_Inputs_361"],
+        "names": ["Unknown_Input_361"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -711,7 +711,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 404,
         "count": 1,
-        "names": ["Unknown_Inputs_404"],
+        "names": ["Unknown_Input_404"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -720,7 +720,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 405,
         "count": 1,
-        "names": ["Unknown_Inputs_405"],
+        "names": ["Unknown_Input_405"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -729,7 +729,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 406,
         "count": 1,
-        "names": ["Unknown_Inputs_406"],
+        "names": ["Unknown_Input_406"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -738,7 +738,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 407,
         "count": 1,
-        "names": ["Unknown_Inputs_407"],
+        "names": ["Unknown_Input_407"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -747,7 +747,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 408,
         "count": 1,
-        "names": ["Unknown_Inputs_408"],
+        "names": ["Unknown_Input_408"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -756,7 +756,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 409,
         "count": 1,
-        "names": ["Unknown_Inputs_409"],
+        "names": ["Unknown_Input_409"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -765,7 +765,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 410,
         "count": 1,
-        "names": ["Unknown_Inputs_410"],
+        "names": ["Unknown_Input_410"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -774,7 +774,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 411,
         "count": 1,
-        "names": ["Unknown_Inputs_411"],
+        "names": ["Unknown_Input_411"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -783,7 +783,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 412,
         "count": 1,
-        "names": ["Unknown_Inputs_412"],
+        "names": ["Unknown_Input_412"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -792,7 +792,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 413,
         "count": 1,
-        "names": ["Unknown_Inputs_413"],
+        "names": ["Unknown_Input_413"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -801,7 +801,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 416,
         "count": 1,
-        "names": ["Unknown_Inputs_416"],
+        "names": ["Unknown_Input_416"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -810,7 +810,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 417,
         "count": 1,
-        "names": ["Unknown_Inputs_417"],
+        "names": ["Unknown_Input_417"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -819,7 +819,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 500,
         "count": 1,
-        "names": ["Unknown_Inputs_500"],
+        "names": ["Unknown_Input_500"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -828,7 +828,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 501,
         "count": 1,
-        "names": ["Unknown_Inputs_501"],
+        "names": ["Unknown_Input_501"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -837,7 +837,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 502,
         "count": 1,
-        "names": ["Unknown_Inputs_502"],
+        "names": ["Unknown_Input_502"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -845,5 +845,6 @@ INPUTS_DEFINITIONS_LIST = [
     },
 ]
 
-INPUTS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Inputs') for definition in INPUTS_DEFINITIONS_LIST]
+INPUTS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Input') for definition in INPUTS_DEFINITIONS_LIST]
 INPUTS_IDX_TO_DEF: Final = {definition.index: definition for definition in INPUTS_DEFINITIONS}
+INPUTS_NAME_TO_DEF: Final = {name: definition for definition in INPUTS_DEFINITIONS for name in definition.names}

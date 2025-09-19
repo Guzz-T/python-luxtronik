@@ -397,5 +397,6 @@ HOLDINGS_DEFINITIONS_LIST = [
 ]
 
 
-HOLDINGS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Holdings') for definition in HOLDINGS_DEFINITIONS_LIST]
+HOLDINGS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Holding') for definition in HOLDINGS_DEFINITIONS_LIST]
 HOLDINGS_IDX_TO_DEF: Final = {definition.index: definition for definition in HOLDINGS_DEFINITIONS}
+HOLDINGS_NAME_TO_DEF: Final = {name: definition for definition in HOLDINGS_DEFINITIONS for name in definition.names}

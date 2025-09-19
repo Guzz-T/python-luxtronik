@@ -75,30 +75,43 @@ class LuxtronikFieldDefinition:
     for example, extract relevant information from a data array.
     """
 
-    def __init__(self, dict, type):
+    DEFAULT_DATA = {
+        'index': -1,
+        'count': 1,
+        'type': Unknown,
+        'writeable': False,
+        'names': [],
+        'since': '',
+        'until': '',
+        'description': '',
+    }
+
+    def __init__(self, data_dict, type_name):
         """
         Create a field definition object from a definition entry.
         Use default values if values are not set. Only the 'index' is strictly required.
         Additionally, Unknown_xxx_yy is added as a possible name if the definition is valid.
         """
         try:
-            self._index = dict.get('index', -1)
-            self._valid = self._index >= 0
-            self._count = dict.get('count', 1)
-            self._data_type = dict.get('type', Unknown)
-            self._writeable = dict.get('writeable', False)
-            names = dict.get('names', [])
-            if isinstance(names, str):
-                names = [names]
-            names = [name.strip() for name in names if name.strip()]
+            data_dict = self.DEFAULT_DATA | data_dict
+            index = int(data_dict['index'])
+            self._valid = index >= 0
+            self._index = index if self._valid else 0
+            self._count = int(data_dict['count'])
+            self._data_type = data_dict['type']
+            self._writeable = bool(data_dict['writeable'])
+            names = data_dict['names']
+            if not isinstance(names, list):
+                names = [str(names)]
+            names = [str(name).strip() for name in names if str(name).strip()]
             if self._valid:
-                names += [f"Unknown_{type}_{self._index}"]
-            else:
+                names += [f"Unknown_{type_name}_{self._index}"]
+            if not self._valid and len(names) == 0:
                 names = ['_invalid_']
             self._names = names
-            self._since = dict.get('since', "")
-            self._until = dict.get('until', "")
-            self._description = dict.get('description', "")
+            self._since = str(data_dict['since'])
+            self._until = str(data_dict['until'])
+            self._description = str(data_dict['description'])
         except Exception:
             self._valid = False
             self._index = 0
@@ -110,17 +123,30 @@ class LuxtronikFieldDefinition:
         return obj
 
     @classmethod
-    def from_field(cls, index, field):
+    def unknown(cls, index, type_name):
+        "Create an unknown field definition."
+        obj = cls({
+            'index': index
+        }, type_name)
+        return obj
+
+    @classmethod
+    def from_field(cls, index, field, type_name="Invalids"):
         "Create an invalid field definition."
         obj = cls({
             'index': index,
             'type': type(field),
             'writeable': field.writeable,
             'names': [field.name]
-        }, "Invalids")
+        }, type_name)
         return obj
 
     def __bool__(self):
+        "Returns the valid flag."
+        return self._valid
+
+    @property
+    def valid(self):
         "Returns the valid flag."
         return self._valid
 
@@ -156,34 +182,36 @@ class LuxtronikFieldDefinition:
 
     def create_field(self):
         "Creates a data field from the assigned information."
-        return self.data_type(self.name, self.writeable)
-
-    def extract_raw(self, raw_data, offset):
-        "Extract the number of bytes/words from an array of bytes/words."
         if self:
-            # Use the information of the definition to extract the raw-value
-            if self.count == 1:
-                raw = raw_data[offset]
-            else:
-                raw = raw_data[offset : offset + self.count]
+            return self.data_type(self.name, self.writeable)
         else:
-            # Return a scalar if the definition is not valid
+            return None
+
+    def extract_raw(self, raw_data, offset=-1):
+        "Extract the defined number of bytes/words from an array of bytes/words at the specified or defined offset."
+        offset = offset if offset >= 0 else self.index
+        # Use the information of the definition to extract the raw-value
+        if self.count == 1:
             raw = raw_data[offset]
-        return raw
+            return raw
+        else:
+            raw = raw_data[offset : offset + self.count]
+            return raw if len(raw) == self.count else None
 
     def get_raw(self, field):
-        "Returns the field's raw value always as a list."
-        if self and self.count == 1:
-            return [field.raw]
-        else:
-            return field.raw
+        "Always return the field's raw value as a list of the correct size, or `None` if there is insufficient data."
+        return self.get_data_arr(field.raw)
 
     def get_data_arr(self, data):
-        "Returns data always as a list."
-        if not self or self.count == 1:
-            return [data]
-        else:
-            return data
+        "Always return the data as a list of the correct size, or `None` if there is insufficient data."
+        if not isinstance(data, list):
+            data = [data]
+        data = data[:self.count]
+        return data if len(data) == self.count else None
+
+    def check_data(self, field):
+        data_arr = self.get_raw(field)
+        return data_arr is not None
 
 
 class DataVectorModbus(DataVector):

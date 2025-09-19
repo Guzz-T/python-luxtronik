@@ -10,7 +10,7 @@ class Holdings(DataVectorModbus):
     """Class that holds all Holdings."""
 
     logger = logging.getLogger("Luxtronik.Holdings")
-    name = "Holdings"
+    name = "Holding"
     offset = 10000
 
     @classmethod

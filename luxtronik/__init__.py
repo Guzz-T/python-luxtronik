@@ -19,7 +19,6 @@ from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeIn
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (
     LUXTRONIK_DEFAULT_PORT,
-    LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
     LUXTRONIK_PARAMETERS_READ,
     LUXTRONIK_CALCULATIONS_READ,
@@ -28,6 +27,9 @@ from luxtronik.constants import (
     LUXTRONIK_SOCKET_READ_SIZE_INTEGER,
     LUXTRONIK_SOCKET_READ_SIZE_CHAR,
     LUXTRONIK_WAIT_TIME_AFTER_PARAMETER_WRITE,
+)
+from luxtronik.shi.constants import (
+    LUXTRONIK_DEFAULT_MODBUS_PORT,
 )
 
 # endregion Imports
@@ -74,7 +76,7 @@ class LuxtronikSocketInterface:
     """Luxtronik read/write interface via socket."""
 
     def __init__(self, host, port=LUXTRONIK_DEFAULT_PORT):
-        add_host_to_locks(host)
+        get_host_lock(host)
 
         self._host = host
         self._port = port
@@ -293,7 +295,7 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
 class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
 
     def __init__(self, host, port_controller=LUXTRONIK_DEFAULT_PORT, port_modbus=LUXTRONIK_DEFAULT_MODBUS_PORT):
-        add_host_to_locks(host)
+        get_host_lock(host)
 
         self._host = host
         LuxtronikSocketInterface.__init__(self, host, port_controller)

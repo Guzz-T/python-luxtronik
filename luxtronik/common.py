@@ -4,8 +4,13 @@ from threading import RLock
 management_lock = RLock()
 hosts_locks = {}
 
-def add_host_to_locks(host):
+def get_host_lock(host):
+    """
+    Create a new lock object for a host string if one does not already exist.
+    Then return the unique lock object associated with that host.
+    """
     # Ensure a dedicated lock is created for each IP.
     with management_lock:
         if not host in hosts_locks:
             hosts_locks[host] = RLock()
+        return hosts_locks[host]
