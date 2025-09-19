@@ -41,10 +41,10 @@ class LuxtronikModbusTcpInterface:
         Initialize the Modbus TCP interface for a Luxtronik host.
 
         Args:
-            host: Hostname or IP address of the heat pump.
-            port: TCP port for the Modbus connection
+            host (str): Hostname or IP address of the heat pump.
+            port (int): TCP port for the Modbus connection
                   (default: LUXTRONIK_DEFAULT_MODBUS_PORT).
-            timeout_in_s: Timeout in seconds for communication
+            timeout_in_s (float): Timeout in seconds for communication
                      (default: LUXTRONIK_DEFAULT_MODBUS_TIMEOUT).
         """
         # Acquire a lock object for this host to ensure thread safety
@@ -70,7 +70,7 @@ class LuxtronikModbusTcpInterface:
         Establish a connection to the heat pump.
 
         Returns:
-            True if the connection was successfully established, False otherwise.
+            bool: True if the connection was successfully established, False otherwise.
         """
         # Do nothing if client is already opened
         if self._client.is_open:
@@ -90,7 +90,7 @@ class LuxtronikModbusTcpInterface:
         Close the connection to the heat pump.
 
         Returns:
-            True if the connection was successfully closed, False otherwise.
+            bool: True if the connection was successfully closed, False otherwise.
         """
         # Do nothing if already closed
         if not self._client.is_open:
@@ -138,11 +138,12 @@ class LuxtronikModbusTcpInterface:
         `LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE`.
 
         Args:
-            read_reg_cb: Callback used to perform the actual register read.
-            telegrams: A single `LuxtronikSmartHomeReadTelegram` or a list of them.
+            read_reg_cb (Callable): Callback used to perform the actual register read.
+            telegrams (list[LuxtronikSmartHomeReadTelegram] | LuxtronikSmartHomeReadTelegram):
+                A single `LuxtronikSmartHomeReadTelegram` or a list of them.
 
         Returns:
-            True if all reads succeeded, False otherwise.
+            bool: True if all reads succeeded, False otherwise.
         """
         # Normalize to a list of telegrams
         _telegrams = telegrams
@@ -202,10 +203,11 @@ class LuxtronikModbusTcpInterface:
 
         Args:
             write_reg_cb: Callback used to perform the register write.
-            telegrams: A single LuxtronikSmartHomeWriteTelegram or a list of them.
+            telegrams (list[LuxtronikSmartHomeWriteTelegram] | LuxtronikSmartHomeWriteTelegram):
+                A single LuxtronikSmartHomeWriteTelegram or a list of them.
 
         Returns:
-            True if all writes succeeded, False otherwise.
+            bool: True if all writes succeeded, False otherwise.
         """
         # Normalize to a list
         _telegrams = telegrams
@@ -257,12 +259,12 @@ class LuxtronikModbusTcpInterface:
         The address is used directly without additional offsets.
 
         Args:
-            addr: The starting Modbus register address to read from.
-            count: The number of 16‑bit registers to read.
+            addr (int): The starting Modbus register address to read from.
+            count (int): The number of 16‑bit registers to read.
 
         Returns:
-            On success, returns the read data as a list of integers.
-            On failure, returns None.
+            list[int] | None: On success, returns the read data as a list of integers.
+                              On failure, returns None.
         """
         telegram = LuxtronikSmartHomeReadTelegram(addr, count)
         success = self.read_holdings(telegram)
@@ -279,10 +281,11 @@ class LuxtronikModbusTcpInterface:
         On error, the field is filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
 
         Args:
-            telegrams: A LuxtronikSmartHomeReadTelegram or a list of them.
+            telegrams (list[LuxtronikSmartHomeReadTelegram] | LuxtronikSmartHomeReadTelegram):
+                A LuxtronikSmartHomeReadTelegram or a list of them.
 
         Returns:
-            True if all reads succeeded, False otherwise.
+            bool: True if all reads succeeded, False otherwise.
         """
         return self._read_register(self._client.read_holding_registers, telegrams)
 
@@ -291,13 +294,13 @@ class LuxtronikModbusTcpInterface:
         Write all values in `data` to 16‑bit holding registers starting at the given Modbus address `addr`.
 
         Args:
-            addr: The starting Modbus register address to write to.
-            count: The number of 16‑bit registers to write.
+            addr (int): The starting Modbus register address to write to.
+            count (int): The number of 16‑bit registers to write.
 
         The address is used directly without additional offsets.
 
         Returns:
-            True if the write succeeded, False otherwise.
+            bool: True if the write succeeded, False otherwise.
         """
         telegram = LuxtronikSmartHomeWriteTelegram(addr, data)
         return self.write_holdings(telegram)
@@ -311,10 +314,11 @@ class LuxtronikModbusTcpInterface:
         The address is used directly without additional offsets.
 
         Args:
-            telegrams: A LuxtronikSmartHomeWriteTelegram or a list of them.
+            telegrams (list[LuxtronikSmartHomeWriteTelegram] | LuxtronikSmartHomeWriteTelegram):
+                A LuxtronikSmartHomeWriteTelegram or a list of them.
 
         Returns:
-            True if all writes succeeded, False otherwise.
+            bool: True if all writes succeeded, False otherwise.
         """
         return self._write_register(self._client.write_multiple_registers, telegrams)
 
@@ -327,12 +331,12 @@ class LuxtronikModbusTcpInterface:
         The address is used directly without additional offsets.
 
         Args:
-            addr: The starting Modbus register address to read from.
-            count: The number of 16‑bit registers to read.
+            addr (int): The starting Modbus register address to read from.
+            count (int): The number of 16‑bit registers to read.
 
         Returns:
-            On success, returns the read data as a list of integers.
-            On failure, returns None.
+            list[int] | None: On success, returns the read data as a list of integers.
+                              On failure, returns None.
         """
         telegram = LuxtronikSmartHomeReadTelegram(addr, count)
         success = self.read_inputs(telegram)
@@ -349,9 +353,10 @@ class LuxtronikModbusTcpInterface:
         On error, the field is filled with LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE.
 
         Args:
-            telegrams: A LuxtronikSmartHomeReadTelegram or a list of them.
+            telegrams (list[LuxtronikSmartHomeReadTelegram] | LuxtronikSmartHomeReadTelegram):
+                A LuxtronikSmartHomeReadTelegram or a list of them.
 
         Returns:
-            True if all reads succeeded, False otherwise.
+            bool: True if all reads succeeded, False otherwise.
         """
         return self._read_register(self._client.read_input_registers, telegrams)

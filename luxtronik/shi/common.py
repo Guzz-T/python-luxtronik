@@ -18,8 +18,8 @@ class LuxtronikSmartHomeReadTelegram:
         Initialize a read telegram.
 
         Args:
-            addr: Starting Modbus register address to read from.
-            count: Number of 16‑bit registers to read.
+            addr (int): Starting register address to read from.
+            count (int): Number of 16‑bit registers to read.
         """
         self.addr = addr
         self.count = count
@@ -32,8 +32,8 @@ class LuxtronikSmartHomeReadTelegram:
         and excess values are truncated.
 
         Returns:
-            True if the original data was valid (list of correct length),
-            False otherwise.
+            bool: True if the original data was valid (list of correct length),
+                  False otherwise.
         """
         data = self.data if isinstance(self.data, list) else None
         length = len(data) if data is not None else 0
@@ -63,8 +63,8 @@ class LuxtronikSmartHomeWriteTelegram:
         Initialize a write telegram.
 
         Args:
-            addr: Starting Modbus register address to write to.
-            data: Values to be written. If None or not a list,
+            addr (int): Starting register address to write to.
+            data (list[int]): Values to be written. If None or not a list,
                 the telegram will be initialized with an empty payload.
         """
         self.addr = addr
@@ -89,8 +89,8 @@ class ContiguousDataPart:
         Initialize a contiguous data part.
 
         Args:
-            field: The field object to read or write.
-            definition: The definition for this field.
+            field (Base): The field object to read or write.
+            definition (LuxtronikFieldDefinition): The definition for this field.
         """
         self.field = field
         self.definition = definition
@@ -109,7 +109,7 @@ class ContiguousDataPart:
 
 class ContiguousDataBlock:
     """
-    Represents a contiguous block of data for efficient Modbus access.
+    Represents a contiguous block of data for efficient read/write access.
 
     Contiguous data fields are grouped into a single block to minimize
     the number of read/write operations. Each block links the raw data
@@ -138,8 +138,8 @@ class ContiguousDataBlock:
         Add a subsequent part to this contiguous data block.
 
         Args:
-            field: The field associated with this part.
-            definition: The definition associated with this part.
+            field (Base): The field associated with this part.
+            definition (LuxtronikFieldDefinition): The definition associated with this part.
         """
         if self._parts:
             assert (
@@ -162,7 +162,7 @@ class ContiguousDataBlock:
         Integrate an array of registers into the raw values of the corresponding fields.
 
         Args:
-            data_arr: A list of register values.
+            data_arr (list[int]): A list of register values.
 
         Raises:
             AssertionError: If the provided data length does not match `overall_count`.
@@ -178,7 +178,7 @@ class ContiguousDataBlock:
         Extract an array of registers from the raw values of the corresponding fields.
 
         Returns:
-            A list of register values.
+            list[int]: A list of register values.
 
         Raises:
             AssertionError: If the generated data length does not match `overall_count`.
@@ -194,7 +194,7 @@ class ContiguousDataBlocksHandler:
     """
     Manages a collection of contiguous data blocks.
 
-    Contiguous data blocks group adjacent Modbus registers together
+    Contiguous data blocks group adjacent registers together
     to minimize the number of read/write operations.
     """
 
@@ -209,8 +209,8 @@ class ContiguousDataBlocksHandler:
         Correctly add a field definition to the list of contiguous blocks.
 
         Args:
-            field: The field associated with this part.
-            definition: The definition associated with this part.
+            field (Base): The field associated with this part.
+            definition (LuxtronikFieldDefinition): The definition associated with this part.
         """
         index = definition.index
         count = definition.count
@@ -233,16 +233,15 @@ class ContiguousDataBlocksHandler:
     def get_block_list(self):
         return self._blocks
 
-
     def create_read_telegrams(self, offset):
         """
         Create read telegrams for all blocks.
 
         Args:
-            offset: Address offset to apply to each block's index.
+            offset (int): Address offset to apply to each block's index.
 
         Returns:
-            A list of LuxtronikSmartHomeReadTelegram objects.
+            list[LuxtronikSmartHomeReadTelegram]: A list of LuxtronikSmartHomeReadTelegram objects.
         """
         for block in self._blocks:
             addr = block.first_index + offset
@@ -257,10 +256,10 @@ class ContiguousDataBlocksHandler:
         Create write telegrams for all blocks.
 
         Args:
-            offset: Address offset to apply to each block's index.
+            offset (int): Address offset to apply to each block's index.
 
         Returns:
-            A list of LuxtronikSmartHomeWriteTelegram objects.
+            list[LuxtronikSmartHomeWriteTelegram]: A list of LuxtronikSmartHomeWriteTelegram objects.
         """
         for block in self._blocks:
             addr = block.first_index + offset
