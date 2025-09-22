@@ -1,16 +1,24 @@
 from threading import RLock
 
-# Share the same lock-objects over all used instances
-management_lock = RLock()
-hosts_locks = {}
+# Global lock to synchronize access to the hosts_locks dictionary
+_management_lock = RLock()
+_hosts_locks = {}
 
 def get_host_lock(host):
     """
-    Create a new lock object for a host string if one does not already exist.
-    Then return the unique lock object associated with that host.
+    Retrieve the unique lock object associated with a given host.
+    The same thread can acquire a RLock as often as desired.
+
+    If no lock exists for the host, a new one is created in a thread-safe manner.
+
+    Args:
+        host (str): Hostname or IP address.
+
+    Returns:
+        RLock: The lock object dedicated to the given host.
     """
     # Ensure a dedicated lock is created for each IP.
-    with management_lock:
-        if not host in hosts_locks:
-            hosts_locks[host] = RLock()
-        return hosts_locks[host]
+    with _management_lock:
+        if host not in _hosts_locks:
+            _hosts_locks[host] = RLock()
+        return _hosts_locks[host]

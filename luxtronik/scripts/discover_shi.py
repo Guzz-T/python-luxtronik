@@ -32,7 +32,7 @@ def fill_with_unknown(data_vector, start, count):
             skip_count = definition.count - 1
 
 def remove_known(data_vector):
-    definitions = data_vector._get_definitions()
+    definitions = data_vector._definitions
     for definition in definitions:
         del data_vector._data[definition.index]
 

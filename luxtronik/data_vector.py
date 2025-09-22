@@ -68,205 +68,86 @@ class DataVector:
         return entry
 
 
-class LuxtronikFieldDefinition:
+class DataVectorSmartHome(DataVector):
     """
-    Object that contains all metadata for a data field.
-    Additionally, there are some convenience functions that utilize this data to,
-    for example, extract relevant information from a data array.
+    Specialized DataVector for Luxtronik Smart Home fields.
+
+    Provides access to field definitions by name or index,
+    supports parsing of raw data, and can create unknown fields.
     """
-
-    DEFAULT_DATA = {
-        'index': -1,
-        'count': 1,
-        'type': Unknown,
-        'writeable': False,
-        'names': [],
-        'since': '',
-        'until': '',
-        'description': '',
-    }
-
-    def __init__(self, data_dict, type_name):
-        """
-        Create a field definition object from a definition entry.
-        Use default values if values are not set. Only the 'index' is strictly required.
-        Additionally, Unknown_xxx_yy is added as a possible name if the definition is valid.
-        """
-        try:
-            data_dict = self.DEFAULT_DATA | data_dict
-            index = int(data_dict['index'])
-            self._valid = index >= 0
-            self._index = index if self._valid else 0
-            self._count = int(data_dict['count'])
-            self._data_type = data_dict['type']
-            self._writeable = bool(data_dict['writeable'])
-            names = data_dict['names']
-            if not isinstance(names, list):
-                names = [str(names)]
-            names = [str(name).strip() for name in names if str(name).strip()]
-            if self._valid:
-                names += [f"Unknown_{type_name}_{self._index}"]
-            if not self._valid and len(names) == 0:
-                names = ['_invalid_']
-            self._names = names
-            self._since = str(data_dict['since'])
-            self._until = str(data_dict['until'])
-            self._description = str(data_dict['description'])
-        except Exception:
-            self._valid = False
-            self._index = 0
-
-    @classmethod
-    def invalid(cls):
-        "Create an invalid field definition."
-        obj = cls({}, "Invalids")
-        return obj
-
-    @classmethod
-    def unknown(cls, index, type_name):
-        "Create an unknown field definition."
-        obj = cls({
-            'index': index
-        }, type_name)
-        return obj
-
-    @classmethod
-    def from_field(cls, index, field, type_name="Invalids"):
-        "Create an invalid field definition."
-        obj = cls({
-            'index': index,
-            'type': type(field),
-            'writeable': field.writeable,
-            'names': [field.name]
-        }, type_name)
-        return obj
-
-    def __bool__(self):
-        "Returns the valid flag."
-        return self._valid
-
-    @property
-    def valid(self):
-        "Returns the valid flag."
-        return self._valid
-
-    @property
-    def index(self):
-        "Returns the assigned index."
-        return self._index
-
-    @property
-    def count(self):
-        "Returns the assigned number of used bytes/words."
-        return self._count
-
-    @property
-    def data_type(self):
-        "Returns the assigned data type."
-        return self._data_type
-
-    @property
-    def writeable(self):
-        "Returns the assigned writeable flag."
-        return self._writeable
-
-    @property
-    def names(self):
-        "Returns all assigned names."
-        return self._names
-
-    @property
-    def name(self):
-        "Returns the preferred name."
-        return self._names[0]
-
-    def create_field(self):
-        "Creates a data field from the assigned information."
-        if self:
-            return self.data_type(self.name, self.writeable)
-        else:
-            return None
-
-    def extract_raw(self, raw_data, offset=-1):
-        "Extract the defined number of bytes/words from an array of bytes/words at the specified or defined offset."
-        offset = offset if offset >= 0 else self.index
-        # Use the information of the definition to extract the raw-value
-        if self.count == 1:
-            raw = raw_data[offset]
-            return raw
-        else:
-            raw = raw_data[offset : offset + self.count]
-            return raw if len(raw) == self.count else None
-
-    def get_raw(self, field):
-        "Always return the field's raw value as a list of the correct size, or `None` if there is insufficient data."
-        return self.get_data_arr(field.raw)
-
-    def get_data_arr(self, data):
-        "Always return the data as a list of the correct size, or `None` if there is insufficient data."
-        if not isinstance(data, list):
-            data = [data]
-        data = data[:self.count]
-        return data if len(data) == self.count else None
-
-    def check_data(self, field):
-        data_arr = self.get_raw(field)
-        return data_arr is not None
-
-
-class DataVectorModbus(DataVector):
-
-    offset = 0
-
-    @classmethod
-    def _get_definitions(cls):
-        """Override this to return the field definitions."""
-        return [LuxtronikFieldDefinition.invalid()]
-
-    @classmethod
-    def _get_definition(cls, name_or_idx):
-        if isinstance(name_or_idx, int):
-            return cls._get_definition_by_idx(name_or_idx)
-        else:
-            return cls._get_definition_by_name(name_or_idx)
-
-    @classmethod
-    def _get_definition_by_name(cls, name):
-        for definition in cls._get_definitions():
-            if name.lower() == definition.name.lower():
-                return definition
-            for def_name in definition.names:
-                if name.lower() == def_name.lower():
-                    self.logger.warning(f"'{name}' is outdated! Use '{definition.name}' instead.")
-                    return definition
-        return LuxtronikFieldDefinition.invalid()
-
-    @classmethod
-    def _get_definition_by_idx(cls, idx):
-        for definition in cls._get_definitions():
-            if idx == definition.index:
-                return definition
-        return LuxtronikFieldDefinition.invalid()
 
     @classmethod
     def create_unknown(cls, idx):
+        """
+        Create an unknown field object.
+
+        Args:
+            idx (int): Register index.
+
+        Returns:
+            Unknown: A placeholder field instance.
+        """
         return Unknown(f"Unknown_{cls.name}_{idx}", False)
 
+    def __init__(self, definitions):
+        """
+        Initialize the DataVectorSmartHome instance.
 
-    def __init__(self):
-        """Initialize DataVector class."""
+        Creates field objects for all definitions and stores them in the data vector.
+
+        Args:
+            definitions (LuxtronikFieldDefinitions): List of definitions
+        """
         super().__init__()
-        self.safe = False
+        self._definitions = definitions
+        self._data = self._definitions.create_field_dict()
+        self.safe = True
 
-        # Fill data vector
-        for definition in self._get_definitions():
-            self._data[definition.index] = definition.create_field()
+    @property
+    def definitions(self):
+        return self._definitions
 
     def parse(self, raw_data):
-        """Parse raw data."""
+        """
+        Parse raw data into the corresponding fields.
+
+        Args:
+            raw_data (list[int]): List of raw register values.
+        """
         raw_len = len(raw_data)
-        for idx, field in self._data.items():
-            if idx >= raw_len:
+        for d, f in self._data.items():
+            if d.idx >= raw_len:
                 continue
-            definition = self._get_definition_by_idx(idx)
-            field.raw = definition.extract_raw(raw_data, idx)
+            f.raw = d.extract_raw(raw_data)
+
+    def set(self, target, value):
+        """
+        Set field to new value.
+
+        Args:
+            target (int | str): Target could either be its id or its name.
+            value (int | List[int]): Value to set
+        """
+        field = self._lookup(target)
+        if field.writeable or not self.safe:
+            field.value = value
+        else:
+            self.logger.warning(f"Field '{field.name}' not safe for writing!")
+
+
+    def _lookup(self, target):
+        """
+        Lookup an entry
+
+        Args:
+            target (int | str): Target could either be its id or its name.
+
+        Returns:
+            Base | None: If found return the field instance, otherwise None.
+
+        """
+        definition = self._definitions.get(target)
+        if not definition.valid:
+            self.logger.warning(f"Entry '{target}' not found", )
+            return None
+        return self._data.get(definition, None)

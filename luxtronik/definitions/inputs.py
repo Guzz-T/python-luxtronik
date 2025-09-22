@@ -1,9 +1,14 @@
 """
-Constant list containing the complete inputs definitions.
+Constant list containing all 'inputs' definitions
+used by the Smart Home Interface (SHI) of the Luxtronik controller.
+
+Unlike the setting registers, these SHI register are volatile and intended for
+communication with smart home systems. 'Input' register are read-only
+and are used for display or to control other devices.
 """
 from typing import Final
 
-from luxtronik.data_vector import LuxtronikFieldDefinition
+from luxtronik.definition import LuxtronikFieldDefinitions
 from luxtronik.datatypes import (
     Celsius,
     Energy,
@@ -14,11 +19,16 @@ from luxtronik.datatypes import (
     Unknown,
 )
 
-INPUTS_DEFINITIONS_LIST = [
+# Offset which must be added to the indices
+# to obtain the correct address of the data fields
+INPUTS_OFFSET: Final = 10000
+INPUTS_FIELD_NAME: Final = "input"
+
+INPUTS_DEFINITIONS_LIST: Final = [
     {
         "index": 0,
         "count": 1,
-        "names": ["Heatpump_state"],
+        "names": ["heatpump_state"],
         "type": HeatPumpState,
         "writeable": False,
         "since": "3.90.1",
@@ -27,7 +37,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 2,
         "count": 1,
-        "names": ["Operation_mode"],
+        "names": ["operation_mode"],
         "type": OperationMode,
         "writeable": False,
         "since": "3.90.1",
@@ -36,7 +46,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 3,
         "count": 1,
-        "names": ["Heating_state"],
+        "names": ["heating_state"],
         "type": ModeState,
         "writeable": False,
         "since": "3.90.1",
@@ -45,16 +55,16 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 4,
         "count": 1,
-        "names": ["Hot_water_state"],
+        "names": ["hot_water_state"],
         "type": ModeState,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Current state of the hot water function",
+        "description": "Current state of the hot water system",
     },
     {
         "index": 6,
         "count": 1,
-        "names": ["Unknown_Input_6"],
+        "names": ["unknown_input_6"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -63,7 +73,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 7,
         "count": 1,
-        "names": ["Unknown_Input_7"],
+        "names": ["unknown_input_7"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -72,7 +82,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 100,
         "count": 1,
-        "names": ["TRL"],
+        "names": ["return_line_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -81,7 +91,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 101,
         "count": 1,
-        "names": ["TRL_target"],
+        "names": ["return_line_target"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -90,16 +100,16 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 102,
         "count": 1,
-        "names": ["TRL_ext"],
+        "names": ["return_line_ext"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "External return line temperature sensor reading",
+        "description": "Current value of the external return temperature sensor",
     },
     {
         "index": 103,
         "count": 1,
-        "names": ["TRL_limit"],
+        "names": ["return_line_limit"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -108,7 +118,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 104,
         "count": 1,
-        "names": ["TRL_min_target"],
+        "names": ["return_line_min_target"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -117,7 +127,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 105,
         "count": 1,
-        "names": ["TVL"],
+        "names": ["flow_line_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -126,7 +136,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 106,
         "count": 1,
-        "names": ["Unknown_Input_106"],
+        "names": ["unknown_input_106"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -135,7 +145,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 107,
         "count": 1,
-        "names": ["Inside_temp"],
+        "names": ["inside_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -144,7 +154,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 108,
         "count": 1,
-        "names": ["Outside_temp"],
+        "names": ["outside_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -153,7 +163,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 109,
         "count": 1,
-        "names": ["Unknown_Input_109"],
+        "names": ["unknown_input_109"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -162,7 +172,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 110,
         "count": 1,
-        "names": ["Unknown_Input_110"],
+        "names": ["unknown_input_110"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -171,7 +181,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 111,
         "count": 1,
-        "names": ["Unknown_Input_111"],
+        "names": ["unknown_input_111"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -180,7 +190,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 112,
         "count": 1,
-        "names": ["Unknown_Input_112"],
+        "names": ["unknown_input_112"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -189,7 +199,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 113,
         "count": 1,
-        "names": ["Unknown_Input_113"],
+        "names": ["unknown_input_113"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -198,7 +208,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 120,
         "count": 1,
-        "names": ["Hot_water_temp"],
+        "names": ["hot_water_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -207,7 +217,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 121,
         "count": 1,
-        "names": ["Hot_water_target"],
+        "names": ["hot_water_target"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -216,7 +226,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 122,
         "count": 1,
-        "names": ["Hot_water_min"],
+        "names": ["hot_water_min"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -225,7 +235,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 123,
         "count": 1,
-        "names": ["Hot_water_max"],
+        "names": ["hot_water_max"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
@@ -234,7 +244,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 124,
         "count": 1,
-        "names": ["Unknown_Input_124"],
+        "names": ["unknown_input_124"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -243,115 +253,115 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 140,
         "count": 1,
-        "names": ["MK1_heat_temp"],
+        "names": ["mc1_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Current heating circuit 1 temperature",
+        "description": "Current temperature of mixing circuit 1",
     },
     {
         "index": 141,
         "count": 1,
-        "names": ["MK1_heat_target"],
+        "names": ["mc1_target"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Target heating circuit 1 temperature",
+        "description": "Desired target temperature of mixing circuit 1",
     },
     {
         "index": 142,
         "count": 1,
-        "names": ["MK1_heat_min"],
+        "names": ["mc1_min"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Minimum heating circuit 1 temperature",
+        "description": "Minimum temperature of mixing circuit 1",
     },
     {
         "index": 143,
         "count": 1,
-        "names": ["MK1_heat_max"],
+        "names": ["mc1_max"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Maximum heating circuit 1 temperature",
+        "description": "Maximum temperature of mixing circuit 1",
     },
     {
         "index": 150,
         "count": 1,
-        "names": ["MK2_heat_temp"],
+        "names": ["mc2_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Current heating circuit 2 temperature",
+        "description": "Current temperature of mixing circuit 2",
     },
     {
         "index": 151,
         "count": 1,
-        "names": ["MK2_heat_target"],
+        "names": ["mc2_target"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Target heating circuit 2 temperature",
+        "description": "Desired target temperature of mixing circuit 2",
     },
     {
         "index": 152,
         "count": 1,
-        "names": ["MK2_heat_min"],
+        "names": ["mc2_min"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Minimum heating circuit 2 temperature",
+        "description": "Minimum temperature of mixing circuit 2",
     },
     {
         "index": 153,
         "count": 1,
-        "names": ["MK2_heat_max"],
+        "names": ["mc2_max"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Maximum heating circuit 2 temperature",
+        "description": "Maximum temperature of mixing circuit 2",
     },
     {
         "index": 160,
         "count": 1,
-        "names": ["MK3_heat_temp"],
+        "names": ["mc3_temp"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Current heating circuit 3 temperature",
+        "description": "Current temperature of mixing circuit 3",
     },
     {
         "index": 161,
         "count": 1,
-        "names": ["MK3_heat_target"],
+        "names": ["mc3_target"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Target heating circuit 3 temperature",
+        "description": "Desired target temperature of mixing circuit 3",
     },
     {
         "index": 162,
         "count": 1,
-        "names": ["MK3_heat_min"],
+        "names": ["mc3_min"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Minimum heating circuit 3 temperature",
+        "description": "Minimum temperature of mixing circuit 3",
     },
     {
         "index": 163,
         "count": 1,
-        "names": ["MK3_heat_max"],
+        "names": ["mc3_heat_max"],
         "type": Celsius,
         "writeable": False,
         "since": "3.90.1",
-        "description": "Maximum heating circuit 3 temperature",
+        "description": "Maximum temperature of mixing circuit 3",
     },
     {
         "index": 201,
         "count": 1,
-        "names": ["Unknown_Input_201"],
+        "names": ["unknown_input_201"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -360,7 +370,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 202,
         "count": 1,
-        "names": ["Unknown_Input_202"],
+        "names": ["unknown_input_202"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -369,7 +379,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 203,
         "count": 1,
-        "names": ["Unknown_Input_203"],
+        "names": ["unknown_input_203"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -378,7 +388,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 204,
         "count": 1,
-        "names": ["Unknown_Input_204"],
+        "names": ["unknown_input_204"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -387,7 +397,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 205,
         "count": 1,
-        "names": ["Unknown_Input_205"],
+        "names": ["unknown_input_205"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -396,7 +406,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 206,
         "count": 1,
-        "names": ["Unknown_Input_206"],
+        "names": ["unknown_input_206"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -405,7 +415,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 207,
         "count": 1,
-        "names": ["Unknown_Input_207"],
+        "names": ["unknown_input_207"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -414,7 +424,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 300,
         "count": 1,
-        "names": ["Unknown_Input_300"],
+        "names": ["unknown_input_300"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -423,7 +433,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 301,
         "count": 1,
-        "names": ["Unknown_Input_301"],
+        "names": ["unknown_input_301"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -432,7 +442,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 302,
         "count": 1,
-        "names": ["Unknown_Input_302"],
+        "names": ["unknown_input_302"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -441,7 +451,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 310,
         "count": 1,
-        "names": ["Unknown_Input_310"],
+        "names": ["unknown_input_310"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -450,7 +460,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 311,
         "count": 1,
-        "names": ["Total_power_consumption"],
+        "names": ["total_power_consumption"],
         "type": Energy,
         "writeable": False,
         "since": "3.90.1",
@@ -459,7 +469,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 312,
         "count": 1,
-        "names": ["Unknown_Input_312"],
+        "names": ["unknown_input_312"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -468,7 +478,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 313,
         "count": 1,
-        "names": ["Heat_power_consumption"],
+        "names": ["heat_power_consumption"],
         "type": Energy,
         "writeable": False,
         "since": "3.90.1",
@@ -477,7 +487,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 314,
         "count": 1,
-        "names": ["Unknown_Input_314"],
+        "names": ["unknown_input_314"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -486,7 +496,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 315,
         "count": 1,
-        "names": ["Hot_water_power_consumption"],
+        "names": ["hot_water_power_consumption"],
         "type": Energy,
         "writeable": False,
         "since": "3.90.1",
@@ -495,7 +505,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 316,
         "count": 1,
-        "names": ["Unknown_Input_316"],
+        "names": ["unknown_input_316"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -504,7 +514,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 317,
         "count": 1,
-        "names": ["Unknown_Input_317"],
+        "names": ["unknown_input_317"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -513,7 +523,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 318,
         "count": 1,
-        "names": ["Unknown_Input_318"],
+        "names": ["unknown_input_318"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -522,7 +532,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 319,
         "count": 1,
-        "names": ["Unknown_Input_319"],
+        "names": ["unknown_input_319"],
         "type": Unknown,
         "writeable": False,
         "since": "3.90.1",
@@ -531,7 +541,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 320,
         "count": 1,
-        "names": ["Unknown_Input_320"],
+        "names": ["unknown_input_320"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -540,7 +550,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 321,
         "count": 1,
-        "names": ["Unknown_Input_321"],
+        "names": ["unknown_input_321"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -549,7 +559,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 322,
         "count": 1,
-        "names": ["Unknown_Input_322"],
+        "names": ["unknown_input_322"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -558,7 +568,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 323,
         "count": 1,
-        "names": ["Unknown_Input_323"],
+        "names": ["unknown_input_323"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -567,7 +577,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 324,
         "count": 1,
-        "names": ["Unknown_Input_324"],
+        "names": ["unknown_input_324"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -576,7 +586,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 325,
         "count": 1,
-        "names": ["Unknown_Input_325"],
+        "names": ["unknown_input_325"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -585,7 +595,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 326,
         "count": 1,
-        "names": ["Unknown_Input_326"],
+        "names": ["unknown_input_326"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -594,7 +604,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 327,
         "count": 1,
-        "names": ["Unknown_Input_327"],
+        "names": ["unknown_input_327"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -603,7 +613,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 328,
         "count": 1,
-        "names": ["Unknown_Input_328"],
+        "names": ["unknown_input_328"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -612,7 +622,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 329,
         "count": 1,
-        "names": ["Unknown_Input_329"],
+        "names": ["unknown_input_329"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -621,7 +631,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 350,
         "count": 1,
-        "names": ["Unknown_Input_350"],
+        "names": ["unknown_input_350"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -630,7 +640,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 351,
         "count": 1,
-        "names": ["Unknown_Input_351"],
+        "names": ["unknown_input_351"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -639,7 +649,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 352,
         "count": 1,
-        "names": ["Unknown_Input_352"],
+        "names": ["unknown_input_352"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -648,7 +658,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 353,
         "count": 1,
-        "names": ["Unknown_Input_353"],
+        "names": ["unknown_input_353"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -657,7 +667,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 354,
         "count": 1,
-        "names": ["Unknown_Input_354"],
+        "names": ["unknown_input_354"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -666,7 +676,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 355,
         "count": 1,
-        "names": ["Unknown_Input_355"],
+        "names": ["unknown_input_355"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -675,7 +685,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 356,
         "count": 1,
-        "names": ["Unknown_Input_356"],
+        "names": ["unknown_input_356"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -684,7 +694,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 360,
         "count": 1,
-        "names": ["Unknown_Input_360"],
+        "names": ["unknown_input_360"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -693,7 +703,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 361,
         "count": 1,
-        "names": ["Unknown_Input_361"],
+        "names": ["unknown_input_361"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -702,7 +712,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 400,
         "count": 3,
-        "names": ["Version"],
+        "names": ["version"],
         "type": FullVersion,
         "writeable": False,
         "since": "3.90.1",
@@ -711,7 +721,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 404,
         "count": 1,
-        "names": ["Unknown_Input_404"],
+        "names": ["unknown_input_404"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -720,7 +730,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 405,
         "count": 1,
-        "names": ["Unknown_Input_405"],
+        "names": ["unknown_input_405"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -729,7 +739,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 406,
         "count": 1,
-        "names": ["Unknown_Input_406"],
+        "names": ["unknown_input_406"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -738,7 +748,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 407,
         "count": 1,
-        "names": ["Unknown_Input_407"],
+        "names": ["unknown_input_407"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -747,7 +757,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 408,
         "count": 1,
-        "names": ["Unknown_Input_408"],
+        "names": ["unknown_input_408"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -756,7 +766,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 409,
         "count": 1,
-        "names": ["Unknown_Input_409"],
+        "names": ["unknown_input_409"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -765,7 +775,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 410,
         "count": 1,
-        "names": ["Unknown_Input_410"],
+        "names": ["unknown_input_410"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -774,7 +784,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 411,
         "count": 1,
-        "names": ["Unknown_Input_411"],
+        "names": ["unknown_input_411"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -783,7 +793,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 412,
         "count": 1,
-        "names": ["Unknown_Input_412"],
+        "names": ["unknown_input_412"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -792,7 +802,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 413,
         "count": 1,
-        "names": ["Unknown_Input_413"],
+        "names": ["unknown_input_413"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -801,7 +811,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 416,
         "count": 1,
-        "names": ["Unknown_Input_416"],
+        "names": ["unknown_input_416"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -810,7 +820,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 417,
         "count": 1,
-        "names": ["Unknown_Input_417"],
+        "names": ["unknown_input_417"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -819,7 +829,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 500,
         "count": 1,
-        "names": ["Unknown_Input_500"],
+        "names": ["unknown_input_500"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -828,7 +838,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 501,
         "count": 1,
-        "names": ["Unknown_Input_501"],
+        "names": ["unknown_input_501"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -837,7 +847,7 @@ INPUTS_DEFINITIONS_LIST = [
     {
         "index": 502,
         "count": 1,
-        "names": ["Unknown_Input_502"],
+        "names": ["unknown_input_502"],
         "type": Unknown,
         "writeable": False,
         "since": "3.92.0",
@@ -845,6 +855,5 @@ INPUTS_DEFINITIONS_LIST = [
     },
 ]
 
-INPUTS_DEFINITIONS: Final = [LuxtronikFieldDefinition(definition, 'Input') for definition in INPUTS_DEFINITIONS_LIST]
-INPUTS_IDX_TO_DEF: Final = {definition.index: definition for definition in INPUTS_DEFINITIONS}
-INPUTS_NAME_TO_DEF: Final = {name: definition for definition in INPUTS_DEFINITIONS for name in definition.names}
+
+INPUTS_DEFINITIONS: Final = LuxtronikFieldDefinitions(INPUTS_DEFINITIONS_LIST, INPUTS_OFFSET, INPUTS_FIELD_NAME)

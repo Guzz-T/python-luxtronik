@@ -1,22 +1,16 @@
 """Parse luxtronik Inputs."""
 
 import logging
-from typing import Final
 
-from luxtronik.data_vector import DataVectorModbus, LuxtronikFieldDefinition
-from luxtronik.definitions.inputs import INPUTS_DEFINITIONS, INPUTS_IDX_TO_DEF
+from luxtronik.data_vector import DataVectorSmartHome
+from luxtronik.definitions.inputs import INPUTS_DEFINITIONS, INPUTS_FIELD_NAME
 
-class Inputs(DataVectorModbus):
+class Inputs(DataVectorSmartHome):
     """Class that holds all Inputs."""
 
     logger = logging.getLogger("Luxtronik.Inputs")
-    name = "Input"
-    offset = 10000
+    name = INPUTS_FIELD_NAME
 
-    @classmethod
-    def _get_definitions(cls):
-        return INPUTS_DEFINITIONS
-
-    @classmethod
-    def _get_definition_by_idx(cls, idx):
-        return INPUTS_IDX_TO_DEF.get(idx, LuxtronikFieldDefinition.invalid())
+    def __init__(self):
+        """Initialize Inputs class."""
+        super().__init__(INPUTS_DEFINITIONS)

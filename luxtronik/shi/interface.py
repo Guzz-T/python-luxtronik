@@ -3,16 +3,11 @@ import logging
 from luxtronik.datatypes import Base
 from luxtronik.holdings import Holdings
 from luxtronik.inputs import Inputs
-from luxtronik.shi.constants import (
-    LUXTRONIK_DEFAULT_MODBUS_PORT,
-    LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-)
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadTelegram,
     LuxtronikSmartHomeWriteTelegram,
     ContiguousDataBlock,
 )
-from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
 
 LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
@@ -53,35 +48,18 @@ class LuxtronikSmartHomeInterface:
     provides indexing and name resolution for easier access.
     """
 
-    def __init__(self, interface):
+    def __init__(self, interface, holdings_definitions, inputs_definitions):
         """
         Initialize the smart home interface.
 
         Args:
             interface: The underlying read/write interface.
+            holdings_definitions: Definitions for holding indexing and name resolution
+            inputs_definitions: Definitions for input indexing and name resolution
         """
         self._interface = interface
-
-    @classmethod
-    def from_modbus_tcp(
-        cls,
-        host,
-        port = LUXTRONIK_DEFAULT_MODBUS_PORT,
-        timeout_in_s = LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-    ):
-        """
-        Create a LuxtronikSmartHomeInterface using a Modbus TCP connection.
-
-        Args:
-            host (str): Hostname or IP address of the Luxtronik controller.
-            port (int): TCP port for the Modbus connection.
-            timeout_in_s (float): Timeout in seconds for the Modbus connection.
-
-        Returns:
-            LuxtronikSmartHomeInterface: An initialized interface instance.
-        """
-        modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout_in_s)
-        return cls(modbus_interface)
+        self._holdings_definitions = holdings_definitions
+        self._inputs_definitions = inputs_definitions
 
 
 # Helper methods ##############################################################
@@ -101,7 +79,7 @@ class LuxtronikSmartHomeInterface:
             return int(parts[2])
         return None
 
-    def _get_definition(self, name_or_idx, data_vector_class):
+    def _get_definition(self, name_or_idx, definitions):
         """
         Retrieve the definition for the given name or index.
 
@@ -110,13 +88,13 @@ class LuxtronikSmartHomeInterface:
 
         Args:
             name_or_idx (str | int): The field name or the register index.
-            data_vector_class (class of DataVectorModbus): The data vector class providing definitions.
+            definitions (LuxtronikFieldDefinitions): Field definition list to look-up the desired definition
 
         Returns:
             LuxtronikFieldDefinition | None: A valid definition, or None if not found.
         """
         # Try to get the definition directly
-        definition = data_vector_class._get_definition(name_or_idx)
+        definition = definitions.get(name_or_idx)
         if definition is not None:
             return definition
 
@@ -154,7 +132,7 @@ class LuxtronikSmartHomeInterface:
 
         Args:
             blocks_handler (ContiguousDataBlocksHandler): Handler that groups fields into contiguous blocks.
-            data_vector_class (class of DataVectorModbus): The data vector class providing the offset.
+            data_vector_class (class of DataVectorSmartHome): The data vector class providing the offset.
             read_cb (Callable): Callback function to perform the actual read.
         """
         # Convert the list of contiguous blocks to read telegrams
@@ -162,7 +140,8 @@ class LuxtronikSmartHomeInterface:
         # Read all data. The retrieved data is returned within the telegrams
         read_cb(telegrams)
         # Transfer the data from the telegrams into the fields
-        blocks_handler.integrate_data()
+        if not blocks_handler.integrate_data():
+            LOGGER.error("Could not integrate the read data into the fields.")
 
     def _read_field(self, field_or_name_or_idx, data_vector_class, read_cb):
         """
@@ -174,7 +153,7 @@ class LuxtronikSmartHomeInterface:
 
         Args:
             field_or_name_or_idx (Base | str | int): Field object, field name, or register index.
-            data_vector_class (class of DataVectorModbus): The data vector class providing definitions and the offset.
+            data_vector_class (class of DataVectorSmartHome): The data vector class providing definitions and the offset.
             read_cb (Callable): Callback function to perform the actual read.
 
         Returns:
@@ -216,7 +195,7 @@ class LuxtronikSmartHomeInterface:
         The retrieved data is integrated into the data-vector fields.
 
         Args:
-            data_vector (DataVectorModbus): The data vector class providing fields.
+            data_vector (DataVectorSmartHome): The data vector class providing fields.
             read_cb (Callable): Callback function to perform the actual read.
         """
 
@@ -246,7 +225,7 @@ class LuxtronikSmartHomeInterface:
 
         Args:
             blocks_handler (ContiguousDataBlocksHandler): Handler that groups fields into contiguous blocks.
-            data_vector_class (class of DataVectorModbus): The data vector class providing the offset.
+            data_vector_class (class of DataVectorSmartHome): The data vector class providing the offset.
             write_cb (Callable): Callback function to perform the actual write.
         """
         # Convert the list of contiguous blocks to write telegrams
@@ -261,10 +240,10 @@ class LuxtronikSmartHomeInterface:
 
         Args:
             field_or_name_or_idx (Base | str | int): Field object, field name, or register index.
-            data_vector_class (class of DataVectorModbus): The data vector class providing definitions and the offset.
+            data_vector_class (class of DataVectorSmartHome): The data vector class providing definitions and the offset.
             write_cb (Callable): Callback function to perform the actual write.
             data (list[int] | None): Optional raw data to override the field's data.
-            safe (bool): If True, aborts when the field is marked as non‑writeable.
+            safe (bool): If True, aborts when the field is marked as non-writeable.
 
         Returns:
             Base | None: The written field object, or None if the write failed.
@@ -316,7 +295,7 @@ class LuxtronikSmartHomeInterface:
         Write the data of all fields within the given data vector.
 
         Args:
-            data_vector (DataVectorModbus): The data vector containing the fields to be written.
+            data_vector (DataVectorSmartHome): The data vector containing the fields to be written.
             write_cb (Callable): Callback function to perform the actual write.
         """
         # Each register must be written individually to avoid transmission errors
@@ -351,20 +330,20 @@ class LuxtronikSmartHomeInterface:
 
     def read_holding_raw(self, index, count=1):
         """
-        Read a specified number of 16‑bit registers starting at the given index.
+        Read a specified number of 16-bit registers starting at the given index.
 
         The required offset is added automatically.
 
         Args:
             index (int): The starting register index (without offset).
-            count (int): Number of 16‑bit registers to read. Defaults to 1.
+            count (int): Number of 16-bit registers to read. Defaults to 1.
 
         Returns:
             list[int] | None: On success the list of read register values.
         """
         telegram = LuxtronikSmartHomeReadTelegram(index + Holdings.offset, count)
-        self._interface.read_holdings(telegram)
-        return telegram.data
+        success = self._interface.read_holdings(telegram)
+        return telegram.data if success else None
 
     def read_holding(self, field_or_name_or_idx):
         """
@@ -400,7 +379,7 @@ class LuxtronikSmartHomeInterface:
 
     def write_holding_raw(self, index, data_arr):
         """
-        Write all provided data to 16‑bit registers at the specified index.
+        Write all provided data to 16-bit registers at the specified index.
 
         The required offset is added automatically.
 
@@ -422,7 +401,7 @@ class LuxtronikSmartHomeInterface:
         Args:
             field_or_name_or_idx (Base | str | int): Field name, register index, or field object.
             data (list[int] | None): Optional raw data to override the field's data.
-            safe (bool): If True, aborts when the field is marked as non‑writeable.
+            safe (bool): If True, aborts when the field is marked as non-writeable.
 
         Returns:
             Base | None: The written field object, or None if the write failed.
@@ -447,20 +426,20 @@ class LuxtronikSmartHomeInterface:
 
     def read_input_raw(self, index, count=1):
         """
-        Read a specified number of 16‑bit registers starting at the given index.
+        Read a specified number of 16-bit registers starting at the given index.
 
         The required offset is added automatically.
 
         Args:
             index (int): The starting register index (without offset).
-            count (int): Number of 16‑bit registers to read. Defaults to 1.
+            count (int): Number of 16-bit registers to read. Defaults to 1.
 
         Returns:
             list[int] | None: On success the list of read register values.
         """
         telegram = LuxtronikSmartHomeReadTelegram(index + Inputs.offset, count)
-        self._interface.read_inputs(telegram)
-        return telegram.data
+        success = self._interface.read_inputs(telegram)
+        return telegram.data if success else None
 
     def read_input(self, field_or_name_or_idx):
         """
