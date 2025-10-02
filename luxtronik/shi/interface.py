@@ -342,7 +342,7 @@ class LuxtronikSmartHomeInterface:
             list[int] | None: On success the list of read register values.
         """
         telegram = LuxtronikSmartHomeReadTelegram(index + Holdings.offset, count)
-        success = self._interface.read_holdings(telegram)
+        success = self._interface.send(telegram)
         return telegram.data if success else None
 
     def read_holding(self, field_or_name_or_idx):
@@ -359,7 +359,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The field object containing the read data, or None if the read failed.
         """
-        return self._read_field(field_or_name_or_idx, Holdings, self._interface.read_holdings)
+        return self._read_field(field_or_name_or_idx, Holdings, self._interface.send)
 
     def read_holdings(self, holdings=None):
         """
@@ -374,7 +374,7 @@ class LuxtronikSmartHomeInterface:
         """
         if holdings is None:
             holdings = Holdings()
-        self._read_fields(holdings, self._interface.read_holdings)
+        self._read_fields(holdings, self._interface.send)
         return holdings
 
     def write_holding_raw(self, index, data_arr):
@@ -388,7 +388,7 @@ class LuxtronikSmartHomeInterface:
             data_arr (list[int]): Values to be written to the registers.
         """
         telegram = LuxtronikSmartHomeWriteTelegram(index + Holdings.offset, data_arr)
-        self._interface.write_holdings(telegram)
+        self._interface.send(telegram)
 
     def write_holding(self, field_or_name_or_idx, data=None, safe=True):
         """
@@ -406,7 +406,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The written field object, or None if the write failed.
         """
-        self._write_field(field_or_name_or_idx, Holdings, self._interface.write_holdings, data, safe)
+        self._write_field(field_or_name_or_idx, Holdings, self._interface.send, data, safe)
 
     def write_holdings(self, holdings):
         """
@@ -419,7 +419,7 @@ class LuxtronikSmartHomeInterface:
         if holdings is None:
             LOGGER.warning("Abort SHI write! No data to write provided.")
             return
-        self._write_fields(holdings, self._interface.write_holdings)
+        self._write_fields(holdings, self._interface.send)
 
 
 # Inputs methods ##############################################################
@@ -438,7 +438,7 @@ class LuxtronikSmartHomeInterface:
             list[int] | None: On success the list of read register values.
         """
         telegram = LuxtronikSmartHomeReadTelegram(index + Inputs.offset, count)
-        success = self._interface.read_inputs(telegram)
+        success = self._interface.send(telegram)
         return telegram.data if success else None
 
     def read_input(self, field_or_name_or_idx):
@@ -455,7 +455,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The field object containing the read data, or None if the read failed.
         """
-        return self._read_field(field_or_name_or_idx, Inputs, self._interface.read_inputs)
+        return self._read_field(field_or_name_or_idx, Inputs, self._interface.send)
 
     def read_inputs(self, inputs=None):
         """

@@ -59,20 +59,20 @@ def discover_shi():
     )
     args = parser.parse_args()
 
-    client = LuxtronikModbusTcpInterface(args.ip, args.port)
+    client = LuxtronikSmartHomeInterface(args.ip, args.port)
     # pylint: enable=duplicate-code
 
     print_dump_header("Inputs")
     inputs = Inputs()
     fill_with_unknown(inputs, 0, 10000)
     remove_known(inputs)
-    dump_fields(inputs, client.read_input_raw)
+    dump_fields(inputs, client.read_inputs)
 
     print_dump_header("Holdings")
     holdings = Holdings()
     fill_with_unknown(holdings, 0, 10000)
     remove_known(holdings)
-    dump_fields(holdings, client.read_holding_raw)
+    dump_fields(holdings, client.read_holdings)
 
 
 if __name__ == "__main__":

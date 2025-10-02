@@ -29,7 +29,7 @@ def watch_shi():
     )
     args = parser.parse_args()
 
-    client = LuxtronikModbusTcpInterface(args.ip, args.port)
+    client = LuxtronikSmartHomeInterface(args.ip, args.port)
     prev_inputs_data = client.read_inputs()
     prev_holdings_data = client.read_holdings()
     # pylint: enable=duplicate-code

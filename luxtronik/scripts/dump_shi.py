@@ -24,7 +24,7 @@ def dump_shi():
     )
     args = parser.parse_args()
 
-    client = LuxtronikModbusTcpInterface(args.ip, args.port)
+    client = LuxtronikSmartHomeInterface(args.ip, args.port)
     # pylint: enable=duplicate-code#
 
     print(f"Dump SHI of {args.ip}:{args.port}")
