@@ -1,8 +1,8 @@
 import logging
 
 from luxtronik.datatypes import Base
-from luxtronik.holdings import Holdings
-from luxtronik.inputs import Inputs
+from luxtronik.shi.holdings import Holdings
+from luxtronik.shi.inputs import Inputs
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadTelegram,
     LuxtronikSmartHomeWriteTelegram,
@@ -46,6 +46,10 @@ class LuxtronikSmartHomeInterface:
 
     This class builds on the simple addr/count/data interface and
     provides indexing and name resolution for easier access.
+
+    Each register must be read individually to avoid transmission errors
+    caused by non-existent intervening registers.
+    Combine contiguous registers to optimize read/write access.
     """
 
     def __init__(self, interface, holdings_definitions, inputs_definitions):
@@ -110,11 +114,11 @@ class LuxtronikSmartHomeInterface:
                     "Cannot determine index from name '{name_or_idx}'. Use format 'Unknown_Input_INDEX'."
                 )
                 return None
-            return LuxtronikFieldDefinition.unknown(index, data_vector_class.name, data_vector_class.offset)
+            return definitions.create_unknown_field(index)
 
         # Handle integer indices
         if isinstance(name_or_idx, int):
-            return LuxtronikFieldDefinition.unknown(name_or_idx, data_vector_class.name, data_vector_class.offset)
+            return definitions.create_unknown_field(name_or_idx)
 
         LOGGER.warning(f"Could not find or generate a definition for {name_or_idx}.")
         return None
@@ -122,37 +126,36 @@ class LuxtronikSmartHomeInterface:
 
 # Common read methods #########################################################
 
-    def _read_fields_via_handler(self, blocks_handler, data_vector_class):
+    def _send_and_integrate(self, blocks_handler):
         """
-        Read the data for multiple fields (a single field may correspond to multiple registers)
-        using the contiguous-data-blocks-handler.
-
-        The provided callback method determines whether input or holding registers are read.
-        Subsequently, the retrieved data is integrated into the provided fields.
+        Read or write the data for multiple fields (a single field may correspond to multiple registers)
+        using the contiguous-data-blocks-handler. Subsequently, the retrieved data
+        is integrated into the provided fields.
 
         Args:
             blocks_handler (ContiguousDataBlocksHandler): Handler that groups fields into contiguous blocks.
-            data_vector_class (class of DataVectorSmartHome): The data vector class providing the offset.
         """
-        # Convert the list of contiguous blocks to read telegrams
-        telegrams = blocks_handler.create_read_telegrams(data_vector_class.offset)
-        # Read all data. The retrieved data is returned within the telegrams
-        self._interface.send(telegrams)
+        # Convert the list of contiguous blocks to telegrams
+        telegrams = blocks_handler.create_telegrams()
+        # Send all telegrams. The retrieved data is returned within the telegrams
+        success = self._interface.send(telegrams)
         # Transfer the data from the telegrams into the fields
-        if not blocks_handler.integrate_data():
-            LOGGER.error("Could not integrate the read data into the fields.")
+        success &= blocks_handler.integrate_data()
+        return success
 
-    def _read_field(self, field_or_name_or_idx, data_vector_class):
+    def _collect_field(self, field_or_name_or_idx, definitions, read_not_write, data, safe):
         """
-        Read the data of a field (this may correspond to multiple registers) by name, index, or directly as a field object.
+        Add a field (this may correspond to multiple registers) by name, index, or directly as a field object
+        to the contiguous-data-blocks-handler
 
         Supports str (name), int (index), or field objects.
         If possible, return the field object that contains the read data.
-        The provided callback method determines whether input or holding registers are read.
 
         Args:
             field_or_name_or_idx (Base | str | int): Field object, field name, or register index.
-            data_vector_class (class of DataVectorSmartHome): The data vector class providing definitions and the offset.
+            definitions (DataVectorSmartHome): List of definitions that contains the desired field.
+            data (list[int] | None): Optional raw data to override the field's data.
+            safe (bool): If True, aborts when the field is marked as non-writeable.
 
         Returns:
             Base | None: The field object with integrated data, or None if the read failed.
@@ -165,27 +168,39 @@ class LuxtronikSmartHomeInterface:
             name_or_idx = field_or_name_or_idx
             field = None
         else:
-            LOGGER.warning(f"Abort SHI read. Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
+            LOGGER.warning(f"Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
             return None
 
         # Fetch the definition associated with the field, index or name
-        definition = self._get_definition(name_or_idx, data_vector_class)
+        definition = self._get_definition(name_or_idx, definitions)
         if definition is None or not definition.valid:
-            LOGGER.warning(f"Abort SHI read. Cannot determine definition by {name_or_idx}.")
+            LOGGER.warning(f"Cannot determine definition by {name_or_idx}.")
             return None
 
         # If the definition is valid, it is always possible to create a field
         if field is None:
             field = definition.create_field()
 
-        # Create a blocks handler to be able to use the same function as _read_fields
-        blocks_handler = ContiguousDataBlocksHandler()
-        blocks_handler.collect(field, definition)
+        # Abort if field is not writeable
+        if not read_not_write and safe and not definition.writeable:
+            LOGGER.warning(f"Field marked as non-writeable: name={definition.name}, data={field.raw}")
+            return None
 
-        self._read_fields_via_handler(blocks_handler, data_vector_class)
+        # Override the field's data with the provided data
+        if not read_not_write and data is not None:
+            field.raw = data
+
+        # Abort if insufficient data is provided
+        if not read_not_write not definition.check_data(field):
+            LOGGER.warning(f"SHI write failure. Data error / insufficient data provided: name={definition.name}, data={field.raw}")
+            return None
+
+        blocks_handler.collect(field, definition, read_not_write)
+
         return field
 
-    def _read_fields(self, data_vector):
+
+    def _collect_fields(self, data_vector, definitions, read_not_write, data):
         """
         Read the data of all fields within the given data vector.
 
@@ -196,128 +211,22 @@ class LuxtronikSmartHomeInterface:
             data_vector (DataVectorSmartHome): The data vector class providing fields.
         """
 
-        # Each register must be read individually to avoid transmission errors
-        # caused by non-existent intervening registers.
-        # Combine contiguous registers to optimize read access.
-        blocks_handler = ContiguousDataBlocksHandler()
-
-        # Organize data into contiguous blocks
-        for field in data_vector:
-            # Fetch the definition associated with the field
-            definition = self._get_definition(field.name, data_vector)
-            if definition is None or not definition.valid:
-                LOGGER.warning(f"Skip reading SHI field {field.name}. Cannot determine definition.")
-                continue
-            blocks_handler.collect(field, definition)
-
-        self._read_fields_via_handler(blocks_handler, data_vector)
-
-
-# Common write methods ########################################################
-
-    def _write_fields_via_handler(self, blocks_handler, data_vector_class):
-        """
-        Write multiple fields (a single field may correspond to multiple registers)
-        using the contiguous-data-blocks-handler.
-
-        Args:
-            blocks_handler (ContiguousDataBlocksHandler): Handler that groups fields into contiguous blocks.
-            data_vector_class (class of DataVectorSmartHome): The data vector class providing the offset.
-        """
-        # Convert the list of contiguous blocks to write telegrams
-        telegrams = blocks_handler.create_write_telegrams(data_vector_class.offset)
-        # Write down all data
-        self._interface.send(telegrams)
-
-    def _write_field(self, field_or_name_or_idx, data_vector_class, data, safe):
-        """
-        Write all provided data (`data`) or the field's own data to a field
-        (this may correspond to multiple registers) by name, index, or directly as a field object.
-
-        Args:
-            field_or_name_or_idx (Base | str | int): Field object, field name, or register index.
-            data_vector_class (class of DataVectorSmartHome): The data vector class providing definitions and the offset.
-            data (list[int] | None): Optional raw data to override the field's data.
-            safe (bool): If True, aborts when the field is marked as non-writeable.
-
-        Returns:
-            Base | None: The written field object, or None if the write failed.
-        """
-        # Process the different input parameter variants
-        if isinstance(field_or_name_or_idx, Base):
-            name_or_idx = field_or_name_or_idx.name
-            field = field_or_name_or_idx
-        elif isinstance(field_or_name_or_idx, (str, int)):
-            name_or_idx = field_or_name_or_idx
-            field = None
-        else:
-            LOGGER.warning(f"Abort SHI write. Invalid input: field_or_name_or_idx={field_or_name_or_idx}")
-            return None
-
-        # Fetch the definition associated with the field, index or name
-        definition = self._get_definition(name_or_idx, data_vector_class)
-        if definition is None or not definition.valid:
-            LOGGER.warning(f"Abort SHI write. Cannot determine definition by {name_or_idx}.")
-            return None
-
-        # If the definition is valid, it is always possible to create a field
-        if field is None:
-            field = definition.create_field()
-
-        # Override the field's data with the provided data
-        if data is not None:
-            field.raw = data
-
-        # Abort if field is not writeable
-        if safe and not definition.writeable:
-            LOGGER.warning(f"SHI write failure. Field marked as non-writeable: name={definition.name}, data={field.raw}")
-            return None
-
-        # Abort if insufficient data is provided
-        if not definition.check_data(field):
-            LOGGER.warning(f"SHI write failure. Data error / insufficient data provided: name={definition.name}, data={field.raw}")
-            return None
-
-        # Create a blocks handler to be able to use the same function as _write_fields
-        blocks_handler = ContiguousDataBlocksHandler()
-        blocks_handler.collect(field, definition)
-
-        self._write_fields_via_handler(blocks_handler, data_vector_class)
-        return field
-
-    def _write_fields(self, data_vector):
-        """
-        Write the data of all fields within the given data vector.
-
-        Args:
-            data_vector (DataVectorSmartHome): The data vector containing the fields to be written.
-        """
-        # Each register must be written individually to avoid transmission errors
-        # caused by non-existent intervening registers.
-        # Combine contiguous registers to optimize write access.
-        blocks_handler = ContiguousDataBlocksHandler()
-
         # Organize data into contiguous blocks
         for field in data_vector:
             # Skip fields that do not carry user-data
-            if not field.set_by_user:
+            if not read_not_write and not field.set_by_user:
                 continue
-            # Fetch the definition associated with the field
-            definition = self._get_definition(field.name, data_vector)
-            if definition is None or not definition.valid:
-                LOGGER.warning(f"Skip SHI write. Cannot determine definition by {field.name}.")
-                continue
-            # Skip if field is not writeable
-            if data_vector.safe and not definition.writeable:
-                LOGGER.warning(f"Skip SHI write. Field marked as non-writeable: field={field.name}")
-                continue
-            # Abort if insufficient data is provided
-            if not definition.check_data(field):
-                LOGGER.warning(f"SHI write failure. Data error / insufficient data provided: name={definition.name}, data={field.raw}")
-                continue
-            blocks_handler.collect(field, definition)
+            # we ignore the returned fields
+            self._collect_field(field, definitions, read_not_write, None, data_vector.safe)
 
-        self._write_fields_via_handler(blocks_handler, data_vector)
+
+
+
+
+
+
+
+
 
 
 # Holding methods #############################################################
@@ -353,7 +262,10 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The field object containing the read data, or None if the read failed.
         """
-        return self._read_field(field_or_name_or_idx, Holdings)
+        blocks_handler = ContiguousDataBlocksHandler()
+        field = self._collect_field(field_or_name_or_idx, Holdings, True, None, True)
+        success = self._send_and_integrate(blocks_handler)
+        return field if success else None
 
     def read_holdings(self, holdings=None):
         """
@@ -368,7 +280,10 @@ class LuxtronikSmartHomeInterface:
         """
         if holdings is None:
             holdings = Holdings()
-        self._read_fields(holdings)
+
+        blocks_handler = ContiguousDataBlocksHandler()
+        self._collect_fields(holdings, Holdings, True, None, True)
+        self._send_and_integrate(blocks_handler)
         return holdings
 
     def write_holding_raw(self, index, data_arr):
@@ -400,7 +315,10 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The written field object, or None if the write failed.
         """
-        self._write_field(field_or_name_or_idx, Holdings, data, safe)
+        blocks_handler = ContiguousDataBlocksHandler()
+        field = self._collect_field(field_or_name_or_idx, Holdings, False, data, safe)
+        success = self._send_and_integrate(blocks_handler)
+        return field if success else None
 
     def write_holdings(self, holdings):
         """
@@ -413,8 +331,10 @@ class LuxtronikSmartHomeInterface:
         if holdings is None:
             LOGGER.warning("Abort SHI write! No data to write provided.")
             return
-        self._write_fields(holdings)
 
+        blocks_handler = ContiguousDataBlocksHandler()
+        self._collect_fields(holdings, Holdings, False, None, holdings.safe)
+        self._send_and_integrate(blocks_handler)
 
 # Inputs methods ##############################################################
 
@@ -449,7 +369,10 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The field object containing the read data, or None if the read failed.
         """
-        return self._read_field(field_or_name_or_idx, Inputs)
+        blocks_handler = ContiguousDataBlocksHandler()
+        field = self._collect_field(field_or_name_or_idx, Inputs, True, None, True)
+        success = self._send_and_integrate(blocks_handler)
+        return field if success else None
 
     def read_inputs(self, inputs=None):
         """
@@ -464,9 +387,11 @@ class LuxtronikSmartHomeInterface:
         """
         if inputs is None:
             inputs = Inputs()
-        self._read_fields(inputs)
-        return inputs
 
+        blocks_handler = ContiguousDataBlocksHandler()
+        self._collect_fields(inputs, Inputs, True, None, True)
+        self._send_and_integrate(blocks_handler)
+        return inputs
 
 # Full read/write methods #####################################################
 # Be careful with method names!
@@ -475,12 +400,29 @@ class LuxtronikSmartHomeInterface:
     def _shi_read(self, data):
         if data is None:
             data = LuxtronikSmartHomeData()
-        self.read_holdings(data.holdings)
-        self.read_inputs(data.inputs)
+
+        blocks_handler = ContiguousDataBlocksHandler()
+        self._collect_fields(data.holdings, Holdings, True, None, True)
+        self._collect_fields(data.inputs, Inputs, True, None, True)
+        self._send_and_integrate(blocks_handler)
         return data
 
     def _shi_write(self, holdings):
         self.write_holdings(holdings)
+
+    def _shi_write_and_read(self, holdings, data=None):
+        if holdings is None:
+            LOGGER.warning("Abort SHI write and read! No data to write provided.")
+            return
+        if data is None:
+            data = LuxtronikSmartHomeData()
+
+        blocks_handler = ContiguousDataBlocksHandler()
+        self._collect_fields(holdings, Holdings, False, None, holdings.safe)
+        self._collect_fields(data.holdings, Holdings, True, None, True)
+        self._collect_fields(data.inputs, Inputs, True, None, True)
+        self._send_and_integrate(blocks_handler)
+        return data
 
     def read(self, data=None):
         return self._shi_read(data)
@@ -489,5 +431,4 @@ class LuxtronikSmartHomeInterface:
         self._shi_write(holdings)
 
     def write_and_read(self, holdings, data=None):
-        self._shi_write(holdings)
-        return self._shi_read(data)
+        return self._shi_write_and_read(holdings, data)

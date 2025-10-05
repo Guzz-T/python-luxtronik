@@ -83,7 +83,7 @@ class TestContiguousDataPart:
 class TestContiguousDataBlock:
 
     def test_iter(self):
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
         block.add(None, def_a)
         block.add(None, def_b)
         block.add(None, def_c)
@@ -99,7 +99,7 @@ class TestContiguousDataBlock:
                 assert part.count == 3
 
     def test_add(self):
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
 
         added = block.add(None, def_a)
         assert added == True
@@ -107,7 +107,7 @@ class TestContiguousDataBlock:
         assert added == False
 
     def test_first_index(self):
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
         block.add(field_b, def_b)
         block.add(field_c, def_c)
 
@@ -115,7 +115,7 @@ class TestContiguousDataBlock:
         assert block.overall_count == 4
 
     def test_overall_count(self):
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
 
         # Several parts for one register
         block.add(field_a1, def_a1)
@@ -129,7 +129,7 @@ class TestContiguousDataBlock:
         assert block.overall_count == 6
 
     def test_integrate_data(self):
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
 
         block.add(field_a1, def_a1)
         block.add(field_a, def_a)
@@ -166,7 +166,7 @@ class TestContiguousDataBlock:
         assert valid == False
 
     def test_get_data(self):
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
 
         field_a1.raw = 35
         field_a.raw = [56, 57]
@@ -176,7 +176,7 @@ class TestContiguousDataBlock:
         data_arr = block.get_data_arr()
         assert data_arr == None
 
-        block = ContiguousDataBlock()
+        block = ContiguousDataBlock('unknown', True)
         field_b.raw = 11
         field_c.raw = [21, 22, 23]
         block.add(field_b, def_b)

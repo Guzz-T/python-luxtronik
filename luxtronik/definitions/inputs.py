@@ -18,11 +18,10 @@ from luxtronik.datatypes import (
     OperationMode,
     Unknown,
 )
-
-# Offset which must be added to the indices
-# to obtain the correct address of the data fields
-INPUTS_OFFSET: Final = 10000
-INPUTS_FIELD_NAME: Final = "input"
+from luxtronik.shi.constants import(
+    INPUTS_FIELD_NAME,
+    INPUTS_OFFSET,
+)
 
 INPUTS_DEFINITIONS_LIST: Final = [
     {

@@ -12,3 +12,15 @@ LUXTRONIK_WAIT_TIME_AFTER_HOLDING_WRITE = 1
 
 # First Luxtronik firmware version that supports the Smart Home Interface (SHI)
 LUXTRONIK_FIRST_VERSION_WITH_SHI = "3.90.1"
+
+
+# Offset which must be added to the holding indices
+# to obtain the correct address of the data fields
+HOLDINGS_OFFSET: Final = 10000
+HOLDINGS_FIELD_NAME: Final = "holding"
+
+
+# Offset which must be added to the input indices
+# to obtain the correct address of the data fields
+INPUTS_OFFSET: Final = 10000
+INPUTS_FIELD_NAME: Final = "input"

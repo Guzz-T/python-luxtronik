@@ -19,11 +19,10 @@ from luxtronik.datatypes import (
     OnOffMode,
     PowerLimit,
 )
-
-# Offset which must be added to the indices
-# to obtain the correct address of the data fields
-HOLDINGS_OFFSET: Final = 10000
-HOLDINGS_FIELD_NAME: Final = "holding"
+from luxtronik.shi.constants import(
+    HOLDINGS_FIELD_NAME,
+    HOLDINGS_OFFSET,
+)
 
 HOLDINGS_DEFINITIONS_LIST: Final = [
     {

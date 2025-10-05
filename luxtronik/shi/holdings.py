@@ -3,7 +3,11 @@
 import logging
 
 from luxtronik.data_vector import DataVectorSmartHome
-from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS, HOLDINGS_FIELD_NAME
+from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS
+from luxtronik.shi.constants import(
+    HOLDINGS_FIELD_NAME,
+    HOLDINGS_OFFSET,
+)
 
 
 class Holdings(DataVectorSmartHome):
