@@ -17,7 +17,6 @@ from luxtronik.shi.common import (
 
 LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
 
-
 ###############################################################################
 # Modbus TCP interface
 ###############################################################################
@@ -31,23 +30,6 @@ class LuxtronikModbusTcpInterface:
     The connection is established only for reading and writing purposes.
     This class is implemented as thread-safe.
     """
-
-    MODBUS_FUNC = {
-        LuxtronikSmartHomeReadHoldingsTelegram:  ModbusClient.read_holding_registers,
-        LuxtronikSmartHomeReadInputsTelegram:    ModbusClient.read_input_registers,
-        LuxtronikSmartHomeWriteHoldingsTelegram: ModbusClient.write_multiple_registers,
-    }
-    assert not LuxtronikSmartHomeTelegrams - MODBUS_FUNC.keys(), \
-    f"Missing function declaration within MODBUS_FUNC for {LuxtronikSmartHomeTelegrams - MODBUS_FUNC.keys()}"
-
-    MODBUS_WRT = {
-        LuxtronikSmartHomeReadHoldingsTelegram:  False,
-        LuxtronikSmartHomeReadInputsTelegram:    False,
-        LuxtronikSmartHomeWriteHoldingsTelegram: True,
-    }
-    assert not LuxtronikSmartHomeTelegrams - MODBUS_WRT.keys(), \
-        f"Missing function declaration within MODBUS_WRT for {LuxtronikSmartHomeTelegrams - MODBUS_WRT.keys()}"
-
 
     def __init__(
         self,
@@ -127,7 +109,7 @@ class LuxtronikModbusTcpInterface:
 
 # Common read/write methods ###################################################
 
-    def _read_register(self, telegram):
+    def _read_register(self, read_reg_cb, telegram):
         """
         Read Modbus registers for a single telegrams.
 
@@ -135,13 +117,14 @@ class LuxtronikModbusTcpInterface:
         starting at the given Modbus address (`addr`). The address
         is used directly without applying additional offsets.
 
-        The type of the provided telegram determines whether input or holding
+        The callback function `read_reg_cb` determines whether input or holding
         registers are read. The retrieved data is stored in the telegram's
         `data` field. If an error occurs, the `data` field is None.
 
         If a non-existent register is read, the entire single read operation fails.
 
         Args:
+            read_reg_cb (Callable): Callback used to perform the actual register read.
             telegrams (LuxtronikSmartHomeReadTelegram): A single `LuxtronikSmartHomeReadTelegram`.
 
         Returns:
@@ -150,11 +133,10 @@ class LuxtronikModbusTcpInterface:
         # Read len(telegram.data) × 16-bit registers from Modbus address telegram.addr
         # A erroneous read usually always leads to data == None
         try:
-            func = self.MODBUS_FUNC[type(telegram)]
-            data = func(self._client, telegram.addr, telegram.count)
+            data = read_reg_cb(telegram.addr, telegram.count)
             valid = data is not None and isinstance(data, list) and len(data) == telegram.count
         except Exception as e:
-            LOGGER.error(f"Modbus exception during read: {e}  {dir(ModbusClient)} {dir(self._client)} {self.MODBUS_FUNC[type(telegram)]}")
+            LOGGER.error(f"Modbus exception: {e}")
             valid = False
         telegram.data = data if valid else None
         if not valid:
@@ -162,7 +144,7 @@ class LuxtronikModbusTcpInterface:
                 + f"{self._client.last_error_as_txt}")
         return valid
 
-    def _write_register(self, telegram):
+    def _write_register(self, write_reg_cb, telegram):
         """
         Write Modbus registers for a single telegrams.
 
@@ -170,12 +152,13 @@ class LuxtronikModbusTcpInterface:
         at the specified Modbus address (`addr`). The address
         is used directly without applying additional offsets.
 
-        The type of the provided telegram determines whether input or holding
-        registers are written (currently only valid for holding registers).
+        The callback function `write_reg_cb` performs the actual write operation
+        (currently only valid for holding registers).
 
         If a non-existent register is written, all data up to this register is written.
 
         Args:
+            write_reg_cb: Callback used to perform the register write.
             telegrams (LuxtronikSmartHomeWriteTelegram): A single `LuxtronikSmartHomeWriteTelegram`.
 
         Returns:
@@ -183,9 +166,9 @@ class LuxtronikModbusTcpInterface:
         """
         # Write len(telegram.data) × 16-bit registers at Modbus address telegram.addr
         try:
-            valid = self.MODBUS_FUNC[type(telegram)](self._client, telegram.addr, telegram.data)
+            valid = write_reg_cb(telegram.addr, telegram.data)
         except Exception as e:
-            LOGGER.error(f"Modbus exception during write: {e}")
+            LOGGER.error(f"Modbus exception: {e}")
             valid = False
         if not valid:
             LOGGER.error(f"Modbus write error: addr={telegram.addr}, data={telegram.data}, " \
@@ -313,7 +296,21 @@ class LuxtronikModbusTcpInterface:
                 for t in _telegrams:
                     if t.count <= 0:
                         continue
-                    is_write = self.MODBUS_WRT[type(t)]
+
+                    # Process telegram type
+                    if isinstance(t, LuxtronikSmartHomeReadHoldingsTelegram):
+                        reg_cb = self._client.read_holding_registers
+                        is_write = False
+                    elif isinstance(t, LuxtronikSmartHomeReadInputsTelegram):
+                        reg_cb = self._client.read_input_registers
+                        is_write = False
+                    elif isinstance(t, LuxtronikSmartHomeWriteHoldingsTelegram):
+                        reg_cb = self._client.write_multiple_registers
+                        is_write = True
+                    else:
+                        # this should never happen
+                        assert False, "Telegram type not supported"
+
                     # Wait a short time when switching from write to read
                     if not is_write and was_write:
                         # Allow the heat pump to process the changes
@@ -321,9 +318,9 @@ class LuxtronikModbusTcpInterface:
 
                     # Perform read or write operation
                     if is_write:
-                        valid = self._write_register(t)
+                        valid = self._write_register(reg_cb, t)
                     else:
-                        valid = self._read_register(t)
+                        valid = self._read_register(reg_cb, t)
 
                     success &= valid
                     was_write = is_write
