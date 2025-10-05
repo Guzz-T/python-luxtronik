@@ -25,7 +25,7 @@ class TestFieldDefinition:
     TEST_ARRAY = [13, 10, 14, 12, 18, 11, 16, 15, 17, 19]
 
     def test_init_norm(self):
-        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar')
+        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar', 0)
 
         names = self.TEST_DATA['names'] + ['Unknown_Bar_4']
         assert definition.index == self.TEST_DATA['index']
@@ -49,7 +49,7 @@ class TestFieldDefinition:
         assert definition.valid == False
 
     def test_init_unknown(self):
-        definition = LuxtronikFieldDefinition.unknown(2, 'Foo')
+        definition = LuxtronikFieldDefinition.unknown(2, 'Foo', 0)
 
         names = self.DEFAULT_DATA['names'] + ['Unknown_Foo_2']
         assert definition.index == 2
@@ -74,7 +74,7 @@ class TestFieldDefinition:
 
 
     def test_field_norm(self):
-        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar')
+        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar', 0)
         field = definition.create_field()
 
         assert field.name == definition.name
@@ -87,7 +87,7 @@ class TestFieldDefinition:
         assert field == None
 
     def test_field_unknown(self):
-        definition = LuxtronikFieldDefinition.unknown(2, 'Foo')
+        definition = LuxtronikFieldDefinition.unknown(2, 'Foo', 0)
         field = definition.create_field()
 
         assert field.name == definition.name
@@ -102,7 +102,7 @@ class TestFieldDefinition:
 
 
     def test_extract_norm(self):
-        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar')
+        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar', 0)
 
         data_arr = definition.extract_raw(self.TEST_ARRAY)
         assert data_arr == self.TEST_ARRAY[definition.index:definition.index+definition.count]
@@ -129,7 +129,7 @@ class TestFieldDefinition:
             pass
 
     def test_extract_unknown(self):
-        definition = LuxtronikFieldDefinition.unknown(2, 'Foo')
+        definition = LuxtronikFieldDefinition.unknown(2, 'Foo', 0)
 
         data_arr = definition.extract_raw(self.TEST_ARRAY)
         assert data_arr == self.TEST_ARRAY[definition.index]
@@ -143,7 +143,7 @@ class TestFieldDefinition:
 
     # the get_raw implicit tests get_data_arr
     def test_raw_norm(self):
-        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar')
+        definition = LuxtronikFieldDefinition(self.TEST_DATA, 'Bar', 0)
 
         self.TEST_FIELD.raw = [2, 2, 3]
         data_arr = definition.get_raw(self.TEST_FIELD)
@@ -162,7 +162,7 @@ class TestFieldDefinition:
         assert data_arr == None
 
     def test_raw_unknown(self): # same as with invalid and field
-        definition = LuxtronikFieldDefinition.unknown(2, 'Foo')
+        definition = LuxtronikFieldDefinition.unknown(2, 'Foo', 0)
 
         self.TEST_FIELD.raw = 4
         data_arr = definition.get_raw(self.TEST_FIELD)

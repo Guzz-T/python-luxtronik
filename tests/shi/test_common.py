@@ -35,27 +35,27 @@ class TestWriteTelegram:
 def_a1 = LuxtronikFieldDefinition({
     'index': 1,
     'count': 1,
-})
+}, 'test', 0)
 def_a = LuxtronikFieldDefinition({
     'index': 1,
     'count': 2,
-})
+}, 'test', 0)
 def_b = LuxtronikFieldDefinition({
     'index': 3,
     'count': 1,
-})
+}, 'test', 0)
 def_c = LuxtronikFieldDefinition({
     'index': 4,
     'count': 3,
-})
+}, 'test', 0)
 def_c1 = LuxtronikFieldDefinition({
     'index': 4,
     'count': 1,
-})
+}, 'test', 0)
 def_c2 = LuxtronikFieldDefinition({
     'index': 5,
     'count': 1,
-})
+}, 'test', 0)
 defs = []
 
 field_a1 = Base('field_a')

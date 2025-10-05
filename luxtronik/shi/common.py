@@ -65,11 +65,11 @@ class LuxtronikSmartHomeWriteTelegram:
 class LuxtronikSmartHomeWriteHoldingsTelegram(LuxtronikSmartHomeWriteTelegram):
     pass
 
-LuxtronikSmartHomeTelegrams = (
+LuxtronikSmartHomeTelegrams = {
     LuxtronikSmartHomeReadHoldingsTelegram,
     LuxtronikSmartHomeReadInputsTelegram,
     LuxtronikSmartHomeWriteHoldingsTelegram,
-)
+}
 
 
 ###############################################################################
@@ -103,15 +103,19 @@ class ContiguousDataPart:
         return self.definition.index
 
     @property
+    def addr(self):
+        return self.definition.addr
+
+    @property
     def count(self):
         return self.definition.count
 
 
 class ContiguousDataBlock:
     """
-    Represents a contiguous block of data for efficient read/write access.
+    Represents a contiguous block of fields for efficient read/write access.
 
-    Contiguous data fields are grouped into a single block to minimize
+    Contiguous fields are grouped into a single block to minimize
     the number of read/write operations. Each block links the raw data
     with the corresponding fields and definitions.
 
@@ -123,6 +127,7 @@ class ContiguousDataBlock:
     def __init__(self):
         self._parts = []
         self._last = -1
+        self._type_name = None
 
     def __iter__(self):
         return iter(self._parts)
@@ -137,7 +142,8 @@ class ContiguousDataBlock:
     def add(self, field, definition):
         """
         Add a subsequent part to this contiguous data block.
-        We assume that the parts are added in order. Therefore, some special cases can be disregarded.
+        We assume that the (valid) parts are added in order.
+        Therefore, some special cases can be disregarded.
 
         Args:
             field (Base): The field associated with this part.
@@ -147,19 +153,32 @@ class ContiguousDataBlock:
             bool: True if the part would not lead to gaps and is added to the block, otherwise False.
         """
         add_part = (self._last == -1) or ((definition.index >= self.first_index)
-            and (definition.index <= self._last + 1))
+            and (definition.index <= self._last + 1) and (self._type_name == definition.type_name))
         if add_part:
             self._parts.append(ContiguousDataPart(field, definition))
             self._last = max(self._last, definition.index + definition.count - 1)
+            self._type_name = definition.type_name
         return add_part
+
+    @property
+    def type_name(self):
+        return self._type_name
 
     @property
     def first_index(self):
         """
         Return the first index of the block, or 0 if empty.
-        This should be sufficient since the parts are added in index-sorted order.
+        This should be sufficient since the (valid) parts are added in index-sorted order.
         """
         return self._parts[0].index if self._parts else 0
+
+    @property
+    def first_addr(self):
+        """
+        Return the first addr of the block, or 0 if empty.
+        This should be sufficient since the (valid) parts are added in index-sorted order.
+        """
+        return self._parts[0].addr if self._parts else 0
 
     @property
     def overall_count(self):
@@ -180,8 +199,8 @@ class ContiguousDataBlock:
         first = self.first_index
         if valid:
             for part in self._parts:
-                offset = part.index - first
-                part.field.raw = part.definition.extract_raw(data_arr, offset)
+                data_offset = part.index - first
+                part.field.raw = part.definition.extract_raw(data_arr, data_offset)
         return valid
 
     def get_data_arr(self):
@@ -192,23 +211,68 @@ class ContiguousDataBlock:
             list[int] | None: A list of register values if valid.
                               If multiple fields attempt to write to the same registers or
                               no data was provided for one or more elements, return None.
-
-        Raises:
-            AssertionError: If no data was provided for one or more elements.
         """
         data_arr = [-1] * self.overall_count
         first = self.first_index
         valid = True
         for part in self._parts:
-            offset = part.index - first
+            data_offset = part.index - first
             data = part.definition.get_raw(part.field)
             # Integrate data only if not already done (first data wins)
-            if data_arr[offset] == -1 and data is not None:
-                data_arr[offset : offset +  part.count] = data
+            if data_arr[data_offset] == -1 and data is not None:
+                data_arr[data_offset : data_offset +  part.count] = data
             else:
                 valid = False
         valid &= -1 not in data_arr
         return data_arr if valid else None
+
+
+class TelegramFactory:
+
+    @classmethod
+    def _create_read_telegram(cls, data_block, telegram_type):
+        """
+        Create a read-telegram of type `telegram_type` out of a `ContiguousDataBlock`.
+
+        Args:
+            data_block (ContiguousDataBlock):
+                (Valid) Data block from which the telegram is to be generated.
+
+        Returns:
+            LuxtronikSmartHomeReadTelegram:
+                The created telegram.
+        """
+        return telegram_type(data_block.first_addr, block.overall_count)
+
+    @classmethod
+    def _create_write_telegram(cls, data_block, telegram_type):
+        """
+        Create a write-telegram of type `telegram_type` out of a `ContiguousDataBlock`.
+
+        Args:
+            data_block (ContiguousDataBlock):
+                (Valid) Data block from which the telegram is to be generated.
+
+        Returns:
+            LuxtronikSmartHomeWriteTelegram | None:
+                The created telegram or None in case of an error.
+        """
+        data_arr = data_block.get_data_arr()
+        if data_arr is None:
+            return None
+        return telegram_type(data_block.first_addr, data_arr)
+
+
+
+
+
+
+    @classmethod
+    def create(cls, data_block):
+        cls._create_read_telegram(data_block, LuxtronikSmartHomeReadHoldingsTelegram)
+        cls._create_read_telegram(data_block, LuxtronikSmartHomeReadInputsTelegram)
+        cls._create_write_telegram(data_block, LuxtronikSmartHomeWriteHoldingsTelegram)
+
 
 
 class ContiguousDataBlocksHandler:
@@ -223,6 +287,7 @@ class ContiguousDataBlocksHandler:
         self._blocks = []
         self._start_idx = -1
         self._next_index = -1
+        self._type_name = None
         self._telegrams = []
         self._items = []
 
@@ -238,10 +303,10 @@ class ContiguousDataBlocksHandler:
         index = definition.index
         count = definition.count if definition.count > 0 else 1
 
-        # Create a new contiguous block if the current index doesn't follow the previous
+        # Create a new contiguous block if the current index of the same type doesn't follow the previous
         # or is already covered by the current block. Since we assume a index-sorted order,
         # we can ignore special cases.
-        if (index < self._start_idx) or (index > self._next_index):
+        if (index < self._start_idx) or (index > self._next_index) or (self._type_name != definition.type_name):
             self._blocks.append(ContiguousDataBlock())
             self._start_idx = index
 
@@ -250,6 +315,7 @@ class ContiguousDataBlocksHandler:
         added = self._blocks[-1].add(field, definition)
         assert added, "Could not collect the field/definition pair as part"
         self._next_index = max(index + count, self._next_index)
+        self._type_name = definition.type_name
         return added
 
     @property

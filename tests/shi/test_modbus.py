@@ -1,4 +1,5 @@
 import pytest
+from pyModbusTCP.client import ModbusClient
 
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadTelegram,
@@ -13,7 +14,7 @@ from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 # Fake modbus client
 ###############################################################################
 
-class FakeModbusClient:
+class FakeModbusClient(ModbusClient):
     can_connect = True
     can_disconnect = True
 

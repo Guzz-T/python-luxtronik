@@ -42,7 +42,7 @@ def SmartHomeInterfaceFactory:
         version_field = None
         version_defs = INPUTS_DEFINITIONS.get_version_definitions()
         for version_def in version_defs:
-            data = modbus_interface.read_inputs(version_def.index + INPUTS_DEFINITIONS.offset, version_def.count)
+            data = modbus_interface.read_inputs(version_def.addr, version_def.count)
             if data is not None:
                 version_field = version_def.create_field()
                 version_field.raw = data

@@ -5,6 +5,8 @@ from luxtronik.datatypes import Unknown
 
 LOGGER = logging.getLogger("Luxtronik.definitions")
 
+LUXTRONIK_DEFAULT_DEFINITION_OFFSET = 10000
+
 
 def parse_version(version):
     """
@@ -74,16 +76,21 @@ class LuxtronikFieldDefinition:
         "description": "",
     }
 
-    def __init__(self, data_dict):
+    def __init__(self, data_dict, type_name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
         """
         Initialize a field definition from a dictionary.
 
         Args:
             data_dict (dict): Definition values. Missing keys are filled with defaults.
+            type_name (str): The type name e.g. 'holding', 'input', ... .
+            offset (str): Offset of the address from the specified index.
+                (Default: LUXTRONIK_DEFAULT_DEFINITION_OFFSET)
 
         Notes:
-            - Only 'index' is strictly required.
+            - Only 'index' is strictly required within `the data_dict`.
         """
+        self._type_name = type_name
+        self._offset = offset
         try:
             data_dict = self.DEFAULT_DATA | data_dict
             index = int(data_dict["index"])
@@ -107,6 +114,7 @@ class LuxtronikFieldDefinition:
         except Exception:
             self._valid = False
             self._index = 0
+        self._addr = self._offset + self._index
 
     @classmethod
     def invalid(cls):
@@ -116,16 +124,18 @@ class LuxtronikFieldDefinition:
         Returns:
             LuxtronikFieldDefinition: An invalid field definition instance.
         """
-        return cls({})
+        return cls({}, 'invalid', 0)
 
     @classmethod
-    def unknown(cls, index, type_name):
+    def unknown(cls, index, type_name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
         """
         Create an unknown field definition.
 
         Args:
             index (int): The register index of the unknown field.
-            type_name (str): The type name used to generate the name.
+            type_name (str): The type name e.g. 'holding', 'input', ... .
+            offset (str): Offset of the address from the specified index.
+                (Default: LUXTRONIK_DEFAULT_DEFINITION_OFFSET)
 
         Returns:
             LuxtronikFieldDefinition: A field definition marked as unknown.
@@ -133,26 +143,27 @@ class LuxtronikFieldDefinition:
         return cls({
             "index": index,
             "names": [f"Unknown_{type_name}_{index}"]
-        })
+        }, type_name, offset)
 
-    @classmethod
-    def from_field(cls, index, field):
-        """
-        Create a field definition from an existing field object.
+    # @classmethod
+    # def from_field(cls, index, field, type_name):
+    #     """
+    #     Create a field definition from an existing field object.
 
-        Args:
-            index (int): The register index of the field.
-            field (Base): The field object to derive metadata from.
+    #     Args:
+    #         index (int): The register index of the field.
+    #         field (Base): The field object to derive metadata from.
+    #         type_name (str): The type name e.g. 'holding', 'input', ... .
 
-        Returns:
-            LuxtronikFieldDefinition: A field definition based on the given field.
-        """
-        return cls({
-            "index": index,
-            "type": type(field),
-            "writeable": field.writeable,
-            "names": [field.name]
-        })
+    #     Returns:
+    #         LuxtronikFieldDefinition: A field definition based on the given field.
+    #     """
+    #     return cls({
+    #         "index": index,
+    #         "type": type(field),
+    #         "writeable": field.writeable,
+    #         "names": [field.name]
+    #     }, type_name)
 
     def __bool__(self):
         """Return True if the definition is valid."""
@@ -164,9 +175,21 @@ class LuxtronikFieldDefinition:
         return self._valid
 
     @property
+    def type_name(self):
+        "Returns the type name (e.g. 'holding', 'input', ...)."
+        return self._type_name
+
+    @property
     def index(self):
-        "Returns the assigned index."
         return self._index
+
+    @property
+    def offset(self):
+        return self._offset
+
+    @property
+    def addr(self):
+        return self._addr
 
     @property
     def count(self):
@@ -210,23 +233,23 @@ class LuxtronikFieldDefinition:
         """
         return self.data_type(self.name, self.writeable) if self else None
 
-    def extract_raw(self, raw_data, offset=-1):
+    def extract_raw(self, raw_data, data_offset=-1):
         """
         Extract raw values from a data array.
 
         Args:
             raw_data (list): Source array of bytes/words.
-            offset (int): Optional offset. Defaults to self.index.
+            data_offset (int): Optional offset. Defaults to self.index.
 
         Returns:
             int | list[int]: Single value or list of values, or None if insufficient data.
         """
-        offset = offset if offset >= 0 else self.index
+        data_offset = data_offset if data_offset >= 0 else self.index
         # Use the information of the definition to extract the raw-value
         if self.count == 1:
-            return raw_data[offset]
+            return raw_data[data_offset]
         else:
-            raw = raw_data[offset : offset + self.count]
+            raw = raw_data[data_offset : data_offset + self.count]
             return raw if len(raw) == self.count else None
 
     def get_raw(self, field):
@@ -276,13 +299,14 @@ class LuxtronikFieldDefinitions:
     Provides lookup by index or name.
     """
 
-    def __init__(self, definitions_list, offset, name, version=None):
+    def __init__(self, definitions_list, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET, version=None):
         """
         Initialize the (by index sorted) field definitions.
 
         Args:
             definitions_list (list[dict]): Raw definition entries.
-            offset (int): Offset applied to register indices (usually 10000).
+            offset (int): Offset applied to register indices.
+                (Default: LUXTRONIK_DEFAULT_DEFINITION_OFFSET)
             name (str): Name of a field related to this definition list (e.g. "Holding")
             version (str): Provide version information to remove incompatible elements.
 
@@ -292,15 +316,15 @@ class LuxtronikFieldDefinitions:
             - The value of count must always be greater than or equal to 1
             - All names must be unique
         """
-        self.offset = offset
-        self.name = name
+        self._name = name
+        self._offset = offset
         self._version = parse_version(version)
         self._list = definitions_list
 
         definitions = []
         # Create definition objects only for valid items
         for item in definitions_list:
-            d = LuxtronikFieldDefinition(item)
+            d = LuxtronikFieldDefinition(item, self._name, self._offset)
             if d.valid and version_in_range(version, d.since, d.until):
                 definitions.append(d)
         self._definitions = sorted(definitions, key=lambda x: x.index)
@@ -317,21 +341,28 @@ class LuxtronikFieldDefinitions:
                 self._name_dict.setdefault(n.lower(), d)
 
     def refine(self, version):
-        return cls(self._list, self.offset, self.name, version)
+        return cls(self._list, self._name, self._offset, version)
 
-    def __getitem__(self, index):
-        return self._definitions[index]
+    def __getitem__(self, name_or_idx):
+        return self.get(name_or_idx)
 
-    def __len__(self):
-        return len(self._definitions)
+    # def __len__(self):
+    #     return len(self._definitions)
 
     def __iter__(self):
         """Iterator for all definitions contained herein."""
         return iter(self._definitions)
 
     def create_unknown_field(self, index):
-        return LuxtronikFieldDefinition.unknown(index, self.name)
+        return LuxtronikFieldDefinition.unknown(index, self._name, self._offset)
 
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def offset(self):
+        return self._offset
 
     @property
     def list(self):
