@@ -35,6 +35,15 @@ class LuxtronikSmartHomeData:
         self.holdings = holdings if holdings is not None else Holdings(safe)
         self.inputs = inputs if inputs is not None else Inputs()
 
+    @classmethod
+    def empty(cls, safe=True):
+        self.holdings = Holdings.empty(safe)
+        self.inputs = Inputs.empty()
+
+    def versioned(cls, version):
+        self.holdings = Holdings.empty(version, safe)
+        self.inputs = Inputs.empty(version)
+
 
 ###############################################################################
 # Smart home interface
@@ -52,7 +61,7 @@ class LuxtronikSmartHomeInterface:
     Combine contiguous registers to optimize read/write access.
     """
 
-    def __init__(self, interface, holdings_definitions, inputs_definitions):
+    def __init__(self, interface, version):
         """
         Initialize the smart home interface.
 
@@ -62,11 +71,16 @@ class LuxtronikSmartHomeInterface:
             inputs_definitions: Definitions for input indexing and name resolution
         """
         self._interface = interface
-        self._holdings_definitions = holdings_definitions
-        self._inputs_definitions = inputs_definitions
+        self._version = version
+
+        #self._holdings_definitions = holdings_definitions
+        #self._inputs_definitions = inputs_definitions
 
 
 # Helper methods ##############################################################
+
+    def version(self):
+        return self._version
 
     def _get_index_from_name(self, name):
         """
@@ -114,17 +128,17 @@ class LuxtronikSmartHomeInterface:
                     "Cannot determine index from name '{name_or_idx}'. Use format 'Unknown_Input_INDEX'."
                 )
                 return None
-            return definitions.create_unknown_field(index)
+            return definitions.create_unknown_definition(index)
 
         # Handle integer indices
         if isinstance(name_or_idx, int):
-            return definitions.create_unknown_field(name_or_idx)
+            return definitions.create_unknown_definition(name_or_idx)
 
         LOGGER.warning(f"Could not find or generate a definition for {name_or_idx}.")
         return None
 
 
-# Common read methods #########################################################
+# Common methods ##############################################################
 
     def _send_and_integrate(self, blocks_handler):
         """
@@ -212,21 +226,13 @@ class LuxtronikSmartHomeInterface:
         """
 
         # Organize data into contiguous blocks
-        for field in data_vector:
+        for field, definition in data_vector:
             # Skip fields that do not carry user-data
             if not read_not_write and not field.set_by_user:
                 continue
             # we ignore the returned fields
+            !!!
             self._collect_field(field, definitions, read_not_write, None, data_vector.safe)
-
-
-
-
-
-
-
-
-
 
 
 # Holding methods #############################################################

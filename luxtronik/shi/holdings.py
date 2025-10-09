@@ -3,20 +3,19 @@
 import logging
 
 from luxtronik.data_vector import DataVectorSmartHome
-from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS
-from luxtronik.shi.constants import(
-    HOLDINGS_FIELD_NAME,
-    HOLDINGS_OFFSET,
-)
+from luxtronik.definitions.holdings import HOLDINGS_OFFSET
+from luxtronik.shi.constants import HOLDINGS_FIELD_NAME
 
+
+HOLDINGS_DEFINITIONS: Final = LuxtronikFieldDefinitions.by_list(
+    HOLDINGS_DEFINITIONS_LIST,
+    HOLDINGS_FIELD_NAME,
+    HOLDINGS_OFFSET
+)
 
 class Holdings(DataVectorSmartHome):
     """Class that holds all Holdings."""
 
     logger = logging.getLogger("Luxtronik.Holdings")
     name = HOLDINGS_FIELD_NAME
-
-    def __init__(self, safe=True):
-        """Initialize Holdings class."""
-        super().__init__(HOLDINGS_DEFINITIONS)
-        self.safe = safe
+    definitions = HOLDINGS_DEFINITIONS

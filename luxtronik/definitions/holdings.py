@@ -19,10 +19,10 @@ from luxtronik.datatypes import (
     OnOffMode,
     PowerLimit,
 )
-from luxtronik.shi.constants import(
-    HOLDINGS_FIELD_NAME,
-    HOLDINGS_OFFSET,
-)
+
+# Offset which must be added to the holding indices
+# to obtain the correct address of the data fields
+HOLDINGS_OFFSET: Final = 10000
 
 HOLDINGS_DEFINITIONS_LIST: Final = [
     {
@@ -427,6 +427,3 @@ HOLDINGS_DEFINITIONS_LIST: Final = [
         "description": "When set to ON, the hot water heating is activated and will run until the maximum temperature is reached.",
     },
 ]
-
-
-HOLDINGS_DEFINITIONS: Final = LuxtronikFieldDefinitions(HOLDINGS_DEFINITIONS_LIST, HOLDINGS_FIELD_NAME, HOLDINGS_OFFSET)

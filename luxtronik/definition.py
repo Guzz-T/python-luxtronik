@@ -292,14 +292,123 @@ class LuxtronikFieldDefinition:
         return self.get_raw(field) is not None
 
 
+class LuxtronikDefinitionLookup:
+
+    def __init__(self):
+        self._index_dict = {}
+        self._name_dict = {}
+        self._alias_dict = {}
+
+    def __getitem__(self, name_or_idx):
+        return self.get(name_or_idx)
+
+    def _add_alias(self, definition, alias):
+        alias = alias.lower() if isinstance(alias, str) else alias
+        self._alias_dict.set(alias.lower(), definition)
+
+    def register_alias(self, name_or_idx, alias):
+        d = self.get(name_or_idx)
+        if d is not None and alias is not None:
+            self._add_alias(definition, alias)
+
+    def add(self, definition, alias=None):
+        # Add to indices-dictionary (first occurrence wins)
+        self._index_dict.setdefault(definition.index, definition)
+
+        # Add to name-dictionary (names are unique)
+        # Unique names has already been ensured by the pytest
+        for n in definition.names:
+            self._name_dict.set(n.lower(), definition)
+
+        # Add to alias-dictionary (last occurrence wins)
+        if alias is not None:
+            self._add_alias(definition, alias)
+
+    def get(self, name_or_idx): # , version=None):
+          """
+        Retrieve a field definition by name or index.
+
+        Args:
+            name_or_idx (str | int): Field name or register index.
+
+        Returns:
+            LuxtronikFieldDefinition | None: The matching definition, or None if not found.
+
+        Note:
+            If multiple definitions exist for the same index/name, the first one takes precedence.
+        """
+        d = self._get_definition_by_alias(name_or_idx)
+        if d is None:
+            if isinstance(name_or_idx, int):
+                d = self._get_definition_by_idx(name_or_idx)
+            if isinstance(name_or_idx, str):
+                try:
+                    idx_from_str = int(target)
+                    d = self._get_definition_by_idx(name_or_idx)
+                except ValueError:
+                    d = self._get_definition_by_name(name_or_idx)
+        if d is None:
+            LOGGER.warning(f"Definition for '{name_or_idx}' not found", )
+        return d
+        #return d if d is not None and version_in_range(version, d.since, d.until) else None
+
+    def _get_definition_by_idx(self, idx):
+        """
+        Retrieve a field definition by its index.
+
+        Args:
+            idx (int): Register index.
+
+        Returns:
+            LuxtronikFieldDefinition | None: The matching definition, or None if not found.
+
+        Note:
+            If multiple definitions exist for the same index, the first one takes precedence.
+        """
+        return self._index_dict.get(idx, None)
+
+    def _get_definition_by_name(self, name):
+        """
+        Retrieve a field definition by its name (case-insensitive).
+
+        Args:
+            name (str): Field name.
+
+        Returns:
+            LuxtronikFieldDefinition | None: The matching definition, or None if not found.
+
+        Note:
+            If multiple definitions exist for the same name, the first one takes precedence.
+        """
+        definition = self._name_dict.get(name.lower(), None)
+        if definition is not None and definition.valid and name.lower() != definition.name.lower():
+            LOGGER.warning(f"'{name}' is outdated! Use '{definition.name}' instead.")
+        return definition
+
+    def _get_definition_by_alias(self, alias):
+        """
+        Retrieve a field definition by its alias (case-insensitive).
+
+        Args:
+            alias (str): Field alias.
+
+        Returns:
+            LuxtronikFieldDefinition | None: The matching definition, or None if not found.
+
+        Note:
+            If multiple definitions exist for the same name, the first one takes precedence.
+        """
+        return self._alias_dict.get(alias.lower(), None)
+
+
 class LuxtronikFieldDefinitions:
     """
     Container for Luxtronik field definitions.
 
-    Provides lookup by index or name.
+    Provides lookup by index, name or alias.
     """
 
-    def __init__(self, definitions_list, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET, version=None):
+    def __init__(self, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET, version=None):
         """
         Initialize the (by index sorted) field definitions.
 
@@ -318,30 +427,37 @@ class LuxtronikFieldDefinitions:
         """
         self._name = name
         self._offset = offset
-        self._version = parse_version(version)
-        self._list = definitions_list
+        self._version = version
+        self._definitions = []
+        self._lookup = LuxtronikDefinitionLookup()
 
-        definitions = []
-        # Create definition objects only for valid items
+    @classmethod
+    def by_list(cls, definitions_list, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
+        obj = cls(name, offset)
+
+        # Add definition objects only for valid items.
+        # The correct sorting has already been ensured by the pytest
         for item in definitions_list:
-            d = LuxtronikFieldDefinition(item, self._name, self._offset)
-            if d.valid and version_in_range(version, d.since, d.until):
-                definitions.append(d)
-        self._definitions = sorted(definitions, key=lambda x: x.index)
+            d = LuxtronikFieldDefinition(item, obj.name, obj.offset)
+            if d.valid: # and version_in_range(version, d.since, d.until):
+                obj._lookup.add(d)
+        return obj
 
-        # Dictionary mapping indices to definitions (first occurrence wins)
-        self._index_dict = {}
-        for d in self._definitions:
-            self._index_dict.setdefault(d.index, d)
+    @classmethod
+    def empty(cls, definitions, version=None):
+        obj = cls(definitions.name, definitions.offset)
+        return obj
 
-        # Dictionary mapping names to definitions (first occurrence wins)
-        self._name_dict = {}
-        for d in self._definitions:
-            for n in d.names:
-                self._name_dict.setdefault(n.lower(), d)
+    @classmethod
+    def versioned(cls, definitions, version=None):
+        obj = cls(definitions.name, definitions.offset)
 
-    def refine(self, version):
-        return cls(self._list, self._name, self._offset, version)
+        # Add definition objects only for valid items.
+        # The correct sorting has already been ensured by the pytest
+        for d in definitions:
+            if version_in_range(version, d.since, d.until):
+                obj._lookup.add(d)
+        return obj
 
     def __getitem__(self, name_or_idx):
         return self.get(name_or_idx)
@@ -353,7 +469,7 @@ class LuxtronikFieldDefinitions:
         """Iterator for all definitions contained herein."""
         return iter(self._definitions)
 
-    def create_unknown_field(self, index):
+    def create_unknown_definition(self, index):
         return LuxtronikFieldDefinition.unknown(index, self._name, self._offset)
 
     @property
@@ -364,71 +480,20 @@ class LuxtronikFieldDefinitions:
     def offset(self):
         return self._offset
 
-    @property
-    def list(self):
-        """
-        Return the list of valid field definitions.
+    # @property
+    # def list(self):
+    #     """
+    #     Return the list of valid field definitions.
 
-        Returns:
-            list[LuxtronikFieldDefinition]: All valid definitions.
-        """
-        return self._definitions
+    #     Returns:
+    #         list[LuxtronikFieldDefinition]: All valid definitions.
+    #     """
+    #     return self._definitions
 
-    def get(self, name_or_idx):
-        """
-        Retrieve a field definition by name or index.
 
-        Args:
-            name_or_idx (str | int): Field name or register index.
-
-        Returns:
-            LuxtronikFieldDefinition: The matching definition, or an invalid one if not found.
-
-        Note:
-            If multiple definitions exist for the same index/name, the first one takes precedence.
-        """
-        if isinstance(name_or_idx, int):
-            return self._get_definition_by_idx(name_or_idx)
-        if isinstance(name_or_idx, str):
-            try:
-                idx_from_str = int(target)
-                return self._get_definition_by_idx(name_or_idx)
-            except ValueError:
-                return self._get_definition_by_name(name_or_idx)
-        return LuxtronikFieldDefinition.invalid()
-
-    def _get_definition_by_idx(self, idx):
-        """
-        Retrieve a field definition by its index.
-
-        Args:
-            idx (int): Register index.
-
-        Returns:
-            LuxtronikFieldDefinition: The matching definition, or an invalid one if not found.
-
-        Note:
-            If multiple definitions exist for the same index, the first one takes precedence.
-        """
-        return self._index_dict.get(idx, LuxtronikFieldDefinition.invalid())
-
-    def _get_definition_by_name(self, name):
-        """
-        Retrieve a field definition by its name (case-insensitive).
-
-        Args:
-            name (str): Field name.
-
-        Returns:
-            LuxtronikFieldDefinition: The matching definition, or an invalid one if not found.
-
-        Note:
-            If multiple definitions exist for the same name, the first one takes precedence.
-        """
-        definition = self._name_dict.get(name.lower(), LuxtronikFieldDefinition.invalid())
-        if definition.valid and name.lower() != definition.name.lower():
-            LOGGER.warning(f"'{name}' is outdated! Use '{definition.name}' instead.")
-        return definition
+    def get(self, name_or_idx): # , version=None):
+        return self._lookup.get(name_or_idx)
+        #return d if d is not None and version_in_range(version, d.since, d.until) else None
 
     def get_version_definitions(self):
         """
@@ -444,11 +509,92 @@ class LuxtronikFieldDefinitions:
                 version_definitions.append(d)
         return version_definitions
 
-    def create_field_dict(self):
+
+
+class LuxtronikFieldDictionary:
+    """
+    Container for Luxtronik field definitions.
+
+    Provides lookup by index, name or alias.
+    """
+
+    def __init__(self, definitions, version=None):
         """
-        Create a dictionary mapping definitions to newly created field objects.
+        Initialize the (by index sorted) field definitions.
+
+        Args:
+            definitions_list (list[dict]): Raw definition entries.
+            offset (int): Offset applied to register indices.
+                (Default: LUXTRONIK_DEFAULT_DEFINITION_OFFSET)
+            name (str): Name of a field related to this definition list (e.g. "Holding")
+            version (str): Provide version information to remove incompatible elements.
+
+        Notes on the definitions_list:
+            - Must be sorted by ascending index
+            - Each version may contain only one entry per register
+            - The value of count must always be greater than or equal to 1
+            - All names must be unique
+        """
+        self._definitions = definitions
+        self._version = version
+        self._data = {}
+        self._lookup = LuxtronikDefinitionLookup()
+
+    @classmethod
+    def empty(cls, definitions, version=None):
+        obj = cls(definitions, version)
+        return obj
+
+    @classmethod
+    def full(cls, definitions):
+        obj = cls(definitions, None)
+        for d in definitions:
+            obj._add(d)
+        return obj
+
+    @classmethod
+    def versioned(cls, definitions, version):
+        obj = cls(definitions, version)
+        for d in definitions:
+            if version_in_range(version, d.since, d.until):
+                obj.add(d)
+        return obj
+
+    def _add(definition, alias):
+        self._lookup.add(definition, alias)
+        self._data.set(definition, definition.create_field())
+
+    def add(self, definition_name_or_idx, alias=None):
+        d = definition_name_or_idx
+        if not isinstance(d, LuxtronikFieldDefinition):
+            d = self._definitions.get(d)
+        if d is not None and d not in self._data and parse_version(self._version, d.since, d.until):
+            self._add(d, alias)
+
+    def __getitem__(self, name_or_idx):
+        return self.get(name_or_idx)
+
+    def __iter__(self):
+        """Iterator for all definitions contained herein."""
+        return iter(self._data)
+
+    def register_alias(self, name_or_idx, alias):
+        self._lookup.register_alias(name_or_idx, alias)
+
+    def get(self, name_or_idx): # , version=None):
+        """
+        Retrieve a field definition by name or index.
+
+        Args:
+            name_or_idx (str | int): Field name or register index.
 
         Returns:
-            dict[LuxtronikFieldDefinition, Base]: Mapping of definitions to field instance.
+            LuxtronikFieldDefinition | None: The matching definition, or None if not found.
+
+        Note:
+            If multiple definitions exist for the same index/name, the first one takes precedence.
         """
-        return {d: d.create_field() for d in self._definitions}
+        d = self._lookup.get(name_or_idx)
+        if d is not None:
+            return self._data.get(d, None)
+        return None

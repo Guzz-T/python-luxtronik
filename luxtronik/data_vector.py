@@ -76,6 +76,8 @@ class DataVectorSmartHome(DataVector):
     supports parsing of raw data, and can create unknown fields.
     """
 
+    definitions = None # override this
+
     @classmethod
     def create_unknown(cls, idx):
         """
@@ -89,7 +91,8 @@ class DataVectorSmartHome(DataVector):
         """
         return Unknown(f"Unknown_{cls.name}_{idx}", False)
 
-    def __init__(self, definitions):
+
+    def __init__(self, version=None, safe=True):
         """
         Initialize the DataVectorSmartHome instance.
 
@@ -99,13 +102,32 @@ class DataVectorSmartHome(DataVector):
             definitions (LuxtronikFieldDefinitions): List of definitions
         """
         super().__init__()
-        self._definitions = definitions
-        self._data = self._definitions.create_field_dict()
-        self.safe = True
+        self.version = version
+        self.safe = safe
 
-    @property
-    def definitions(self):
-        return self._definitions
+    @classmethod
+    def empty(cls, version=None, safe=True):
+        obj = cls(version, safe)
+        obj._data = LuxtronikFieldDictionary.empty(cls.definitions, version)
+        return obj
+
+    @classmethod
+    def full(cls, safe=True):
+        obj = cls(None, safe)
+        obj._data = LuxtronikFieldDictionary.full(cls.definitions, None)
+        return obj
+
+    @classmethod
+    def versioned(cls, version, safe=True):
+        obj = cls(version, safe)
+        obj._data = LuxtronikFieldDictionary.versioned(cls.definitions, version)
+        return obj
+
+    def add(self, target):
+        self._data.add(target)
+
+    def register_alias(self, target, alias):
+        self._data.register_alias(target, alias)
 
     def parse(self, raw_data):
         """
@@ -120,6 +142,10 @@ class DataVectorSmartHome(DataVector):
                 continue
             f.raw = d.extract_raw(raw_data)
 
+    def get(self, target):
+        """Get entry by id or name."""
+        return self._data.get(target)
+
     def set(self, target, value):
         """
         Set field to new value.
@@ -128,26 +154,8 @@ class DataVectorSmartHome(DataVector):
             target (int | str): Target could either be its id or its name.
             value (int | List[int]): Value to set
         """
-        field = self._lookup(target)
-        if field.writeable or not self.safe:
+        field = self._data.get(target)
+        if field is not None and field.writeable or not self.safe:
             field.value = value
         else:
             self.logger.warning(f"Field '{field.name}' not safe for writing!")
-
-
-    def _lookup(self, target):
-        """
-        Lookup an entry
-
-        Args:
-            target (int | str): Target could either be its id or its name.
-
-        Returns:
-            Base | None: If found return the field instance, otherwise None.
-
-        """
-        definition = self._definitions.get(target)
-        if not definition.valid:
-            self.logger.warning(f"Entry '{target}' not found", )
-            return None
-        return self._data.get(definition, None)

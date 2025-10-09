@@ -3,10 +3,14 @@
 import logging
 
 from luxtronik.data_vector import DataVectorSmartHome
-from luxtronik.definitions.inputs import INPUTS_DEFINITIONS
-from luxtronik.shi.constants import(
+from luxtronik.definitions.inputs import INPUTS_OFFSET
+from luxtronik.shi.constants import INPUTS_FIELD_NAME
+
+
+INPUTS_DEFINITIONS: Final = LuxtronikFieldDefinitions.by_list(
+    INPUTS_DEFINITIONS_LIST,
     INPUTS_FIELD_NAME,
-    INPUTS_OFFSET,
+    INPUTS_OFFSET
 )
 
 class Inputs(DataVectorSmartHome):
@@ -14,7 +18,4 @@ class Inputs(DataVectorSmartHome):
 
     logger = logging.getLogger("Luxtronik.Inputs")
     name = INPUTS_FIELD_NAME
-
-    def __init__(self):
-        """Initialize Inputs class."""
-        super().__init__(INPUTS_DEFINITIONS)
+    definitions = INPUTS_DEFINITIONS

@@ -47,13 +47,5 @@ def SmartHomeInterfaceFactory:
                 version_field = version_def.create_field()
                 version_field.raw = data
 
-        # Create new definitions if we know the version
-        if version_field is not None:
-            holdings_def = HOLDINGS_DEFINITIONS.refine(version_field.value)
-            inputs_def = INPUTS_DEFINITIONS.refine(version_field.value)
-        else:
-            holdings_def = HOLDINGS_DEFINITIONS
-            inputs_def = INPUTS_DEFINITIONS
-
         # Finally we can create the interface instance
-        return LuxtronikSmartHomeInterface(modbus_interface, holdings_def, inputs_def)
+        return LuxtronikSmartHomeInterface(modbus_interface, version_field.value)
