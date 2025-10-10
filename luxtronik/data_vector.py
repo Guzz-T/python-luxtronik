@@ -67,21 +67,27 @@ class DataVector:
         entry = self._lookup(target)
         return entry
 
-
+###############################################################################
+# Smart home interface data-vector
+###############################################################################
 class DataVectorSmartHome(DataVector):
     """
     Specialized DataVector for Luxtronik Smart Home fields.
 
-    Provides access to field definitions by name or index,
+    Provides access to fields by name or index,
     supports parsing of raw data, and can create unknown fields.
     """
 
     definitions = None # override this
 
+
+# Common class methods ########################################################
+
     @classmethod
-    def create_unknown(cls, idx):
+    def create_unknown_field(cls, idx):
         """
         Create an unknown field object.
+        Be careful! The field may not exist.
 
         Args:
             idx (int): Register index.
@@ -89,45 +95,108 @@ class DataVectorSmartHome(DataVector):
         Returns:
             Unknown: A placeholder field instance.
         """
+        # Create an unknown field
         return Unknown(f"Unknown_{cls.name}_{idx}", False)
 
-
-    def __init__(self, version=None, safe=True):
+    @classmethod
+    def create_any_field(cls, name_or_idx):
         """
-        Initialize the DataVectorSmartHome instance.
-
-        Creates field objects for all definitions and stores them in the data vector.
+        Create a field object.
+        Be careful! The field may not exist.
 
         Args:
-            definitions (LuxtronikFieldDefinitions): List of definitions
+            name_or_idx (str | int): Field name or register index.
+
+        Returns:
+            Base | None: The created field, or None if not found or not valid.
         """
-        super().__init__()
-        self.version = version
+        # The definitions object hold all available fields
+        definition = cls.definitions.get(name_or_idx)
+        if definition is not None and definition.valid:
+            return definition.create_field()
+        return None
+
+
+# Constructors and magic methods ##############################################
+
+    def __init__(self, version=LUXTRONIK_LATEST_SHI_VERSION, safe=True):
+        """
+        Initialize the data-vector instance.
+        Creates field objects for all desired definitions and stores them in the data vector.
+
+        Args:
+            version (tuple[int] | None): Version to be used for creating the field objects.
+                This ensures that the data vector only contain valid fields.
+                If None is passed, all available fields are added.
+                (default: LUXTRONIK_LATEST_SHI_VERSION)
+            safe (bool): If false, prevent fields marked as
+                not secure from being written to.
+        """
         self.safe = safe
+        self._version = version
+        self._data = LuxtronikFieldDictionary(cls.definitions, version)
 
     @classmethod
-    def empty(cls, version=None, safe=True):
-        obj = cls(version, safe)
+    def empty(cls, version=LUXTRONIK_LATEST_SHI_VERSION, safe=True):
+        """
+        Initialize an empty data-vector instance
+        (= no fields are added to this data-vector).
+
+        Args:
+            version (tuple[int] | None): The version is added to the data vector
+                so some checks can be performed later.
+                (default: LUXTRONIK_LATEST_SHI_VERSION)
+            safe (bool): If false, prevent fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls)
+        obj.safe = safe
+        obj._version = version
         obj._data = LuxtronikFieldDictionary.empty(cls.definitions, version)
         return obj
 
-    @classmethod
-    def full(cls, safe=True):
-        obj = cls(None, safe)
-        obj._data = LuxtronikFieldDictionary.full(cls.definitions, None)
-        return obj
+    def __getitem__(self, def_name_or_idx):
+        return self.get(def_name_or_idx)
 
-    @classmethod
-    def versioned(cls, version, safe=True):
-        obj = cls(version, safe)
-        obj._data = LuxtronikFieldDictionary.versioned(cls.definitions, version)
-        return obj
+    def __contains__(self, def_field_name_or_idx):
+        return def_field_name_or_idx in self._data
 
-    def add(self, target):
-        self._data.add(target)
 
-    def register_alias(self, target, alias):
-        self._data.register_alias(target, alias)
+# Add and alias methods #######################################################
+
+    def add(self, def_field_name_or_idx, alias=None):
+        """
+        Adds an additional field to this data vector.
+        Mainly used for vectors created with empty()
+        to read/write individual fields.
+
+        Args:
+            def_field_name_or_idx (LuxtronikFieldDefinition | Base | str | int):
+                Field to add. Either by definition, name or index, or the field itself.
+            alias (any | None): Alias, which can be used to access the field again.
+
+        Returns:
+            Base | None: The added field object if this could be added.
+        """
+        return self._data.add(def_field_name_or_idx, alias)
+
+    def register_alias(self, def_field_name_or_idx, alias):
+        """
+        Add an alternative name (or anything else) that can be used to access a specific field.
+
+        Args:
+            def_field_name_or_idx (LuxtronikFieldDefinition | Base | str | int):
+                Field to which the alias is to be added.
+                Either by definition, name or index, or the field itself.
+            alias (any | None): Alias, which can be used to access the field again.
+
+        Returns:
+            Base | None: The field to which the alias was added, or None if not possible
+        """
+        return self._data.register_alias(def_field_name_or_idx, alias)
+
+
+# Data and access methods #####################################################
 
     def parse(self, raw_data):
         """
@@ -137,25 +206,38 @@ class DataVectorSmartHome(DataVector):
             raw_data (list[int]): List of raw register values.
         """
         raw_len = len(raw_data)
-        for d, f in self._data.items():
-            if d.idx >= raw_len:
+        for definition, field in self._data.items():
+            if definition.idx >= raw_len:
                 continue
-            f.raw = d.extract_raw(raw_data)
+            field.raw = definition.extract_raw(raw_data)
 
-    def get(self, target):
-        """Get entry by id or name."""
-        return self._data.get(target)
+    def get(self, def_name_or_idx):
+        """
+        Get entry by definition, name or index.
 
-    def set(self, target, value):
+        Args:
+            def_name_or_idx (LuxtronikFieldDefinition | str | int):
+                Definition, name, or index to be used to search for the field.
+
+        Returns:
+            Base | None: The field found or none if not found.
+        """
+        return self._data.get(def_name_or_idx)
+
+    def set(self, def_field_name_or_idx, value):
         """
         Set field to new value.
 
         Args:
-            target (int | str): Target could either be its id or its name.
+            def_field_name_or_idx (LuxtronikFieldDefinition | Base | int | str):
+                Definition, name, or index to be used to search for the field.
+                It is also possible to pass the field itself.
             value (int | List[int]): Value to set
         """
-        field = self._data.get(target)
+        field = def_field_name_or_idx
+        if not isinstance(field, Base):
+            field = self._data.get(def_field_name_or_idx)
         if field is not None and field.writeable or not self.safe:
             field.value = value
         else:
-            self.logger.warning(f"Field '{field.name}' not safe for writing!")
+            self.logger.warning(f"Field '{field.name}' not found or not safe for writing!")

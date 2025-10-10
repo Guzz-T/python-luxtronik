@@ -99,6 +99,11 @@ class RunTestDefinitions:
                     f"The name may only contain a-z0-9_ {definition}"
                 assert sanitized != "", \
                     f"Name must not be empty. {definition}"
+                try:
+                    int(name)
+                    assert False, f"Name must not be a number."
+                except:
+                    pass
 
     def test_name_unique(self):
         length = len(self.definitions)

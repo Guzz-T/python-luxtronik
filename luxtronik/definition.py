@@ -1,60 +1,10 @@
 import logging
 
-from luxtronik.datatypes import Unknown
+from luxtronik.datatypes import Base, Unknown
 
 
 LOGGER = logging.getLogger("Luxtronik.definitions")
 
-LUXTRONIK_DEFAULT_DEFINITION_OFFSET = 10000
-
-
-def parse_version(version):
-    """
-    Parse a version string into a tuple of exactly 4 integers.
-
-    Examples:
-        "1"         -> (1, 0, 0, 0)
-        "2.1"       -> (2, 1, 0, 0)
-        "3.2.1"     -> (3, 2, 1, 0)
-        "1.2.3.4"   -> (1, 2, 3, 4)
-        "1.2.3.4.5" -> (1, 2, 3, 4)   # extra parts are ignored
-        "a.b"       -> None
-
-    Args:
-        version (str): Version string.
-
-    Returns:
-        tuple[int, int, int, int] | None: Parsed version tuple, or None if invalid.
-    """
-    try:
-        parts = version.strip().split(".")
-        if not parts or any(not p.isdigit() for p in parts):
-            return None
-        nums = [int(p) for p in parts]
-        nums = (nums + [0, 0, 0, 0])[:4]
-        return tuple(nums)
-    except Exception:
-        return None
-
-def version_in_range(version, since=None, until=None):
-    """
-    Check if a version is within the given range.
-
-    Args:
-        version (tuple[int, ...]): The version to check.
-        since (tuple[int, ...] | None): Lower bound (inclusive). If None, no lower bound is applied.
-        until (tuple[int, ...] | None): Upper bound (inclusive). If None, no upper bound is applied.
-
-    Returns:
-        bool: True if version is within the range, False otherwise.
-    """
-    if version is None:
-        return True
-    if since is not None and version < since:
-        return False
-    if until is not None and version > until:
-        return False
-    return True
 
 
 class LuxtronikFieldDefinition:
@@ -106,6 +56,7 @@ class LuxtronikFieldDefinition:
             if not names:
                 names = ["_invalid_"]
             self._names = names
+            self._aliases = {}
             since = str(data_dict["since"])
             self._since = parse_version(since)
             until = str(data_dict["until"])
@@ -212,6 +163,11 @@ class LuxtronikFieldDefinition:
         return self._names
 
     @property
+    def aliases(self):
+        "Returns all assigned aliases."
+        return self._aliases
+
+    @property
     def name(self):
         "Returns the preferred name."
         return self._names[0]
@@ -302,14 +258,29 @@ class LuxtronikDefinitionLookup:
     def __getitem__(self, name_or_idx):
         return self.get(name_or_idx)
 
+    def __contains__(self, def_name_or_idx):
+        if isinstance(def_name_or_idx, LuxtronikFieldDefinition)
+            # All names should be unique, so this check should be sufficient
+            return def_name_or_idx in self._name_dict.values()
+        else:
+            return (
+                def_name_or_idx in self._alias_dict
+                or def_name_or_idx in self._index_dict
+                or def_name_or_idx in self._name_dict
+            )
+
     def _add_alias(self, definition, alias):
         alias = alias.lower() if isinstance(alias, str) else alias
         self._alias_dict.set(alias.lower(), definition)
 
-    def register_alias(self, name_or_idx, alias):
-        d = self.get(name_or_idx)
-        if d is not None and alias is not None:
+    def register_alias(self, def_name_or_idx, alias):
+        if isinstance(def_name_or_idx, LuxtronikFieldDefinition):
+            definition = def_name_or_idx if def_name_or_idx in self else None
+        else:
+            definition = self.get(def_name_or_idx)
+        if definition is not None and alias is not None:
             self._add_alias(definition, alias)
+        return definition
 
     def add(self, definition, alias=None):
         # Add to indices-dictionary (first occurrence wins)
@@ -321,6 +292,8 @@ class LuxtronikDefinitionLookup:
             self._name_dict.set(n.lower(), definition)
 
         # Add to alias-dictionary (last occurrence wins)
+        for alias in definition.aliases:
+            self._add_alias(definition, alias)
         if alias is not None:
             self._add_alias(definition, alias)
 
@@ -343,7 +316,7 @@ class LuxtronikDefinitionLookup:
                 d = self._get_definition_by_idx(name_or_idx)
             if isinstance(name_or_idx, str):
                 try:
-                    idx_from_str = int(target)
+                    idx_from_str = int(name_or_idx)
                     d = self._get_definition_by_idx(name_or_idx)
                 except ValueError:
                     d = self._get_definition_by_name(name_or_idx)
@@ -398,7 +371,8 @@ class LuxtronikDefinitionLookup:
         Note:
             If multiple definitions exist for the same name, the first one takes precedence.
         """
-        return self._alias_dict.get(alias.lower(), None)
+        alias = alias.lower() if isinstance(alias, str) else alias
+        return self._alias_dict.get(alias, None)
 
 
 class LuxtronikFieldDefinitions:
@@ -471,6 +445,10 @@ class LuxtronikFieldDefinitions:
 
     def create_unknown_definition(self, index):
         return LuxtronikFieldDefinition.unknown(index, self._name, self._offset)
+
+    def register_alias(self, def_name_or_idx, alias):
+        definition = self._lookup.register_alias(def_name_or_idx, alias)
+        definition.aliases.append(alias)
 
     @property
     def name(self):
@@ -560,28 +538,55 @@ class LuxtronikFieldDictionary:
                 obj.add(d)
         return obj
 
-    def _add(definition, alias):
+    def _add(definition, field, alias):
         self._lookup.add(definition, alias)
-        self._data.set(definition, definition.create_field())
+        self._data.set(definition, field)
+        return field
 
-    def add(self, definition_name_or_idx, alias=None):
-        d = definition_name_or_idx
-        if not isinstance(d, LuxtronikFieldDefinition):
-            d = self._definitions.get(d)
-        if d is not None and d not in self._data and parse_version(self._version, d.since, d.until):
-            self._add(d, alias)
+    def _get_definition(self, def_field_name_or_idx):
+        definition = def_field_name_or_idx
+        field = None
+        if isinstance(definition, Base):
+            definition = def_field_name_or_idx.name
+            field = def_field_name_or_idx
+        if not isinstance(definition, LuxtronikFieldDefinition):
+            definition = self._definitions.get(definition)
+        return definition, field
 
-    def __getitem__(self, name_or_idx):
-        return self.get(name_or_idx)
+    def add(self, def_field_name_or_idx, alias=None):
+        definition, field = self._get_definition(def_field_name_or_idx)
+        if (
+            definition is not None
+            and definition not in self._data
+            and parse_version(self._version, definition.since, definition.until)
+        ):
+            if field is None:
+                field = definition.create_field()
+            return self._add(definition, field, alias)
+        return None
+
+    def __getitem__(self, def_name_or_idx):
+        return self.get(def_name_or_idx)
 
     def __iter__(self):
         """Iterator for all definitions contained herein."""
         return iter(self._data)
 
-    def register_alias(self, name_or_idx, alias):
-        self._lookup.register_alias(name_or_idx, alias)
+    def __contains__(self, def_field_name_or_idx):
+        if isinstance(def_field_name_or_idx, Base)
+            return def_field_name_or_idx in self._data.values()
+        else:
+            return def_field_name_or_idx in self._lookup
 
-    def get(self, name_or_idx): # , version=None):
+    def register_alias(self, def_field_name_or_idx, alias):
+        # Resolve a field input
+        def_name_or_idx = def_field_name_or_idx
+        if isinstance(def_name_or_idx, Base):
+            def_name_or_idx = def_name_or_idx.name
+        # register alias
+        self._lookup.register_alias(def_name_or_idx, alias)
+
+    def get(self, def_name_or_idx): # , version=None):
         """
         Retrieve a field definition by name or index.
 
@@ -589,12 +594,15 @@ class LuxtronikFieldDictionary:
             name_or_idx (str | int): Field name or register index.
 
         Returns:
-            LuxtronikFieldDefinition | None: The matching definition, or None if not found.
+            Base | None: The matching definition, or None if not found.
 
         Note:
             If multiple definitions exist for the same index/name, the first one takes precedence.
         """
-        d = self._lookup.get(name_or_idx)
-        if d is not None:
-            return self._data.get(d, None)
+        if isinstance(def_name_or_idx, LuxtronikFieldDefinition):
+            definition = def_name_or_idx
+        else:
+            definition = self._lookup.get(def_name_or_idx)
+        if definition is not None:
+            return self._data.get(definition, None)
         return None

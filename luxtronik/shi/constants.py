@@ -10,9 +10,10 @@ LUXTRONIK_DEFAULT_MODBUS_TIMEOUT = 30
 # to give the controller time to recalculate values, etc.
 LUXTRONIK_WAIT_TIME_AFTER_HOLDING_WRITE = 1
 
-# First Luxtronik firmware version that supports the Smart Home Interface (SHI)
-LUXTRONIK_FIRST_VERSION_WITH_SHI = "3.90.1"
 
+
+
+LUXTRONIK_DEFAULT_DEFINITION_OFFSET = 10000
 
 HOLDINGS_FIELD_NAME: Final = "holding"
 

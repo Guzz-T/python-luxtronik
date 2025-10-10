@@ -1,6 +1,7 @@
 import logging
 
 from luxtronik.datatypes import Base
+from luxtronik.shi.versions import LUXTRONIK_LATEST_SHI_VERSION
 from luxtronik.shi.holdings import Holdings
 from luxtronik.shi.inputs import Inputs
 from luxtronik.shi.common import (
@@ -12,6 +13,9 @@ from luxtronik.shi.common import (
 
 LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
 
+###############################################################################
+# Smart home interface data
+###############################################################################
 class LuxtronikSmartHomeData:
     """
     Container for the smart home interface data vectors.
@@ -20,7 +24,13 @@ class LuxtronikSmartHomeData:
     the smart-home data exposed by the Luxtronik controller.
     """
 
-    def __init__(self, holdings=None, inputs=None, safe=True):
+    def __init__(
+        self,
+        holdings=None,
+        inputs=None,
+        version=LUXTRONIK_LATEST_SHI_VERSION,
+        safe=True
+    ):
         """
         Initialize a LuxtronikSmartHomeData instance.
 
@@ -29,26 +39,41 @@ class LuxtronikSmartHomeData:
                 a new `Holdings` instance is created.
             inputs (Inputs): Optional inputs data vector. If not provided,
                 a new `Inputs` instance is created.
+            version (tuple[int] | None): Version to be used for creating the data vectors.
+                This ensures that the data vectors only contain valid fields.
+                If None is passed, all available fields are added.
+                (default: LUXTRONIK_LATEST_SHI_VERSION)
             safe (bool): Flag passed to the `Holdings` constructor when creating
                 a new instance. Defaults to True.
         """
-        self.holdings = holdings if holdings is not None else Holdings(safe)
-        self.inputs = inputs if inputs is not None else Inputs()
+        self.holdings = holdings if holdings is not None else Holdings(version, safe)
+        self.inputs = inputs if inputs is not None else Inputs(version)
 
     @classmethod
-    def empty(cls, safe=True):
-        self.holdings = Holdings.empty(safe)
-        self.inputs = Inputs.empty()
+    def empty(
+        cls,
+        version=LUXTRONIK_LATEST_SHI_VERSION,
+        safe=True
+    ):
+        """
+        Initialize an empty LuxtronikSmartHomeData instance
+        (= no fields are added to the data-vectors).
 
-    def versioned(cls, version):
-        self.holdings = Holdings.empty(version, safe)
-        self.inputs = Inputs.empty(version)
-
+        Args:
+            version (tuple[int] | None): The version is added to the data vectors
+                so some checks can be performed later.
+                (default: LUXTRONIK_LATEST_SHI_VERSION)
+            safe (bool): Flag passed to the `Holdings` constructor when creating
+                a new instance. Defaults to True.
+        """
+        obj = cls.__new__(cls)
+        obj.holdings = Holdings.empty(version, safe)
+        obj.inputs = Inputs.empty(version)
+        return obj
 
 ###############################################################################
 # Smart home interface
 ###############################################################################
-
 class LuxtronikSmartHomeInterface:
     """
     Read/write interface for Luxtronik smart home registers.
@@ -61,7 +86,7 @@ class LuxtronikSmartHomeInterface:
     Combine contiguous registers to optimize read/write access.
     """
 
-    def __init__(self, interface, version):
+    def __init__(self, interface, version=LUXTRONIK_LATEST_SHI_VERSION):
         """
         Initialize the smart home interface.
 
@@ -73,14 +98,28 @@ class LuxtronikSmartHomeInterface:
         self._interface = interface
         self._version = version
 
-        #self._holdings_definitions = holdings_definitions
-        #self._inputs_definitions = inputs_definitions
-
 
 # Helper methods ##############################################################
 
     def version(self):
         return self._version
+
+    def create_holding():
+
+    def create_holdings(self, safe=True):
+        return Holdings.versioned(self._version, safe)
+
+    def create_empty_holdings(self, safe=True):
+
+    def create_input():
+
+    def create_inputs(self):
+        return Inputs.versioned(self._version, True)
+
+    def create_empty_inputs(self):
+
+    def create_data(self):
+        return LuxtronikSmartHomeData.versioned(self._version, True)
 
     def _get_index_from_name(self, name):
         """
@@ -285,7 +324,7 @@ class LuxtronikSmartHomeInterface:
             Holdings: The populated holdings data vector.
         """
         if holdings is None:
-            holdings = Holdings()
+            holdings = self.create_holding()
 
         blocks_handler = ContiguousDataBlocksHandler()
         self._collect_fields(holdings, Holdings, True, None, True)
@@ -392,7 +431,7 @@ class LuxtronikSmartHomeInterface:
             Inputs: The populated inputs data vector.
         """
         if inputs is None:
-            inputs = Inputs()
+            inputs = self.create_inputs()
 
         blocks_handler = ContiguousDataBlocksHandler()
         self._collect_fields(inputs, Inputs, True, None, True)
@@ -405,7 +444,7 @@ class LuxtronikSmartHomeInterface:
 
     def _shi_read(self, data):
         if data is None:
-            data = LuxtronikSmartHomeData()
+            data = self.create_data()
 
         blocks_handler = ContiguousDataBlocksHandler()
         self._collect_fields(data.holdings, Holdings, True, None, True)

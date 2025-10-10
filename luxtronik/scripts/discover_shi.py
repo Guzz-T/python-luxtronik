@@ -26,7 +26,7 @@ def fill_with_unknown(data_vector, start, count):
             continue
         # Add unknown
         if not i in data_vector._data:
-            data_vector._data[i] = data_vector.create_unknown(i)
+            data_vector._data[i] = data_vector.create_unknown_field(i)
         else:
             definition = data_vector._get_definition_by_idx(i)
             skip_count = definition.count - 1
