@@ -105,18 +105,22 @@ class LuxtronikSmartHomeInterface:
         return self._version
 
     def create_holding():
+        pass
 
     def create_holdings(self, safe=True):
         return Holdings.versioned(self._version, safe)
 
     def create_empty_holdings(self, safe=True):
+        pass
 
     def create_input():
+        pass
 
     def create_inputs(self):
         return Inputs.versioned(self._version, True)
 
     def create_empty_inputs(self):
+        pass
 
     def create_data(self):
         return LuxtronikSmartHomeData.versioned(self._version, True)
@@ -145,7 +149,7 @@ class LuxtronikSmartHomeInterface:
 
         Args:
             name_or_idx (str | int): The field name or the register index.
-            definitions (LuxtronikFieldDefinitions): Field definition list to look-up the desired definition
+            definitions (LuxtronikDefinitionsList): Field definition list to look-up the desired definition
 
         Returns:
             LuxtronikFieldDefinition | None: A valid definition, or None if not found.
@@ -196,7 +200,7 @@ class LuxtronikSmartHomeInterface:
         success &= blocks_handler.integrate_data()
         return success
 
-    def _collect_field(self, field_or_name_or_idx, definitions, read_not_write, data, safe):
+    def _collect_field(self, blocks_handler, field_or_name_or_idx, definitions, read_not_write, data, safe):
         """
         Add a field (this may correspond to multiple registers) by name, index, or directly as a field object
         to the contiguous-data-blocks-handler
@@ -244,16 +248,18 @@ class LuxtronikSmartHomeInterface:
             field.raw = data
 
         # Abort if insufficient data is provided
-        if not read_not_write not definition.check_data(field):
+        if not read_not_write or not definition.check_data(field):
             LOGGER.warning(f"SHI write failure. Data error / insufficient data provided: name={definition.name}, data={field.raw}")
             return None
 
-        blocks_handler.collect(field, definition, read_not_write)
+        blocks = ContiguousDataBlockList(definitions.name, read_not_write)
+        blocks.collect(definition, field, read_not_write)
+        blocks_handler.append(blocks)
 
         return field
 
 
-    def _collect_fields(self, data_vector, definitions, read_not_write, data):
+    def _collect_fields(self, blocks_handler, data_vector, definitions, read_not_write, data):
         """
         Read the data of all fields within the given data vector.
 
@@ -264,14 +270,27 @@ class LuxtronikSmartHomeInterface:
             data_vector (DataVectorSmartHome): The data vector class providing fields.
         """
 
-        # Organize data into contiguous blocks
-        for field, definition in data_vector:
-            # Skip fields that do not carry user-data
-            if not read_not_write and not field.set_by_user:
-                continue
-            # we ignore the returned fields
-            !!!
-            self._collect_field(field, definitions, read_not_write, None, data_vector.safe)
+        if read_not_write:
+            # We can directly use the prepared read-blocks
+            data_vector.update_read_blocks()
+            blocks_handler.append(data_vector._read_blocks)
+
+
+                # !!! TODO if version
+
+
+        else:
+            # Organize data into contiguous blocks
+            for definition, field in data_vector:
+                # Skip fields that do not carry user-data
+                if not read_not_write and not field.set_by_user:
+                    continue
+                # we ignore the returned fields
+
+
+                # !!! TODO if version
+
+                self._collect_field(blocks_handler, field, definitions, read_not_write, None, data_vector.safe)
 
 
 # Holding methods #############################################################
@@ -308,7 +327,7 @@ class LuxtronikSmartHomeInterface:
             Base | None: The field object containing the read data, or None if the read failed.
         """
         blocks_handler = ContiguousDataBlocksHandler()
-        field = self._collect_field(field_or_name_or_idx, Holdings, True, None, True)
+        field = self._collect_field(blocks_handler, field_or_name_or_idx, Holdings, True, None, True)
         success = self._send_and_integrate(blocks_handler)
         return field if success else None
 
@@ -327,7 +346,7 @@ class LuxtronikSmartHomeInterface:
             holdings = self.create_holding()
 
         blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(holdings, Holdings, True, None, True)
+        self._collect_fields(blocks_handler, holdings, Holdings, True, None, True)
         self._send_and_integrate(blocks_handler)
         return holdings
 
@@ -361,7 +380,7 @@ class LuxtronikSmartHomeInterface:
             Base | None: The written field object, or None if the write failed.
         """
         blocks_handler = ContiguousDataBlocksHandler()
-        field = self._collect_field(field_or_name_or_idx, Holdings, False, data, safe)
+        field = self._collect_field(blocks_handler, field_or_name_or_idx, Holdings, False, data, safe)
         success = self._send_and_integrate(blocks_handler)
         return field if success else None
 
@@ -378,7 +397,7 @@ class LuxtronikSmartHomeInterface:
             return
 
         blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(holdings, Holdings, False, None, holdings.safe)
+        self._collect_fields(blocks_handler, holdings, Holdings, False, None, holdings.safe)
         self._send_and_integrate(blocks_handler)
 
 # Inputs methods ##############################################################
@@ -415,7 +434,7 @@ class LuxtronikSmartHomeInterface:
             Base | None: The field object containing the read data, or None if the read failed.
         """
         blocks_handler = ContiguousDataBlocksHandler()
-        field = self._collect_field(field_or_name_or_idx, Inputs, True, None, True)
+        field = self._collect_field(blocks_handler, field_or_name_or_idx, Inputs, True, None, True)
         success = self._send_and_integrate(blocks_handler)
         return field if success else None
 
@@ -434,7 +453,7 @@ class LuxtronikSmartHomeInterface:
             inputs = self.create_inputs()
 
         blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(inputs, Inputs, True, None, True)
+        self._collect_fields(blocks_handler, inputs, Inputs, True, None, True)
         self._send_and_integrate(blocks_handler)
         return inputs
 
@@ -447,8 +466,8 @@ class LuxtronikSmartHomeInterface:
             data = self.create_data()
 
         blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(data.holdings, Holdings, True, None, True)
-        self._collect_fields(data.inputs, Inputs, True, None, True)
+        self._collect_fields(blocks_handler, data.holdings, Holdings, True, None, True)
+        self._collect_fields(blocks_handler, data.inputs, Inputs, True, None, True)
         self._send_and_integrate(blocks_handler)
         return data
 
@@ -463,9 +482,9 @@ class LuxtronikSmartHomeInterface:
             data = LuxtronikSmartHomeData()
 
         blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(holdings, Holdings, False, None, holdings.safe)
-        self._collect_fields(data.holdings, Holdings, True, None, True)
-        self._collect_fields(data.inputs, Inputs, True, None, True)
+        self._collect_fields(blocks_handler, holdings, Holdings, False, None, holdings.safe)
+        self._collect_fields(blocks_handler, data.holdings, Holdings, True, None, True)
+        self._collect_fields(blocks_handler, data.inputs, Inputs, True, None, True)
         self._send_and_integrate(blocks_handler)
         return data
 

@@ -92,7 +92,7 @@ class ContiguousDataPart:
     See `ContiguousDataBlock` for further details.
     """
 
-    def __init__(self, field, definition):
+    def __init__(self, definition, field):
         """
         Initialize a contiguous data part.
 
@@ -132,11 +132,19 @@ class ContiguousDataBlock:
         will result in a transmission error.
     """
 
-    def __init__(self, type_name, read_not_write):
+    def __init__(self):
         self._parts = []
         self._last_idx = -1
-        self._type_name = type_name
-        self._read_not_write = read_not_write
+
+    @classmethod
+    def create_and_add(cls, definition, field):
+        obj = cls()
+        obj.add(definition, field)
+        return obj
+
+    def clear(self):
+        self._parts = []
+        self._last_idx = -1
 
     def __iter__(self):
         return iter(self._parts)
@@ -146,27 +154,26 @@ class ContiguousDataBlock:
 
     def __str__(self):
         parts_str = ", ".join(str(part) for part in self._parts)
-        return f"ContiguousDataBlock(index={self.first_index}, count={self.overall_count}, " \
-            + f"type_name={self._type_name}, read_not_write={self._read_not_write}, parts=[{parts_str}])"
+        return f"(index={self.first_index}, count={self.overall_count}, " \
+            + f"parts=[{parts_str}])"
 
-    def can_add(self, definition, read_not_write):
+    def can_add(self, definition):
         """
         Check if the next part can be added to this contiguous data block.
 
         Returns:
             bool: True if the part would not lead to gaps and can be added to this block, otherwise False.
         """
+        if
         return (
             self._last_idx == -1
             or (
                 definition.index >= self.first_index
                 and definition.index <= self._last_idx + 1
-                and definition.type_name == self._type_name
-                and read_not_write == self._read_not_write
             )
         )
 
-    def add(self, field, definition):
+    def add(self, definition, field):
         """
         Add a subsequent part to this contiguous data block.
         We assume that the (valid) parts are added in order.
@@ -177,16 +184,8 @@ class ContiguousDataBlock:
             field (Base): The field associated with this part.
             definition (LuxtronikFieldDefinition): The definition associated with this part.
         """
-        self._parts.append(ContiguousDataPart(field, definition))
+        self._parts.append(ContiguousDataPart(definition, field))
         self._last_idx = max(self._last_idx, definition.index + definition.count - 1)
-
-    @property
-    def type_name(self):
-        return self._type_name
-
-    @property
-    def read_not_write(self):
-        return self._read_not_write
 
     @property
     def first_index(self):
@@ -291,7 +290,7 @@ class ContiguousDataBlock:
             return None
         return telegram_type(self.first_addr, data_arr)
 
-    def create_telegram(self):
+    def create_telegram(self, type_name, read_not_write):
         """
         Create a read or write-telegram out of this `ContiguousDataBlock`.
 
@@ -299,13 +298,73 @@ class ContiguousDataBlock:
             LuxtronikSmartHomeReadTelegram | LuxtronikSmartHomeWriteTelegram | None:
                 The created telegram or None in case of an error.
         """
-        if self.type_name == HOLDINGS_FIELD_NAME and self.read_not_write:
+        if type_name == HOLDINGS_FIELD_NAME and read_not_write:
             return self._create_read_telegram(LuxtronikSmartHomeReadHoldingsTelegram)
-        if self.type_name == INPUTS_FIELD_NAME and self.read_not_write:
+        if type_name == INPUTS_FIELD_NAME and read_not_write:
             return self._create_read_telegram(LuxtronikSmartHomeReadInputsTelegram)
-        if self.type_name == HOLDINGS_FIELD_NAME and not self.read_not_write:
+        if type_name == HOLDINGS_FIELD_NAME and not read_not_write:
             return self._create_write_telegram(LuxtronikSmartHomeWriteHoldingsTelegram)
+        LOGGER.error(f"Could not create a telegram for {self}. Skip this operation.")
         return None
+
+
+class ContiguousDataBlockList:
+
+    def __init__(self, type_name, read_not_write):
+        self._blocks = []
+        self._type_name = type_name
+        self._read_not_write = read_not_write
+
+    def clear(self):
+        self._blocks = []
+
+    def __iter__(self):
+        return iter(self._blocks)
+
+    def __getitem__(self, index):
+        return self._blocks[index]
+
+    def __str__(self):
+        blocks_str = ", ".join(str(block) for block in self._blocks)
+        return f"(type_name={self._type_name}, read_not_write={self._read_not_write}, " \
+            + f"blocks=[{blocks_str}])"
+
+    @property
+    def type_name(self):
+        return self._type_name
+
+    @property
+    def read_not_write(self):
+        return self._read_not_write
+
+    def collect(self, definition, field):
+        """
+        Correctly add a part to the list of contiguous blocks.
+        Assumes that definitions are sorted by index (see LuxtronikDefinitionsList).
+
+        Args:
+            field (Base): The field associated with this part.
+            definition (LuxtronikFieldDefinition): The definition associated with this part.
+        """
+        index = definition.index
+        count = definition.count if definition.count > 0 else 1
+
+        # Create a new contiguous block if the current part cannot be added to the last one.
+        if len(self._blocks) == 0 or not self._blocks[-1].can_add(definition):
+            self._blocks.append(ContiguousDataBlock())
+
+        # Add the field and definition to the (newly created) last data block.
+        self._blocks[-1].add(definition, field)
+
+    def create_telegrams(self, type_name, read_not_write):
+        """
+        Create a read or write-telegram out of this `ContiguousDataBlock`.
+
+        Returns:
+            LuxtronikSmartHomeReadTelegram | LuxtronikSmartHomeWriteTelegram | None:
+                The created telegram or None in case of an error.
+        """
+        return [block.create_telegram(block.type_name, block.read_not_write) for block in self._blocks]
 
 
 class ContiguousDataBlocksHandler:
@@ -317,34 +376,23 @@ class ContiguousDataBlocksHandler:
     """
 
     def __init__(self):
-        self._blocks = []
+        self._blocks_list = []
         self._next_idx = -1
         self._telegrams = []
         self._items = []
 
-    def collect(self, field, definition, read_not_write):
-        """
-        Correctly add a field definition to the list of contiguous blocks.
-        Assumes that definitions are sorted by index (see LuxtronikFieldDefinitions).
-
-        Args:
-            field (Base): The field associated with this part.
-            definition (LuxtronikFieldDefinition): The definition associated with this part.
-            read_not_write (bool): Flag that indicates a read or write operation
-        """
-        index = definition.index
-        count = definition.count if definition.count > 0 else 1
-
-        # Create a new contiguous block if the current part cannot be added to the last one.
-        if len(self._blocks) == 0 or not self._blocks[-1].can_add(definition, read_not_write)):
-            self._blocks.append(ContiguousDataBlock(definition.type_name, read_not_write))
-
-        # Add the field and definition to the (newly created) last data block.
-        self._blocks[-1].add(field, definition)
+    def clear(self):
+        self._blocks_list = []
+        self._next_idx = -1
+        self._telegrams = []
+        self._items = []
 
     @property
-    def get_block_list(self):
-        return self._blocks
+    def get_blocks_list(self):
+        return self._blocks_list
+
+    def append(self, blocks):
+        self._blocks_list.append(blocks)
 
     def create_telegrams(self):
         """
@@ -356,13 +404,12 @@ class ContiguousDataBlocksHandler:
         """
         self._telegrams = []
         self._items = []
-        for block in self._blocks:
-            telegram = block.create_telegram()
-            if telegram is None:
-                LOGGER.error(f"Could not create a telegram for {block}. Skip this operation.")
-            else:
-                self._telegrams.append(telegram)
-                self._items.append((block, telegram))
+        for blocks in self._blocks_list:
+            for block in blocks:
+                telegram = block.create_telegram(block.type_name, block.read_not_write)
+                if telegram is not None:
+                    self._telegrams.append(telegram)
+                    self._items.append((block, telegram))
         return self._telegrams
 
     def integrate_data(self):

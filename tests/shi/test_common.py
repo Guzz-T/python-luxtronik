@@ -1,6 +1,6 @@
 import pytest
 
-from luxtronik.definition import LuxtronikFieldDefinition
+from luxtronik.shi.definitions import LuxtronikFieldDefinition
 from luxtronik.datatypes import Base
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadTelegram,

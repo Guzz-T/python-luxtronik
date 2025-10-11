@@ -8,7 +8,6 @@ and writable and are used to control the heat pump externally.
 """
 from typing import Final
 
-from luxtronik.definition import LuxtronikFieldDefinitions
 from luxtronik.datatypes import (
     Celsius,
     ControlMode,

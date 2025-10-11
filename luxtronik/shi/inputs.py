@@ -1,13 +1,15 @@
 """Parse luxtronik Inputs."""
 
 import logging
+from typing import Final
 
-from luxtronik.data_vector import DataVectorSmartHome
-from luxtronik.definitions.inputs import INPUTS_OFFSET
+from luxtronik.shi.vector import DataVectorSmartHome
+from luxtronik.shi.definitions import LuxtronikDefinitionsList
+from luxtronik.definitions.inputs import INPUTS_DEFINITIONS_LIST, INPUTS_OFFSET
 from luxtronik.shi.constants import INPUTS_FIELD_NAME
 
 
-INPUTS_DEFINITIONS: Final = LuxtronikFieldDefinitions.by_list(
+INPUTS_DEFINITIONS: Final = LuxtronikDefinitionsList.by_list(
     INPUTS_DEFINITIONS_LIST,
     INPUTS_FIELD_NAME,
     INPUTS_OFFSET

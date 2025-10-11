@@ -13,8 +13,8 @@ from luxtronik.common import *
 from luxtronik.calculations import Calculations
 from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
-from luxtronik.holdings import Holdings
-from luxtronik.inputs import Inputs
+from luxtronik.shi.holdings import Holdings
+from luxtronik.shi.inputs import Inputs
 from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (

@@ -1,6 +1,7 @@
 import logging
 
 from luxtronik.datatypes import Base, Unknown
+from luxtronik.shi.constants import LUXTRONIK_DEFAULT_DEFINITION_OFFSET
 
 
 LOGGER = logging.getLogger("Luxtronik.definitions")
@@ -56,7 +57,7 @@ class LuxtronikFieldDefinition:
             if not names:
                 names = ["_invalid_"]
             self._names = names
-            self._aliases = {}
+            self._aliases = []
             since = str(data_dict["since"])
             self._since = parse_version(since)
             until = str(data_dict["until"])
@@ -248,7 +249,7 @@ class LuxtronikFieldDefinition:
         return self.get_raw(field) is not None
 
 
-class LuxtronikDefinitionLookup:
+class LuxtronikDefinitionsDictionary:
 
     def __init__(self):
         self._index_dict = {}
@@ -258,27 +259,25 @@ class LuxtronikDefinitionLookup:
     def __getitem__(self, name_or_idx):
         return self.get(name_or_idx)
 
-    def __contains__(self, def_name_or_idx):
-        if isinstance(def_name_or_idx, LuxtronikFieldDefinition)
-            # All names should be unique, so this check should be sufficient
-            return def_name_or_idx in self._name_dict.values()
-        else:
-            return (
-                def_name_or_idx in self._alias_dict
-                or def_name_or_idx in self._index_dict
-                or def_name_or_idx in self._name_dict
-            )
+    def __contains__(self, name_or_idx):
+        return (
+            name_or_idx in self._alias_dict
+            or name_or_idx in self._index_dict
+            or name_or_idx in self._name_dict
+        )
 
     def _add_alias(self, definition, alias):
         alias = alias.lower() if isinstance(alias, str) else alias
         self._alias_dict.set(alias.lower(), definition)
 
     def register_alias(self, def_name_or_idx, alias):
+        if alias is None:
+            return None
         if isinstance(def_name_or_idx, LuxtronikFieldDefinition):
-            definition = def_name_or_idx if def_name_or_idx in self else None
+            definition = def_name_or_idx if def_name_or_idx.name in self else None
         else:
             definition = self.get(def_name_or_idx)
-        if definition is not None and alias is not None:
+        if definition is not None:
             self._add_alias(definition, alias)
         return definition
 
@@ -297,8 +296,8 @@ class LuxtronikDefinitionLookup:
         if alias is not None:
             self._add_alias(definition, alias)
 
-    def get(self, name_or_idx): # , version=None):
-          """
+    def get(self, name_or_idx, default=None):
+        """
         Retrieve a field definition by name or index.
 
         Args:
@@ -322,7 +321,7 @@ class LuxtronikDefinitionLookup:
                     d = self._get_definition_by_name(name_or_idx)
         if d is None:
             LOGGER.warning(f"Definition for '{name_or_idx}' not found", )
-        return d
+        return d if d is not None else default
         #return d if d is not None and version_in_range(version, d.since, d.until) else None
 
     def _get_definition_by_idx(self, idx):
@@ -375,7 +374,7 @@ class LuxtronikDefinitionLookup:
         return self._alias_dict.get(alias, None)
 
 
-class LuxtronikFieldDefinitions:
+class LuxtronikDefinitionsList:
     """
     Container for Luxtronik field definitions.
 
@@ -403,7 +402,7 @@ class LuxtronikFieldDefinitions:
         self._offset = offset
         self._version = version
         self._definitions = []
-        self._lookup = LuxtronikDefinitionLookup()
+        self._lookup = LuxtronikDefinitionsDictionary()
 
     @classmethod
     def by_list(cls, definitions_list, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
@@ -436,8 +435,8 @@ class LuxtronikFieldDefinitions:
     def __getitem__(self, name_or_idx):
         return self.get(name_or_idx)
 
-    # def __len__(self):
-    #     return len(self._definitions)
+    def __len__(self):
+        return len(self._definitions)
 
     def __iter__(self):
         """Iterator for all definitions contained herein."""
@@ -449,6 +448,7 @@ class LuxtronikFieldDefinitions:
     def register_alias(self, def_name_or_idx, alias):
         definition = self._lookup.register_alias(def_name_or_idx, alias)
         definition.aliases.append(alias)
+        return definition
 
     @property
     def name(self):
@@ -469,8 +469,8 @@ class LuxtronikFieldDefinitions:
     #     return self._definitions
 
 
-    def get(self, name_or_idx): # , version=None):
-        return self._lookup.get(name_or_idx)
+    def get(self, name_or_idx, default=None): # , version=None):
+        return self._lookup.get(name_or_idx, default)
         #return d if d is not None and version_in_range(version, d.since, d.until) else None
 
     def get_version_definitions(self):
@@ -515,8 +515,14 @@ class LuxtronikFieldDictionary:
         """
         self._definitions = definitions
         self._version = version
-        self._data = {}
-        self._lookup = LuxtronikDefinitionLookup()
+        # There may be several names or alias that points to one definition.
+        # So in order to spare memory we split the name-to-field-lookup
+        # from the name-to-definition-lookup into a definition-to-field-lookup
+        self._def_lookup = LuxtronikDefinitionsDictionary()
+        # Furthermore stores the definition-to-field-lookup separate from the
+        # field-definition pairs to keep the index-sorted order when adding new entries
+        self._field_lookup = {}
+        self._items = [] # list of tuples, 0: definition, 1: field
 
     @classmethod
     def empty(cls, definitions, version=None):
@@ -527,6 +533,7 @@ class LuxtronikFieldDictionary:
     def full(cls, definitions):
         obj = cls(definitions, None)
         for d in definitions:
+            # definitions are already sorted
             obj._add(d)
         return obj
 
@@ -535,13 +542,14 @@ class LuxtronikFieldDictionary:
         obj = cls(definitions, version)
         for d in definitions:
             if version_in_range(version, d.since, d.until):
-                obj.add(d)
+                # definitions are already sorted
+                obj._add(d)
         return obj
 
     def _add(definition, field, alias):
-        self._lookup.add(definition, alias)
-        self._data.set(definition, field)
-        return field
+        self._def_lookup.add(definition, alias)
+        self._field_lookup.set(definition, field)
+        self._items.append((definitions, field))
 
     def _get_definition(self, def_field_name_or_idx):
         definition = def_field_name_or_idx
@@ -555,28 +563,46 @@ class LuxtronikFieldDictionary:
 
     def add(self, def_field_name_or_idx, alias=None):
         definition, field = self._get_definition(def_field_name_or_idx)
-        if (
-            definition is not None
-            and definition not in self._data
-            and parse_version(self._version, definition.since, definition.until)
-        ):
+        if definition is None:
+            return None
+        existing_field = self._field_lookup.get(definition, None)
+        if existing_field is not None:
+            return existing_field
+        if parse_version(self._version, definition.since, definition.until):
             if field is None:
                 field = definition.create_field()
-            return self._add(definition, field, alias)
+            self._add(definition, field, alias)
+            # _items is a list of tuples, 0: definition, 1: field
+            self._items.sort(key=lambda item: item[0].index)
+            return field
         return None
 
     def __getitem__(self, def_name_or_idx):
         return self.get(def_name_or_idx)
 
+    def __len__(self):
+        return len(self._items)
+
     def __iter__(self):
-        """Iterator for all definitions contained herein."""
-        return iter(self._data)
+        # _items is a list of tuples, 0: definition, 1: field
+        return iter([item[0] for item in self._items])
 
     def __contains__(self, def_field_name_or_idx):
-        if isinstance(def_field_name_or_idx, Base)
-            return def_field_name_or_idx in self._data.values()
+        if isinstance(def_field_name_or_idx, Base):
+            return def_field_name_or_idx in self._field_lookup.values()
+        elif isinstance(def_field_name_or_idx, LuxtronikFieldDefinition)
+            # speed-up the look-up by search only the name-dict
+            return def_field_name_or_idx.name in self._def_lookup._name_dict
         else:
-            return def_field_name_or_idx in self._lookup
+            return def_field_name_or_idx in self._def_lookup
+
+    def values(self):
+        # _items is a list of tuples, 0: definition, 1: field
+        return iter([item[1] for item in self._items])
+
+    def items(self):
+        """Iterator for all field-definition-pairs contained herein."""
+        return iter(self._items)
 
     def register_alias(self, def_field_name_or_idx, alias):
         # Resolve a field input
@@ -584,9 +610,10 @@ class LuxtronikFieldDictionary:
         if isinstance(def_name_or_idx, Base):
             def_name_or_idx = def_name_or_idx.name
         # register alias
-        self._lookup.register_alias(def_name_or_idx, alias)
+        definition = self._def_lookup.register_alias(def_name_or_idx, alias)
+        return self._field_lookup.get(definition, None)
 
-    def get(self, def_name_or_idx): # , version=None):
+    def get(self, def_name_or_idx, default=None): # , version=None):
         """
         Retrieve a field definition by name or index.
 
@@ -602,7 +629,7 @@ class LuxtronikFieldDictionary:
         if isinstance(def_name_or_idx, LuxtronikFieldDefinition):
             definition = def_name_or_idx
         else:
-            definition = self._lookup.get(def_name_or_idx)
+            definition = self._def_lookup.get(def_name_or_idx)
         if definition is not None:
-            return self._data.get(definition, None)
-        return None
+            return self._field_lookup.get(definition, default)
+        return default

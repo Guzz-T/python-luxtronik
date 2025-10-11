@@ -1,13 +1,15 @@
 """Parse luxtronik Holdings."""
 
 import logging
+from typing import Final
 
-from luxtronik.data_vector import DataVectorSmartHome
-from luxtronik.definitions.holdings import HOLDINGS_OFFSET
+from luxtronik.shi.vector import DataVectorSmartHome
+from luxtronik.shi.definitions import LuxtronikDefinitionsList
+from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS_LIST, HOLDINGS_OFFSET
 from luxtronik.shi.constants import HOLDINGS_FIELD_NAME
 
 
-HOLDINGS_DEFINITIONS: Final = LuxtronikFieldDefinitions.by_list(
+HOLDINGS_DEFINITIONS: Final = LuxtronikDefinitionsList.by_list(
     HOLDINGS_DEFINITIONS_LIST,
     HOLDINGS_FIELD_NAME,
     HOLDINGS_OFFSET

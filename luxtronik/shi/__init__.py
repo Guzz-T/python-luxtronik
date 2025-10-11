@@ -3,13 +3,14 @@
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
+)
+from luxtronik.shi.versions import (
     LUXTRONIK_LATEST_SHI_VERSION,
 )
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 from luxtronik.shi.interface import LuxtronikSmartHomeInterface
-from luxtronik.definition import parse_version
-from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS
-from luxtronik.definitions.inputs import INPUTS_DEFINITIONS
+from luxtronik.shi.versions import parse_version
+from luxtronik.shi.inputs import INPUTS_DEFINITIONS
 
 
 def determine_version(interface):
@@ -29,12 +30,17 @@ def determine_version(interface):
                 version_field = version_def.create_field()
                 version_field.raw = data
                 return parse_version(version_field.value())
+        return None
+
+
+VERSION_DUMMY = "dummy"
 
 
 def create_modbus_tcp(
     host,
     port = LUXTRONIK_DEFAULT_MODBUS_PORT,
     timeout_in_s = LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
+    version = VERSION_DUMMY
 ):
     """
     Create a LuxtronikSmartHomeInterface using a Modbus TCP connection.
@@ -43,30 +49,25 @@ def create_modbus_tcp(
         host (str): Hostname or IP address of the Luxtronik controller.
         port (int): TCP port for the Modbus connection.
         timeout_in_s (float): Timeout in seconds for the Modbus connection.
+        version (tuple[int] | str | None): Version with which the interface should be initialized.
+            If VERSION_DUMMY is used, an attempt is made to determine the version.
+            If a string is passed, an attempt is made to use it as a version.
+            If None is passed, one-after-another mode is activated.
 
     Returns:
         LuxtronikSmartHomeInterface: An initialized interface instance.
     """
     modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout_in_s)
-    version = determine_version(modbus_interface)
+    if version == VERSION_DUMMY:
+        version = determine_version(modbus_interface)
+    elif isinstance(version, str):
+        version = parse_version(version)
     return LuxtronikSmartHomeInterface(modbus_interface, version)
 
 
-def create_latest_modbus_tcp(
+def create_modbus_tcp_latest(
     host,
     port = LUXTRONIK_DEFAULT_MODBUS_PORT,
-    timeout_in_s = LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
+    timeout_in_s = LUXTRONIK_DEFAULT_MODBUS_TIMEOUT
 ):
-    """
-    Create a LuxtronikSmartHomeInterface using a Modbus TCP connection.
-
-    Args:
-        host (str): Hostname or IP address of the Luxtronik controller.
-        port (int): TCP port for the Modbus connection.
-        timeout_in_s (float): Timeout in seconds for the Modbus connection.
-
-    Returns:
-        LuxtronikSmartHomeInterface: An initialized interface instance.
-    """
-    modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout_in_s)
-    return LuxtronikSmartHomeInterface(modbus_interface, LUXTRONIK_LATEST_SHI_VERSION)
+    return create_modbus_tcp(host, port, timeout_in_s, LUXTRONIK_LATEST_SHI_VERSION)

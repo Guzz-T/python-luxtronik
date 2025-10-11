@@ -1,5 +1,7 @@
 """Constants used throughout the Luxtronik Smart Home Interface (SHI) module."""
 
+from typing import Final
+
 # Default TCP port for connecting to the Luxtronik controller
 LUXTRONIK_DEFAULT_MODBUS_PORT = 502
 

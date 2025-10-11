@@ -8,7 +8,6 @@ and are used for display or to control other devices.
 """
 from typing import Final
 
-from luxtronik.definition import LuxtronikFieldDefinitions
 from luxtronik.datatypes import (
     Celsius,
     Energy,
