@@ -9,7 +9,7 @@ from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS_LIST, HOLDINGS_O
 from luxtronik.shi.constants import HOLDINGS_FIELD_NAME
 
 
-HOLDINGS_DEFINITIONS: Final = LuxtronikDefinitionsList.by_list(
+HOLDINGS_DEFINITIONS: Final = LuxtronikDefinitionsList(
     HOLDINGS_DEFINITIONS_LIST,
     HOLDINGS_FIELD_NAME,
     HOLDINGS_OFFSET

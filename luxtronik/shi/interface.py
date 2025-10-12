@@ -1,17 +1,19 @@
 import logging
 
 from luxtronik.datatypes import Base
-from luxtronik.shi.versions import LUXTRONIK_LATEST_SHI_VERSION
-from luxtronik.shi.holdings import Holdings
-from luxtronik.shi.inputs import Inputs
+from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION
 from luxtronik.shi.common import (
+    LOGGER,
+    version_in_range,
     LuxtronikSmartHomeReadTelegram,
     LuxtronikSmartHomeWriteTelegram,
-    ContiguousDataBlock,
 )
-
-
-LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
+from luxtronik.shi.holdings import Holdings, HOLDINGS_DEFINITIONS
+from luxtronik.shi.inputs import Inputs, INPUTS_DEFINITIONS
+from luxtronik.shi.contiguous import (
+    ContiguousDataBlockList,
+    ContiguousDataBlocksHandler,
+)
 
 ###############################################################################
 # Smart home interface data
@@ -101,29 +103,39 @@ class LuxtronikSmartHomeInterface:
 
 # Helper methods ##############################################################
 
+    @property
     def version(self):
         return self._version
 
-    def create_holding():
-        pass
+    def create_holding(self, name_or_idx):
+        definition = HOLDING_DEFINITIONS.get(name_or_idx)
+        if definition is not None and version_in_range(self._version, definition.since, definition.until):
+            return definition.create_field()
+        return None
 
     def create_holdings(self, safe=True):
-        return Holdings.versioned(self._version, safe)
+        return Holdings(self._version, safe)
 
     def create_empty_holdings(self, safe=True):
-        pass
+        return Holdings.empty(self._version, safe)
 
-    def create_input():
-        pass
+    def create_input(self, name_or_idx):
+        definition = INPUT_DEFINITIONS.get(name_or_idx)
+        if definition is not None and version_in_range(self._version, definition.since, definition.until):
+            return definition.create_field()
+        return None
 
     def create_inputs(self):
-        return Inputs.versioned(self._version, True)
+        return Inputs(self._version, True)
 
     def create_empty_inputs(self):
-        pass
+        return Inputs.empty(self._version, True)
 
-    def create_data(self):
-        return LuxtronikSmartHomeData.versioned(self._version, True)
+    def create_data(self, safe=True):
+        return LuxtronikSmartHomeData(self._version, safe)
+
+    def create_empty_data(self, safe=True):
+        return LuxtronikSmartHomeData.empty(self._version, safe)
 
     def _get_index_from_name(self, name):
         """
@@ -200,6 +212,41 @@ class LuxtronikSmartHomeInterface:
         success &= blocks_handler.integrate_data()
         return success
 
+    def _prepare_read_field(self, definition, field, data, safe):
+
+        # Skip non-existing fields
+        if not version_in_range(self._version, definition.since, definition.until):
+            return False
+            field.raw = LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+
+        return True
+
+    def _prepare_write_field(self, definition, field, data, safe):
+
+        # Skip non-existing fields
+        if not version_in_range(self._version, definition.since, definition.until):
+            return False
+
+        # Skip fields that do not carry user-data
+        if not field.set_by_user:
+            return False
+
+        # Abort if field is not writeable
+        if safe and not definition.writeable:
+            LOGGER.warning(f"Field marked as non-writeable: name={definition.name}, data={field.raw}")
+            return False
+
+        # Override the field's data with the provided data
+        if data is not False:
+            field.raw = data
+
+        # Abort if insufficient data is provided
+        if not definition.check_data(field):
+            LOGGER.warning(f"Data error / insufficient data provided: name={definition.name}, data={field.raw}")
+            return False
+
+        return True
+
     def _collect_field(self, blocks_handler, field_or_name_or_idx, definitions, read_not_write, data, safe):
         """
         Add a field (this may correspond to multiple registers) by name, index, or directly as a field object
@@ -238,28 +285,18 @@ class LuxtronikSmartHomeInterface:
         if field is None:
             field = definition.create_field()
 
-        # Abort if field is not writeable
-        if not read_not_write and safe and not definition.writeable:
-            LOGGER.warning(f"Field marked as non-writeable: name={definition.name}, data={field.raw}")
-            return None
-
-        # Override the field's data with the provided data
-        if not read_not_write and data is not None:
-            field.raw = data
-
-        # Abort if insufficient data is provided
-        if not read_not_write or not definition.check_data(field):
-            LOGGER.warning(f"SHI write failure. Data error / insufficient data provided: name={definition.name}, data={field.raw}")
-            return None
-
         blocks = ContiguousDataBlockList(definitions.name, read_not_write)
-        blocks.collect(definition, field, read_not_write)
-        blocks_handler.append(blocks)
+        if (
+            (read_not_write and self._prepare_read_field(definition, field))
+            or (not read_not_write and self._prepare_write_field(definition, field, data, safe))
+        ):
+            blocks.collect(definition, field)
+            blocks_handler.append(blocks)
+            return field
+        return None
 
-        return field
 
-
-    def _collect_fields(self, blocks_handler, data_vector, definitions, read_not_write, data):
+    def _collect_fields(self, blocks_handler, data_vector, definitions, read_not_write, data, safe):
         """
         Read the data of all fields within the given data vector.
 
@@ -269,28 +306,28 @@ class LuxtronikSmartHomeInterface:
         Args:
             data_vector (DataVectorSmartHome): The data vector class providing fields.
         """
-
-        if read_not_write:
-            # We can directly use the prepared read-blocks
-            data_vector.update_read_blocks()
-            blocks_handler.append(data_vector._read_blocks)
-
-
-                # !!! TODO if version
-
-
-        else:
-            # Organize data into contiguous blocks
+        if self._version is None:
+            # Trial-and-error mode: Add a block for every field
+            blocks = ContiguousDataBlockList(definitions.name, read_not_write)
             for definition, field in data_vector:
-                # Skip fields that do not carry user-data
-                if not read_not_write and not field.set_by_user:
-                    continue
-                # we ignore the returned fields
+                if read_not_write:
+                    if self._prepare_read_field(definition, field):
+                        blocks.append_single(definition, field)
+                else:
 
-
-                # !!! TODO if version
-
-                self._collect_field(blocks_handler, field, definitions, read_not_write, None, data_vector.safe)
+                    if self._prepare_write_field(definition, field, data, safe):
+                        blocks.append_single(definition, field)
+        else:
+            if read_not_write:
+                # We can directly use the prepared read-blocks
+                data_vector.update_read_blocks()
+                blocks_handler.append(data_vector._read_blocks)
+            else:
+                blocks = ContiguousDataBlockList(definitions.name, False)
+                # Organize data into contiguous blocks
+                for definition, field in data_vector:
+                    if self._prepare_write_field(self, definition, field, data, safe):
+                        blocks_handler.append(blocks)
 
 
 # Holding methods #############################################################
@@ -343,7 +380,7 @@ class LuxtronikSmartHomeInterface:
             Holdings: The populated holdings data vector.
         """
         if holdings is None:
-            holdings = self.create_holding()
+            holdings = self.create_holdings()
 
         blocks_handler = ContiguousDataBlocksHandler()
         self._collect_fields(blocks_handler, holdings, Holdings, True, None, True)
@@ -393,7 +430,7 @@ class LuxtronikSmartHomeInterface:
                 If None is provided, the write is aborted.
         """
         if holdings is None:
-            LOGGER.warning("Abort SHI write! No data to write provided.")
+            LOGGER.warning("Abort write! No data to write provided.")
             return
 
         blocks_handler = ContiguousDataBlocksHandler()
@@ -479,7 +516,7 @@ class LuxtronikSmartHomeInterface:
             LOGGER.warning("Abort SHI write and read! No data to write provided.")
             return
         if data is None:
-            data = LuxtronikSmartHomeData()
+            data = self.create_data()
 
         blocks_handler = ContiguousDataBlocksHandler()
         self._collect_fields(blocks_handler, holdings, Holdings, False, None, holdings.safe)

@@ -6,66 +6,82 @@ Either use the top-level element Luxtronik or create your own instance of the sm
 
 ### Creation
 
+The smart-home-interface source code is located inside a module named `shi`.
+Currently the luxtronik controller only supports modbus-TCP as protocol.
+
 ```
-from shi import create_modbus_tcp
+from luxtronik.shi import create_modbus_tcp
 
 shi = create_modbus_tcp('your.lux.ip.addr')
 ```
 
 ### Read
 
-Read all available (Example with inputs, holdings work analog)
+ (Example with inputs, holdings work analog)
+ Note for "available fields" vs "valid fields":
+  each controller version may support different / new fields
+  ... (see trial-and-error-mode)
+
+__Read all fields:__
 ```
+# Recommended if only one data-vector is used:
+# First create the data-vector that contains all valid fields
+inputs = shi.create_inputs()
+# ... and afterwards read the data into those fields
+shi.read_inputs(inputs)
+print(inputs)
+```
+```
+# Recommended if all data-vectors are used:
+# First create the data-object that contains all supported data-vectors
+# which contains all valid fields
+data = shi.create_data()
+# ... and afterwards read the data into those fields
+shi.read(data)
+print(data.inputs)
+```
+```
+# This creates a new data-vector on every read that contains all valid fields
 inputs = shi.read_inputs()
 print(inputs)
-
-inputs = shi.create_inputs()
-shi.read_inputs(inputs)
-print(inputs)
-
+```
+```
+# This creates a new data-object on every read
+# that contains all supported data-vectors which contains all valid fields
 data = shi.read()
 print(data.inputs)
+```
+each example results in
+```
+>> ...
+```
 
-data = shi.create_data()
-shi.read(data)
-print(data.inputs)
+__Read single field (or a subset):__
+```
+op_mode = shi.read_input('operation_mode')
+print(op_mode)
+```
+```
+op_mode = shi.read_input(2)
+print(op_mode)
+
+```
+```
+op_mode = shi.create_input('operation_mode')
+shi.read_input(op_mode)
+print(op_mode)
 
 ```
 
-latest: possible to create data-vectors directly, but there may be not valid fields
-
-```
-inputs = Inputs()
-shi.read_inputs(inputs)
-print(inputs)
-
-data = LuxtronikSmartHomeData()
-shi.read(data)
-print(data.inputs)
-```
-
-
-
-
-each block results in
+each example results in
 ```
 >> ...
 ```
 
 
-Read single (or a subset) (all versioned)
+__Read a subset:__
 ```
-op_mode = shi.read_input('operation_mode')
-print(op_mode)
-
-op_mode = shi.read_input(2)
-print(op_mode)
-
-op_mode = shi.create_input('operation_mode')
-shi.read_input(op_mode)
-print(op_mode)
-
-inputs = Inputs.empty()
+inputs = shi.create_empty_inputs()
 op_mode = inputs.add('operation_mode')
 // ... add other
 shi.read_inputs(inputs)
@@ -74,10 +90,12 @@ print(inputs.get(2))
 print(inputs['operation_mode'])
 ```
 
-each block results in
+each example results in
 ```
 >> ...
 ```
+
+
 
 ## Using aliases
 
@@ -90,7 +108,11 @@ op_mode = input.add(name)
 input.register_alias(op_mode, alias)
 input.add(name, alias)
 
-### Use case: Trial-and-error mode
+
+
+
+
+### Alternative use case: Trial-and-error mode
 
 contains all available fields
 read one-after-another so that read errors in one field do not affect another
@@ -101,17 +123,35 @@ read one-after-another so that read errors in one field do not affect another
 
 
 ```
-from shi import create_modbus_tcp_versioned
+from shi import create_modbus_tcp
 
-shi = create_modbus_tcp_versioned('your.lux.ip.addr')
+shi = create_modbus_tcp('your.lux.ip.addr', version=None)
 ```
 
-### Use case: Specific version
 
 ```
-from shi import create_modbus_tcp_versioned
+inputs = Inputs()
+shi.read_inputs(inputs)
+print(inputs)
 
-shi = create_modbus_tcp_versioned('your.lux.ip.addr')
+data = LuxtronikSmartHomeData()
+shi.read(data)
+print(data.inputs)
+```
+
+### Alternative use case: Latest or specific version
+
+latest: possible to create data-vectors directly, but there may be not valid fields
+
+```
+from shi import create_modbus_tcp
+
+shi = create_modbus_tcp('your.lux.ip.addr', version="3.92.0")
+```
+```
+from shi import create_modbus_tcp
+
+shi = create_modbus_tcp('your.lux.ip.addr', version="latest")
 ```
 
 ## Implementation Details

@@ -1,9 +1,9 @@
-
+from luxtronik.data_vector import DataVector
 from luxtronik.datatypes import Unknown
-from luxtronik.shi.common import ContiguousDataBlockList
-from luxtronik.shi.versions import (
-    LUXTRONIK_LATEST_SHI_VERSION,
-)
+
+from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION
+from luxtronik.shi.definitions import LuxtronikFieldDictionary
+from luxtronik.shi.contiguous import ContiguousDataBlockList
 
 ###############################################################################
 # Smart home interface data-vector
@@ -72,7 +72,7 @@ class DataVectorSmartHome(DataVector):
         """
         self.safe = safe
         self._version = version
-        self._data = LuxtronikFieldDictionary(cls.definitions, version)
+        self._data = LuxtronikFieldDictionary(self.definitions, version)
         # Instead of re-create the block-list on every read, we just update it
         # on first time used or on next time used if some fields are added.
         self._read_blocks_updated = False
@@ -99,6 +99,9 @@ class DataVectorSmartHome(DataVector):
 
     def __getitem__(self, def_name_or_idx):
         return self.get(def_name_or_idx)
+
+    def __setitem__(self, def_name_or_idx, value):
+        return self.set(def_name_or_idx, value)
 
     def __len__(self):
         return len(self._data)

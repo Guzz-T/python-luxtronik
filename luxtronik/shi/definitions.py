@@ -1,11 +1,11 @@
 import logging
 
-from luxtronik.datatypes import Base, Unknown
-from luxtronik.shi.constants import LUXTRONIK_DEFAULT_DEFINITION_OFFSET
-
-
-LOGGER = logging.getLogger("Luxtronik.definitions")
-
+from luxtronik.datatypes import Base, Unknown, FullVersion, MajorMinorVersion
+from luxtronik.shi.constants import (
+    LUXTRONIK_DEFAULT_DEFINITION_OFFSET,
+    LUXTRONIK_LATEST_SHI_VERSION
+)
+from luxtronik.shi.common import LOGGER, parse_version, version_in_range
 
 
 class LuxtronikFieldDefinition:
@@ -63,9 +63,10 @@ class LuxtronikFieldDefinition:
             until = str(data_dict["until"])
             self._until = parse_version(until)
             self._description = str(data_dict["description"])
-        except Exception:
+        except Exception as e:
             self._valid = False
             self._index = 0
+            LOGGER.error(f"Failed to create LuxtronikFieldDefinition: '{e}' with {data_dict}")
         self._addr = self._offset + self._index
 
     @classmethod
@@ -120,6 +121,9 @@ class LuxtronikFieldDefinition:
     def __bool__(self):
         """Return True if the definition is valid."""
         return self._valid
+
+    def __repr__(self):
+        return f"({self.name}, {self.data_type}, {self.index}, {self.count})"
 
     @property
     def valid(self):
@@ -268,7 +272,7 @@ class LuxtronikDefinitionsDictionary:
 
     def _add_alias(self, definition, alias):
         alias = alias.lower() if isinstance(alias, str) else alias
-        self._alias_dict.set(alias.lower(), definition)
+        self._alias_dict[alias.lower()] = definition
 
     def register_alias(self, def_name_or_idx, alias):
         if alias is None:
@@ -288,7 +292,7 @@ class LuxtronikDefinitionsDictionary:
         # Add to name-dictionary (names are unique)
         # Unique names has already been ensured by the pytest
         for n in definition.names:
-            self._name_dict.set(n.lower(), definition)
+            self._name_dict[n.lower()] = definition
 
         # Add to alias-dictionary (last occurrence wins)
         for alias in definition.aliases:
@@ -381,16 +385,15 @@ class LuxtronikDefinitionsList:
     Provides lookup by index, name or alias.
     """
 
-    def __init__(self, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET, version=None):
+    def __init__(self, definitions_list, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
         """
         Initialize the (by index sorted) field definitions.
 
         Args:
             definitions_list (list[dict]): Raw definition entries.
+            name (str): Name of a field related to this definition list (e.g. "Holding")
             offset (int): Offset applied to register indices.
                 (Default: LUXTRONIK_DEFAULT_DEFINITION_OFFSET)
-            name (str): Name of a field related to this definition list (e.g. "Holding")
-            version (str): Provide version information to remove incompatible elements.
 
         Notes on the definitions_list:
             - Must be sorted by ascending index
@@ -400,37 +403,16 @@ class LuxtronikDefinitionsList:
         """
         self._name = name
         self._offset = offset
-        self._version = version
         self._definitions = []
         self._lookup = LuxtronikDefinitionsDictionary()
-
-    @classmethod
-    def by_list(cls, definitions_list, name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
-        obj = cls(name, offset)
 
         # Add definition objects only for valid items.
         # The correct sorting has already been ensured by the pytest
         for item in definitions_list:
-            d = LuxtronikFieldDefinition(item, obj.name, obj.offset)
-            if d.valid: # and version_in_range(version, d.since, d.until):
-                obj._lookup.add(d)
-        return obj
-
-    @classmethod
-    def empty(cls, definitions, version=None):
-        obj = cls(definitions.name, definitions.offset)
-        return obj
-
-    @classmethod
-    def versioned(cls, definitions, version=None):
-        obj = cls(definitions.name, definitions.offset)
-
-        # Add definition objects only for valid items.
-        # The correct sorting has already been ensured by the pytest
-        for d in definitions:
-            if version_in_range(version, d.since, d.until):
-                obj._lookup.add(d)
-        return obj
+            d = LuxtronikFieldDefinition(item, name, offset)
+            if d.valid:
+                self._definitions.append(d)
+                self._lookup.add(d)
 
     def __getitem__(self, name_or_idx):
         return self.get(name_or_idx)
@@ -441,6 +423,10 @@ class LuxtronikDefinitionsList:
     def __iter__(self):
         """Iterator for all definitions contained herein."""
         return iter(self._definitions)
+
+    def __repr__(self):
+        defs = [repr(d) for d in self._definitions]
+        return f"({self.name}, {self.offset}, {' ,'.join(self.defs)})"
 
     def create_unknown_definition(self, index):
         return LuxtronikFieldDefinition.unknown(index, self._name, self._offset)
@@ -496,7 +482,7 @@ class LuxtronikFieldDictionary:
     Provides lookup by index, name or alias.
     """
 
-    def __init__(self, definitions, version=None):
+    def __init__(self, definitions, version=LUXTRONIK_LATEST_SHI_VERSION):
         """
         Initialize the (by index sorted) field definitions.
 
@@ -524,32 +510,25 @@ class LuxtronikFieldDictionary:
         self._field_lookup = {}
         self._items = [] # list of tuples, 0: definition, 1: field
 
-    @classmethod
-    def empty(cls, definitions, version=None):
-        obj = cls(definitions, version)
-        return obj
-
-    @classmethod
-    def full(cls, definitions):
-        obj = cls(definitions, None)
-        for d in definitions:
-            # definitions are already sorted
-            obj._add(d)
-        return obj
-
-    @classmethod
-    def versioned(cls, definitions, version):
-        obj = cls(definitions, version)
         for d in definitions:
             if version_in_range(version, d.since, d.until):
                 # definitions are already sorted
-                obj._add(d)
+                self._add(d, d.create_field())
+
+    @classmethod
+    def empty(cls, definitions, version=LUXTRONIK_LATEST_SHI_VERSION):
+        obj = cls.__new__(cls) # this don't call __init__()
+        obj._definitions = definitions
+        obj._version = version
+        obj._def_lookup = LuxtronikDefinitionsDictionary()
+        obj._field_lookup = {}
+        obj._items = []
         return obj
 
-    def _add(definition, field, alias):
+    def _add(self, definition, field, alias=None):
         self._def_lookup.add(definition, alias)
-        self._field_lookup.set(definition, field)
-        self._items.append((definitions, field))
+        self._field_lookup[definition] = field
+        self._items.append((definition, field))
 
     def _get_definition(self, def_field_name_or_idx):
         definition = def_field_name_or_idx
@@ -590,7 +569,7 @@ class LuxtronikFieldDictionary:
     def __contains__(self, def_field_name_or_idx):
         if isinstance(def_field_name_or_idx, Base):
             return def_field_name_or_idx in self._field_lookup.values()
-        elif isinstance(def_field_name_or_idx, LuxtronikFieldDefinition)
+        elif isinstance(def_field_name_or_idx, LuxtronikFieldDefinition):
             # speed-up the look-up by search only the name-dict
             return def_field_name_or_idx.name in self._def_lookup._name_dict
         else:

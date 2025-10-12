@@ -1,73 +1,87 @@
-
-
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-)
-from luxtronik.shi.versions import (
     LUXTRONIK_LATEST_SHI_VERSION,
 )
+from luxtronik.shi.common import LOGGER, parse_version
+from luxtronik.shi.inputs import INPUTS_DEFINITIONS
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 from luxtronik.shi.interface import LuxtronikSmartHomeInterface
-from luxtronik.shi.versions import parse_version
-from luxtronik.shi.inputs import INPUTS_DEFINITIONS
+
+VERSION_DETECT = "detect"
+VERSION_LATEST = "latest"
 
 
 def determine_version(interface):
+    """
+    Determine the version of the luxtronik controller.
 
-        # This is a little bit ugly, but we need the information of the definitions
-        # to read out the version of the luxtronik controller.
-        # Afterwards we can build a version-dependent-variant of the definitions,
-        # that should be used within the smart-home-interface.
-        # This works as long as the version-field has not changed.
+    This is a little bit ugly! The controller version is required
+    to locate the version field. As workaround, probe each known
+    version field until one yields a valid read and a parsable version.
+    This approach works as long as the version-field has not changed.
 
-        # Try to read the version of the luxtronik controller
-        version_field = None
-        version_defs = INPUTS_DEFINITIONS.get_version_definitions()
-        for version_def in version_defs:
-            data = modbus_interface.read_inputs(version_def.addr, version_def.count)
-            if data is not None:
-                version_field = version_def.create_field()
-                version_field.raw = data
-                return parse_version(version_field.value())
-        return None
+    Args:
+        interface (LuxtronikModbusTcpInterface):
+            Simple read/write interface to read out the version.
 
-
-VERSION_DUMMY = "dummy"
-
+    Returns:
+        tuple[int] | None: The version of the controller on success,
+            or None if no version could be determined.
+    """
+    definitions = INPUTS_DEFINITIONS.get_version_definitions()
+    for definition in definitions:
+        data = interface.read_inputs(definition.addr, definition.count)
+        if data is not None:
+            field = definition.create_field()
+            field.raw = data
+            parsed = parse_version(field.value)
+            if parsed is not None:
+                return parsed
+    LOGGER.warning("It was not possible to determine the controller version. Switch to trial-and-error mode.")
+    return None
 
 def create_modbus_tcp(
     host,
-    port = LUXTRONIK_DEFAULT_MODBUS_PORT,
-    timeout_in_s = LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-    version = VERSION_DUMMY
+    port=LUXTRONIK_DEFAULT_MODBUS_PORT,
+    timeout_in_s=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
+    version=VERSION_DETECT
 ):
     """
     Create a LuxtronikSmartHomeInterface using a Modbus TCP connection.
+
+    The function constructs a Modbus TCP low-level interface and resolves the
+    controller version according to the supplied `version` argument:
+      - If `version` equals VERSION_DETECT, attempt to determine the version by probing the controller.
+      - If `version` equals VERSION_LATEST, use LUXTRONIK_LATEST_SHI_VERSION as version.
+      - If `version` is a string, parse it into a version tuple.
+      - If `version` is None, the interface is initialized in trial-and-error mode.
+      - Otherwise assume `version` is already a parsed version tuple.
 
     Args:
         host (str): Hostname or IP address of the Luxtronik controller.
         port (int): TCP port for the Modbus connection.
         timeout_in_s (float): Timeout in seconds for the Modbus connection.
-        version (tuple[int] | str | None): Version with which the interface should be initialized.
-            If VERSION_DUMMY is used, an attempt is made to determine the version.
-            If a string is passed, an attempt is made to use it as a version.
-            If None is passed, one-after-another mode is activated.
+        version (tuple[int] | str | None): Version used to initialize the interface.
+            If VERSION_DETECT is passed, the function will attempt to determine the version.
+            If a str is passed, the string will be parsed into a version tuple.
+            If None is passed, trial-and-error mode is activated.
 
     Returns:
-        LuxtronikSmartHomeInterface: An initialized interface instance.
+        LuxtronikSmartHomeInterface: Initialized interface instance bound to the Modbus TCP connection.
     """
     modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout_in_s)
-    if version == VERSION_DUMMY:
-        version = determine_version(modbus_interface)
-    elif isinstance(version, str):
-        version = parse_version(version)
-    return LuxtronikSmartHomeInterface(modbus_interface, version)
 
+    resolved_version = version
+    if resolved_version == VERSION_DETECT:
+        # return None in case of an error -> trial-and-error mode
+        resolved_version = determine_version(modbus_interface)
+    elif isinstance(resolved_version, str):
+        if resolved_version.lower() == VERSION_LATEST:
+            resolved_version = LUXTRONIK_LATEST_SHI_VERSION
+        else:
+            # return None in case of an error -> trial-and-error mode
+            resolved_version = parse_version(resolved_version)
 
-def create_modbus_tcp_latest(
-    host,
-    port = LUXTRONIK_DEFAULT_MODBUS_PORT,
-    timeout_in_s = LUXTRONIK_DEFAULT_MODBUS_TIMEOUT
-):
-    return create_modbus_tcp(host, port, timeout_in_s, LUXTRONIK_LATEST_SHI_VERSION)
+    LOGGER.info(f"Create smart-home-interface via modbus-TCP on {host}:{port} for version {resolved_version}")
+    return LuxtronikSmartHomeInterface(modbus_interface, resolved_version)
