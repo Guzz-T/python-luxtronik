@@ -1,3 +1,5 @@
+"""Commonly used methods and classes throughout the Luxtronik Smart Home Interface (SHI) module."""
+
 import logging
 
 LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")

@@ -1,3 +1,9 @@
+"""
+Methods and classes to group contiguous fields of same type into single blocks to minimize
+the number of read/write operations. They are necessary, because an invalid address
+or a non-existent register within a read/write operation will result in a transmission error.
+"""
+
 from luxtronik.shi.constants import (
     HOLDINGS_FIELD_NAME,
     INPUTS_FIELD_NAME,
@@ -82,14 +88,19 @@ class ContiguousDataBlock:
     def __getitem__(self, index):
         return self._parts[index]
 
-    def __str__(self):
+    def __len__(self):
+        return len(self._parts)
+
+    def __repr__(self):
         parts_str = ", ".join(str(part) for part in self._parts)
         return f"(index={self.first_index}, count={self.overall_count}, " \
             + f"parts=[{parts_str}])"
 
     def can_add(self, definition):
         """
-        Check if the next part can be added to this contiguous data block.
+        Check if a part can be added to this contiguous data block.
+        We assume that the (valid) parts are added in order.
+        Therefore, some special cases can be disregarded.
 
         Returns:
             bool: True if the part would not lead to gaps and can be added to this block, otherwise False.
@@ -139,7 +150,8 @@ class ContiguousDataBlock:
 
     def integrate_data(self, data_arr):
         """
-        Integrate an array of registers into the raw values of the corresponding fields.
+        Integrate an array of registers (e.g. the read data)
+        into the raw values of the corresponding fields.
 
         Args:
             data_arr (list[int]): A list of register values.
@@ -147,27 +159,30 @@ class ContiguousDataBlock:
         Returns:
             bool: True if the provided data length match `overall_count`.
         """
-        valid = len(data_arr) == self.overall_count
-        first = self.first_index
+        valid = data_arr is not None and isinstance(data_arr, list)
+        data_len = len(data_arr) if valid else 0
+        valid &= data_len == self.overall_count
         if valid:
+            first = self.first_index
             for part in self._parts:
                 data_offset = part.index - first
                 part.field.raw = part.definition.extract_raw(data_arr, data_offset)
         else:
-            LOGGER.error(
-                f"Data to integrate not valid! Expected a length of '{self.overall_count}'",
-                f" but got '{len(data_arr)}': data = {data_arr}, block = {self}"
-            )
+            LOGGER.error((
+                f"Data to integrate not valid! Expected a length of '{self.overall_count}'"
+                f" but got '{data_len}': data = {data_arr}, block = {self}"
+            ))
         return valid
 
     def get_data_arr(self):
         """
-        Extract an array of registers from the raw values of the corresponding fields.
+        Extract an array of registers (e.g. to get the data to write)
+        from the raw values of the corresponding fields.
 
         Returns:
             list[int] | None: A list of register values if valid.
-                              If multiple fields attempt to write to the same registers or
-                              no data was provided for one or more elements, return None.
+                If multiple fields attempt to write to the same registers or
+                no data was provided for one or more elements, return None.
         """
         data_arr = [-1] * self.overall_count
         first = self.first_index
@@ -180,10 +195,10 @@ class ContiguousDataBlock:
                 data_arr[data_offset : data_offset +  part.count] = data
             else:
                 valid = False
-                LOGGER.error(
-                    f"Got multiple or invalid data to write for a single register! part = {part},",
+                LOGGER.error((
+                    f"Got multiple or invalid data to write for a single register! part = {part},"
                     f" first data = {data_arr[data_offset]}, second data = {data}"
-                )
+                ))
         valid &= -1 not in data_arr
         return data_arr if valid else None
 
