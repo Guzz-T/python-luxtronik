@@ -212,7 +212,7 @@ class LuxtronikSmartHomeInterface:
         success &= blocks_handler.integrate_data()
         return success
 
-    def _prepare_read_field(self, definition, field, data, safe):
+    def _prepare_read_field(self, definition, field):
 
         # Skip non-existing fields
         if not version_in_range(self._version, definition.since, definition.until):

@@ -2,7 +2,13 @@ from luxtronik.shi.constants import (
     HOLDINGS_FIELD_NAME,
     INPUTS_FIELD_NAME,
 )
-from luxtronik.shi.common import LOGGER, parse_version
+from luxtronik.shi.common import (
+    LOGGER,
+    parse_version,
+    LuxtronikSmartHomeReadHoldingsTelegram,
+    LuxtronikSmartHomeReadInputsTelegram,
+    LuxtronikSmartHomeWriteHoldingsTelegram,
+)
 
 ###############################################################################
 # Helper classes for contiguous data
@@ -293,7 +299,7 @@ class ContiguousDataBlockList:
             LuxtronikSmartHomeReadTelegram | LuxtronikSmartHomeWriteTelegram | None:
                 The created telegram or None in case of an error.
         """
-        return [block.create_telegram(block.type_name, block.read_not_write) for block in self._blocks]
+        return [block.create_telegram(type_name, read_not_write) for block in self._blocks]
 
 
 class ContiguousDataBlocksHandler:
@@ -308,13 +314,15 @@ class ContiguousDataBlocksHandler:
         self._blocks_list = []
         self._next_idx = -1
         self._telegrams = []
-        self._items = []
+        self._read_list = []
+        self._write_list = []
 
     def clear(self):
         self._blocks_list = []
         self._next_idx = -1
         self._telegrams = []
-        self._items = []
+        self._read_list = []
+        self._write_list = []
 
     @property
     def get_blocks_list(self):
@@ -332,13 +340,17 @@ class ContiguousDataBlocksHandler:
                 A list of read and/or write telegrams.
         """
         self._telegrams = []
-        self._items = []
+        self._read_list = []
+        self._write_list = []
         for blocks in self._blocks_list:
             for block in blocks:
-                telegram = block.create_telegram(block.type_name, block.read_not_write)
+                telegram = block.create_telegram(blocks.type_name, blocks.read_not_write)
                 if telegram is not None:
                     self._telegrams.append(telegram)
-                    self._items.append((block, telegram))
+                    if blocks.read_not_write:
+                        self._read_list.append((block, telegram))
+                    else:
+                        self._write_list.append((block, telegram))
         return self._telegrams
 
     def integrate_data(self):
@@ -350,10 +362,9 @@ class ContiguousDataBlocksHandler:
             bool: True if all data could be integrated.
         """
         success = True
-        for block, telegram in self._items:
-            if block.read_not_write:
-                valid = block.integrate_data(telegram.data)
-                if not valid:
-                    LOGGER.error('Failed to integrate read data into {block}')
-                success &= valid
+        for block, telegram in self._read_list:
+            valid = block.integrate_data(telegram.data)
+            if not valid:
+                LOGGER.error('Failed to integrate read data into {block}')
+            success &= valid
         return success

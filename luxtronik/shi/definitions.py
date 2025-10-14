@@ -3,6 +3,7 @@ import logging
 from luxtronik.datatypes import Base, Unknown, FullVersion, MajorMinorVersion
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_DEFINITION_OFFSET,
+    LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
     LUXTRONIK_LATEST_SHI_VERSION
 )
 from luxtronik.shi.common import LOGGER, parse_version, version_in_range
@@ -208,10 +209,11 @@ class LuxtronikFieldDefinition:
         data_offset = data_offset if data_offset >= 0 else self.index
         # Use the information of the definition to extract the raw-value
         if self.count == 1:
-            return raw_data[data_offset]
+            raw = raw_data[data_offset]
+            return raw if raw != LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE else None
         else:
             raw = raw_data[data_offset : data_offset + self.count]
-            return raw if len(raw) == self.count else None
+            return raw if len(raw) == self.count and not all(data == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE for data in raw) else None
 
     def get_raw(self, field):
         """

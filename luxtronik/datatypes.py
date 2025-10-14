@@ -6,9 +6,6 @@ import struct
 
 from functools import total_ordering
 
-from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
-
-
 @total_ordering
 class Base:
     """Base datatype, no conversions."""
@@ -80,8 +77,6 @@ class Base:
     def __str__(self):
         """Returns a human-readable string representation of the datatype object"""
 
-        if self.raw == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE:
-            return "-"
         value = self.value
         if value is not None:
             return str(value)

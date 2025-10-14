@@ -5,9 +5,11 @@ LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
 ###############################################################################
 # Version methods
 ###############################################################################
+
 def parse_version(version):
     """
-    Parse a version string into a tuple of exactly 4 integers.
+    Parse a version string into a tuple with exactly 4 integers.
+    A given tuple of integers is expanded or reduced to 4 integers.
 
     Examples:
         "1"         -> (1, 0, 0, 0)
@@ -18,28 +20,31 @@ def parse_version(version):
         "a.b"       -> None
 
     Args:
-        version (str): Version string.
+        version (str | tuple[int, ...]): Version string or version as tuple.
 
     Returns:
         tuple[int, int, int, int] | None: Parsed version tuple, or None if invalid.
     """
-    try:
+    if isinstance(version, tuple) and all(type(p) is int for p in version):
+        return (version + (0, 0, 0, 0))[:4]
+    elif isinstance(version, str):
         parts = version.strip().split(".")
         if not parts or any(not p.isdigit() for p in parts):
             return None
         nums = [int(p) for p in parts]
         nums = (nums + [0, 0, 0, 0])[:4]
         return tuple(nums)
-    except Exception:
+    else:
         return None
 
 
 def version_in_range(version, since=None, until=None):
     """
-    Check if a version is within the given range.
+    Check whether a version is within the specified range.
+    If an argument is None, the corresponding check is skipped.
 
     Args:
-        version (tuple[int, ...]): The version to check.
+        version (tuple[int, ...] | None): The version to check. If None, returns True.
         since (tuple[int, ...] | None): Lower bound (inclusive). If None, no lower bound is applied.
         until (tuple[int, ...] | None): Upper bound (inclusive). If None, no upper bound is applied.
 
@@ -58,7 +63,28 @@ def version_in_range(version, since=None, until=None):
 # Smart home telegrams
 ###############################################################################
 
-class LuxtronikSmartHomeReadTelegram:
+class LuxtronikSmartHomeTelegram:
+    """
+    Base class for luxtronik read and write telegrams
+    """
+
+    @property
+    def addr(self):
+        return self._addr
+
+    @property
+    def count(self):
+        return self._count
+
+    @property
+    def data(self):
+        return self._data
+
+    def prepare(self):
+        pass
+
+
+class LuxtronikSmartHomeReadTelegram(LuxtronikSmartHomeTelegram):
     """
     Represents a single smart home data field(s) read operation.
 
@@ -75,13 +101,17 @@ class LuxtronikSmartHomeReadTelegram:
             addr (int): Starting register address to read from.
             count (int): Number of 16-bit registers to read.
         """
-        self.addr = addr
-        self.count = count
-        self.prepare()
+        self._addr = addr
+        self._count = count
+        self._data = []
+
+    @LuxtronikSmartHomeTelegram.data.setter
+    def data(self, value):
+        self._data = value if isinstance(value, list) and len(value) == self._count else None
 
     def prepare(self):
         "Prepare the telegram for a (repeat) read operation"
-        self.data = []
+        self._data = []
 
 class LuxtronikSmartHomeReadHoldingsTelegram(LuxtronikSmartHomeReadTelegram):
     pass
@@ -90,7 +120,7 @@ class LuxtronikSmartHomeReadInputsTelegram(LuxtronikSmartHomeReadTelegram):
     pass
 
 
-class LuxtronikSmartHomeWriteTelegram:
+class LuxtronikSmartHomeWriteTelegram(LuxtronikSmartHomeTelegram):
     """
     Represents a smart home data field(s) write operation.
 
@@ -108,14 +138,15 @@ class LuxtronikSmartHomeWriteTelegram:
             data (list[int]): Values to be written. If None or not a list,
                 the telegram will be initialized with an empty payload.
         """
-        self.addr = addr
+        self._addr = addr
+        self._count = 0
+        self._data = []
         self.data = data
-        self.prepare()
 
-    def prepare(self):
-        "Prepare the telegram for a (repeat) read operation"
-        self.data = self.data if isinstance(self.data, list) else []
-        self.count = len(self.data)
+    @LuxtronikSmartHomeTelegram.data.setter
+    def data(self, value):
+        self._data = value if isinstance(value, list) else []
+        self._count = len(self._data)
 
 class LuxtronikSmartHomeWriteHoldingsTelegram(LuxtronikSmartHomeWriteTelegram):
     pass
