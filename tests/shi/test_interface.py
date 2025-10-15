@@ -3,6 +3,14 @@ from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 from luxtronik.holdings import Holdings
 from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS
 
+from luxtronik.datatypes import Base
+
+from luxtronik.shi.common import (
+    LuxtronikSmartHomeReadHoldingsTelegram,
+    LuxtronikSmartHomeReadInputsTelegram,
+    LuxtronikSmartHomeWriteHoldingsTelegram,
+)
+
 ###############################################################################
 # Fake modbus client
 ###############################################################################
@@ -130,3 +138,42 @@ class TestLuxtronikSmartHomeInterface:
         assert definition.index == 0
         assert definition.count == 1
         assert definition.name == "Unknown_Holding_0"
+
+
+
+    def test_create_telegram(self):
+
+        block = ContiguousDataBlock()
+        block.add(def_a1, field_a1)
+        block.add(def_a, field_a)
+        telegram = block.create_telegram('holding', True)
+        assert isinstance(telegram, LuxtronikSmartHomeReadHoldingsTelegram)
+        assert telegram.addr == 101
+        assert telegram.count == 2
+        assert telegram.data == []
+
+
+        block = ContiguousDataBlock()
+        block.add(def_b, field_b)
+        block.add(def_c, field_c)
+        field_b.raw = 1
+        field_c.raw = [5, 2, 3]
+        telegram = block.create_telegram('holding', False)
+        assert isinstance(telegram, LuxtronikSmartHomeWriteHoldingsTelegram)
+        assert telegram.addr == 103
+        assert telegram.count == 4
+        assert telegram.data == [1, 5, 2, 3]
+
+        field_b.raw = 1
+        field_c.raw = [5, 3]
+        telegram = block.create_telegram('holding', False)
+        assert telegram is None
+
+        block = ContiguousDataBlock()
+        block.add(def_b, field_b)
+        block.add(def_c, field_c)
+        telegram = block.create_telegram('input', True)
+        assert isinstance(telegram, LuxtronikSmartHomeReadInputsTelegram)
+        assert telegram.addr == 103
+        assert telegram.count == 4
+        assert telegram.data == []

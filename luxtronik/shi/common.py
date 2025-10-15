@@ -85,6 +85,9 @@ class LuxtronikSmartHomeTelegram:
     def prepare(self):
         pass
 
+###############################################################################
+# Smart home read telegrams
+###############################################################################
 
 class LuxtronikSmartHomeReadTelegram(LuxtronikSmartHomeTelegram):
     """
@@ -121,6 +124,9 @@ class LuxtronikSmartHomeReadHoldingsTelegram(LuxtronikSmartHomeReadTelegram):
 class LuxtronikSmartHomeReadInputsTelegram(LuxtronikSmartHomeReadTelegram):
     pass
 
+###############################################################################
+# Smart home write telegrams
+###############################################################################
 
 class LuxtronikSmartHomeWriteTelegram(LuxtronikSmartHomeTelegram):
     """
@@ -152,6 +158,10 @@ class LuxtronikSmartHomeWriteTelegram(LuxtronikSmartHomeTelegram):
 
 class LuxtronikSmartHomeWriteHoldingsTelegram(LuxtronikSmartHomeWriteTelegram):
     pass
+
+###############################################################################
+# Set of all usable telegrams
+###############################################################################
 
 LuxtronikSmartHomeTelegrams = {
     LuxtronikSmartHomeReadHoldingsTelegram,

@@ -10,14 +10,13 @@ from luxtronik.shi.common import (
 )
 from luxtronik.shi.holdings import Holdings, HOLDINGS_DEFINITIONS
 from luxtronik.shi.inputs import Inputs, INPUTS_DEFINITIONS
-from luxtronik.shi.contiguous import (
-    ContiguousDataBlockList,
-    ContiguousDataBlocksHandler,
-)
+from luxtronik.shi.contiguous import ContiguousDataBlockList
+
 
 ###############################################################################
 # Smart home interface data
 ###############################################################################
+
 class LuxtronikSmartHomeData:
     """
     Container for the smart home interface data vectors.
@@ -76,6 +75,7 @@ class LuxtronikSmartHomeData:
 ###############################################################################
 # Smart home interface
 ###############################################################################
+
 class LuxtronikSmartHomeInterface:
     """
     Read/write interface for Luxtronik smart home registers.
@@ -100,12 +100,12 @@ class LuxtronikSmartHomeInterface:
         self._interface = interface
         self._version = version
 
-
-# Helper methods ##############################################################
-
     @property
     def version(self):
         return self._version
+
+
+# Creator methods #############################################################
 
     def create_holding(self, name_or_idx):
         definition = HOLDING_DEFINITIONS.get(name_or_idx)
@@ -136,6 +136,8 @@ class LuxtronikSmartHomeInterface:
 
     def create_empty_data(self, safe=True):
         return LuxtronikSmartHomeData.empty(self._version, safe)
+
+# Helper methods ##############################################################
 
     def _get_index_from_name(self, name):
         """
@@ -193,23 +195,108 @@ class LuxtronikSmartHomeInterface:
         return None
 
 
+# Telegram methods ############################################################
+
+    def _create_read_telegram(self, block, telegram_type):
+        """
+        Create a read-telegram of type `telegram_type` out of this `ContiguousDataBlock`.
+
+        Args:
+            telegram_type (class of LuxtronikSmartHomeReadTelegram):
+                Type of the telegram to create.
+
+        Returns:
+            LuxtronikSmartHomeReadTelegram:
+                The created telegram.
+        """
+        return telegram_type(block.first_addr, block.overall_count)
+
+    def _create_write_telegram(self, block, telegram_type):
+        """
+        Create a write-telegram of type `telegram_type` out of this `ContiguousDataBlock`.
+
+        Args:
+            telegram_type (class of LuxtronikSmartHomeWriteTelegram):
+                Type of the telegram to create.
+
+        Returns:
+            LuxtronikSmartHomeWriteTelegram | None:
+                The created telegram or None in case of an error.
+        """
+        data_arr = block.get_data_arr()
+        if data_arr is None:
+            LOGGER.error(f"Failed to create a {telegram_type} telegram! The provided data is not valid.")
+            return None
+        return telegram_type(block.first_addr, data_arr)
+
+    def _create_telegram(self, block, type_name, read_not_write):
+        """
+        Create a read or write-telegram out of this `ContiguousDataBlock`.
+
+        Returns:
+            LuxtronikSmartHomeReadTelegram | LuxtronikSmartHomeWriteTelegram | None:
+                The created telegram or None in case of an error.
+        """
+        if type_name == HOLDINGS_FIELD_NAME and read_not_write:
+            return self._create_read_telegram(block, LuxtronikSmartHomeReadHoldingsTelegram)
+        if type_name == INPUTS_FIELD_NAME and read_not_write:
+            return self._create_read_telegram(block, LuxtronikSmartHomeReadInputsTelegram)
+        if type_name == HOLDINGS_FIELD_NAME and not read_not_write:
+            return self._create_write_telegram(block, LuxtronikSmartHomeWriteHoldingsTelegram)
+        LOGGER.error(f"Could not create a telegram for {block}. Skip this operation.")
+        return None
+
+    def _create_telegrams(self, blocks_list):
+        """
+        Create a read or write-telegram out of this `ContiguousDataBlock`.
+
+        Returns:
+            LuxtronikSmartHomeReadTelegram | LuxtronikSmartHomeWriteTelegram | None:
+                The created telegram or None in case of an error.
+        """
+        telegrams_data = []
+        for blocks in blocks_list:
+            for block in blocks:
+                telegram = self._create_telegram(block, blocks.type_name, blocks.read_not_write)
+                if telegram is not None:
+                    telegrams_data.append((block, telegram, blocks.read_not_write))
+        return telegrams_data
+
+    def _integrate_data(self, telegrams_data):
+        """
+        Integrate the read data from telegrams back into the corresponding blocks.
+        '_create_telegrams' must be called up beforehand.
+
+        Returns:
+            bool: True if all data could be integrated.
+        """
+        success = True
+        for block, telegram, read_not_write in telegrams_data:
+            if read_not_write:
+                valid = block.integrate_data(telegram.data)
+                if not valid:
+                    LOGGER.error('Failed to integrate read data into {block}')
+                success &= valid
+        return success
+
+
 # Common methods ##############################################################
 
-    def _send_and_integrate(self, blocks_handler):
+    def _send_and_integrate(self, blocks_list):
         """
         Read or write the data for multiple fields (a single field may correspond to multiple registers)
         using the contiguous-data-blocks-handler. Subsequently, the retrieved data
         is integrated into the provided fields.
 
         Args:
-            blocks_handler (ContiguousDataBlocksHandler): Handler that groups fields into contiguous blocks.
+            blocks_list (list[TODO ....]): Handler that groups fields into contiguous blocks.
         """
         # Convert the list of contiguous blocks to telegrams
-        telegrams = blocks_handler.create_telegrams()
+        telegrams = self._create_telegrams(blocks_list)
         # Send all telegrams. The retrieved data is returned within the telegrams
         success = self._interface.send(telegrams)
         # Transfer the data from the telegrams into the fields
-        success &= blocks_handler.integrate_data()
+        success &= self._integrate_data(blocks_list)
         return success
 
     def _prepare_read_field(self, definition, field):
@@ -247,7 +334,7 @@ class LuxtronikSmartHomeInterface:
 
         return True
 
-    def _collect_field(self, blocks_handler, field_or_name_or_idx, definitions, read_not_write, data, safe):
+    def _collect_field(self, blocks_list, field_or_name_or_idx, definitions, read_not_write, data, safe):
         """
         Add a field (this may correspond to multiple registers) by name, index, or directly as a field object
         to the contiguous-data-blocks-handler
@@ -291,12 +378,12 @@ class LuxtronikSmartHomeInterface:
             or (not read_not_write and self._prepare_write_field(definition, field, data, safe))
         ):
             blocks.collect(definition, field)
-            blocks_handler.append(blocks)
+            blocks_list.append(blocks)
             return field
         return None
 
 
-    def _collect_fields(self, blocks_handler, data_vector, definitions, read_not_write, data, safe):
+    def _collect_fields(self, blocks_list, data_vector, definitions, read_not_write, data, safe):
         """
         Read the data of all fields within the given data vector.
 
@@ -321,13 +408,13 @@ class LuxtronikSmartHomeInterface:
             if read_not_write:
                 # We can directly use the prepared read-blocks
                 data_vector.update_read_blocks()
-                blocks_handler.append(data_vector._read_blocks)
+                blocks_list.append(data_vector._read_blocks)
             else:
                 blocks = ContiguousDataBlockList(definitions.name, False)
                 # Organize data into contiguous blocks
                 for definition, field in data_vector:
                     if self._prepare_write_field(self, definition, field, data, safe):
-                        blocks_handler.append(blocks)
+                        blocks_list.append(blocks)
 
 
 # Holding methods #############################################################
@@ -363,9 +450,9 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The field object containing the read data, or None if the read failed.
         """
-        blocks_handler = ContiguousDataBlocksHandler()
-        field = self._collect_field(blocks_handler, field_or_name_or_idx, Holdings, True, None, True)
-        success = self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        field = self._collect_field(blocks_list, field_or_name_or_idx, Holdings, True, None, True)
+        success = self._send_and_integrate(blocks_list)
         return field if success else None
 
     def read_holdings(self, holdings=None):
@@ -382,9 +469,9 @@ class LuxtronikSmartHomeInterface:
         if holdings is None:
             holdings = self.create_holdings()
 
-        blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(blocks_handler, holdings, Holdings, True, None, True)
-        self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        self._collect_fields(blocks_list, holdings, Holdings, True, None, True)
+        self._send_and_integrate(blocks_list)
         return holdings
 
     def write_holding_raw(self, index, data_arr):
@@ -416,9 +503,9 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The written field object, or None if the write failed.
         """
-        blocks_handler = ContiguousDataBlocksHandler()
-        field = self._collect_field(blocks_handler, field_or_name_or_idx, Holdings, False, data, safe)
-        success = self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        field = self._collect_field(blocks_list, field_or_name_or_idx, Holdings, False, data, safe)
+        success = self._send_and_integrate(blocks_list)
         return field if success else None
 
     def write_holdings(self, holdings):
@@ -433,9 +520,9 @@ class LuxtronikSmartHomeInterface:
             LOGGER.warning("Abort write! No data to write provided.")
             return
 
-        blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(blocks_handler, holdings, Holdings, False, None, holdings.safe)
-        self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        self._collect_fields(blocks_list, holdings, Holdings, False, None, holdings.safe)
+        self._send_and_integrate(blocks_list)
 
 # Inputs methods ##############################################################
 
@@ -470,9 +557,9 @@ class LuxtronikSmartHomeInterface:
         Returns:
             Base | None: The field object containing the read data, or None if the read failed.
         """
-        blocks_handler = ContiguousDataBlocksHandler()
-        field = self._collect_field(blocks_handler, field_or_name_or_idx, Inputs, True, None, True)
-        success = self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        field = self._collect_field(blocks_list, field_or_name_or_idx, Inputs, True, None, True)
+        success = self._send_and_integrate(blocks_list)
         return field if success else None
 
     def read_inputs(self, inputs=None):
@@ -489,9 +576,9 @@ class LuxtronikSmartHomeInterface:
         if inputs is None:
             inputs = self.create_inputs()
 
-        blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(blocks_handler, inputs, Inputs, True, None, True)
-        self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        self._collect_fields(blocks_list, inputs, Inputs, True, None, True)
+        self._send_and_integrate(blocks_list)
         return inputs
 
 # Full read/write methods #####################################################
@@ -502,10 +589,10 @@ class LuxtronikSmartHomeInterface:
         if data is None:
             data = self.create_data()
 
-        blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(blocks_handler, data.holdings, Holdings, True, None, True)
-        self._collect_fields(blocks_handler, data.inputs, Inputs, True, None, True)
-        self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        self._collect_fields(blocks_list, data.holdings, Holdings, True, None, True)
+        self._collect_fields(blocks_list, data.inputs, Inputs, True, None, True)
+        self._send_and_integrate(blocks_list)
         return data
 
     def _shi_write(self, holdings):
@@ -518,11 +605,11 @@ class LuxtronikSmartHomeInterface:
         if data is None:
             data = self.create_data()
 
-        blocks_handler = ContiguousDataBlocksHandler()
-        self._collect_fields(blocks_handler, holdings, Holdings, False, None, holdings.safe)
-        self._collect_fields(blocks_handler, data.holdings, Holdings, True, None, True)
-        self._collect_fields(blocks_handler, data.inputs, Inputs, True, None, True)
-        self._send_and_integrate(blocks_handler)
+        blocks_list = []
+        self._collect_fields(blocks_list, holdings, Holdings, False, None, holdings.safe)
+        self._collect_fields(blocks_list, data.holdings, Holdings, True, None, True)
+        self._collect_fields(blocks_list, data.inputs, Inputs, True, None, True)
+        self._send_and_integrate(blocks_list)
         return data
 
     def read(self, data=None):

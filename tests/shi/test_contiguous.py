@@ -1,14 +1,10 @@
 
 from luxtronik.datatypes import Base
-from luxtronik.shi.common import (
-    LuxtronikSmartHomeReadHoldingsTelegram,
-    LuxtronikSmartHomeReadInputsTelegram,
-    LuxtronikSmartHomeWriteHoldingsTelegram,
-)
 from luxtronik.shi.definitions import LuxtronikFieldDefinition
 from luxtronik.shi.contiguous import (
     ContiguousDataPart,
     ContiguousDataBlock,
+    ContiguousDataBlockList,
 )
 
 
@@ -63,7 +59,7 @@ class TestContiguousDataPart:
 
 class TestContiguousDataBlock:
 
-    def test_iter(self):
+    def test_clear(self):
         block = ContiguousDataBlock()
         block.add(def_a, None)
         block.add(def_b, None)
@@ -86,7 +82,6 @@ class TestContiguousDataBlock:
             if index == 2:
                 assert part.index == 4
                 assert part.count == 3
-
 
     def test_add(self):
         block = ContiguousDataBlock()
@@ -132,7 +127,6 @@ class TestContiguousDataBlock:
         assert block.first_index == 1
         assert block.first_addr == 101
         assert block.overall_count == 6
-
 
     def test_integrate_data(self):
         block = ContiguousDataBlock()
@@ -211,44 +205,80 @@ class TestContiguousDataBlock:
         data_arr = block.get_data_arr()
         assert data_arr == None
 
-    def test_create_telegram(self):
+
+
+class TestContiguousDataBlockList:
+
+    def test_init(self):
+        blocks = ContiguousDataBlockList('foo', True)
+        assert len(blocks) == 0
+        assert blocks.type_name == 'foo'
+        assert blocks.read_not_write == True
+
+    def test_iter(self):
+        blocks = ContiguousDataBlockList('foo', True)
+        blocks.append_single(def_a, None)
+        blocks.append_single(def_b, None)
+        blocks.collect(def_c1, None)
+        blocks.collect(def_c2, None)
+        assert len(blocks) == 3
+        for index, block in enumerate(blocks):
+            if index == 0:
+                assert len(block) == 1
+                assert block.first_index == 1
+                assert block.overall_count == 2
+            if index == 1:
+                assert len(block) == 1
+                assert block.first_index == 3
+                assert block.overall_count == 1
+            if index == 2:
+                assert len(block) == 2
+                assert block.first_index == 4
+                assert block.overall_count == 2
+
+        blocks.clear()
+        assert len(blocks) == 0
+
+    def test_collect(self):
+        blocks = ContiguousDataBlockList('foo', True)
+        # First block
+        blocks.collect(def_c1, None)
+        blocks.collect(def_c2, None)
+        # Second block
+        blocks.collect(def_b, None)
+        blocks.collect(def_c, None)
+        # Third block
+        blocks.collect(def_a1, None)
+        blocks.collect(def_a, None)
+        # Fourth block
+        blocks.append_single(def_b, None)
+        # Fifth block
+        blocks.collect(def_c, None)
+
+        assert len(blocks) == 5
+        assert blocks[0].first_index == 4
+        assert blocks[0].overall_count == 2
+        assert blocks[1].first_index == 3
+        assert blocks[1].overall_count == 4
+        assert blocks[2].first_index == 1
+        assert blocks[2].overall_count == 2
+        assert blocks[3].first_index == 3
+        assert blocks[3].overall_count == 1
+        assert blocks[4].first_index == 4
+        assert blocks[4].overall_count == 3
+
+    def test_append(self):
+        blocks = ContiguousDataBlockList('foo', True)
 
         block = ContiguousDataBlock()
-        block.add(def_a1, field_a1)
-        block.add(def_a, field_a)
-        telegram = block.create_telegram('holding', True)
-        assert isinstance(telegram, LuxtronikSmartHomeReadHoldingsTelegram)
-        assert telegram.addr == 101
-        assert telegram.count == 2
-        assert telegram.data == []
+        block.add(def_a, None)
+        block.add(def_b, None)
+        block.add(def_c, None)
 
-
-        block = ContiguousDataBlock()
-        block.add(def_b, field_b)
-        block.add(def_c, field_c)
-        field_b.raw = 1
-        field_c.raw = [5, 2, 3]
-        telegram = block.create_telegram('holding', False)
-        assert isinstance(telegram, LuxtronikSmartHomeWriteHoldingsTelegram)
-        assert telegram.addr == 103
-        assert telegram.count == 4
-        assert telegram.data == [1, 5, 2, 3]
-
-        field_b.raw = 1
-        field_c.raw = [5, 3]
-        telegram = block.create_telegram('holding', False)
-        assert telegram is None
-
-        block = ContiguousDataBlock()
-        block.add(def_b, field_b)
-        block.add(def_c, field_c)
-        telegram = block.create_telegram('input', True)
-        assert isinstance(telegram, LuxtronikSmartHomeReadInputsTelegram)
-        assert telegram.addr == 103
-        assert telegram.count == 4
-        assert telegram.data == []
-
-
+        blocks.append(block)
+        assert len(blocks) == 1
+        assert blocks[0].first_index == 1
+        assert blocks[0].overall_count == 6
 
 
 
