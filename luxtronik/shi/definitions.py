@@ -1,5 +1,3 @@
-import logging
-
 from luxtronik.datatypes import Base, Unknown, FullVersion, MajorMinorVersion
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_DEFINITION_OFFSET,

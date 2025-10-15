@@ -1,5 +1,3 @@
-import logging
-
 from luxtronik.datatypes import Base
 from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION
 from luxtronik.shi.common import (

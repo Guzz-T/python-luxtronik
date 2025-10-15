@@ -3,10 +3,11 @@
 import logging
 from typing import Final
 
-from luxtronik.shi.vector import DataVectorSmartHome
-from luxtronik.shi.definitions import LuxtronikDefinitionsList
 from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS_LIST, HOLDINGS_OFFSET
+
 from luxtronik.shi.constants import HOLDINGS_FIELD_NAME
+from luxtronik.shi.definitions import LuxtronikDefinitionsList
+from luxtronik.shi.vector import DataVectorSmartHome
 
 
 HOLDINGS_DEFINITIONS: Final = LuxtronikDefinitionsList(

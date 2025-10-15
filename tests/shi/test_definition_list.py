@@ -14,7 +14,7 @@ KEY_UNTIL = "until"
 KEY_DESC = "description"
 
 
-class RunTestDefinitions:
+class RunTestDefinitionList:
 
     # override this
     definitions = None
@@ -132,11 +132,11 @@ class RunTestDefinitions:
 # Tests
 ###############################################################################
 
-class TestHoldingsDefinitions(RunTestDefinitions):
+class TestHoldingsDefinitionList(RunTestDefinitionList):
 
     definitions = HOLDINGS_DEFINITIONS_LIST
 
 
-class TestInputsDefinitions(RunTestDefinitions):
+class TestInputsDefinitionList(RunTestDefinitionList):
 
     definitions = INPUTS_DEFINITIONS_LIST
