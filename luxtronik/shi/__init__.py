@@ -1,3 +1,5 @@
+
+from luxtronik.datatypes import FullVersion, MajorMinorVersion
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
@@ -11,6 +13,27 @@ from luxtronik.shi.interface import LuxtronikSmartHomeInterface
 VERSION_DETECT = "detect"
 VERSION_LATEST = "latest"
 
+
+###############################################################################
+# Helper methods
+###############################################################################
+
+def get_version_definitions(definitions):
+    """
+    Retrieve all definitions that represent version fields.
+
+    Args:
+        definitions (LuxtronikDefinitionsList): List of definitions
+
+    Returns:
+        list[LuxtronikFieldDefinition]: List of definitions whose data_type
+        is either FullVersion or MajorMinorVersion.
+    """
+    version_definitions = []
+    for d in definitions:
+        if d.data_type in (FullVersion, MajorMinorVersion):
+            version_definitions.append(d)
+    return version_definitions
 
 def determine_version(interface):
     """
@@ -29,7 +52,7 @@ def determine_version(interface):
         tuple[int] | None: The version of the controller on success,
             or None if no version could be determined.
     """
-    definitions = INPUTS_DEFINITIONS.get_version_definitions()
+    definitions = get_version_definitions(INPUTS_DEFINITIONS)
     for definition in definitions:
         data = interface.read_inputs(definition.addr, definition.count)
         if data is not None:
@@ -40,6 +63,11 @@ def determine_version(interface):
                 return parsed
     LOGGER.warning("It was not possible to determine the controller version. Switch to trial-and-error mode.")
     return None
+
+
+###############################################################################
+# Factory methods
+###############################################################################
 
 def create_modbus_tcp(
     host,

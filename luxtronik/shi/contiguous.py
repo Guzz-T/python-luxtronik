@@ -5,6 +5,7 @@ or a non-existent register within a read/write operation will result in a transm
 """
 
 from luxtronik.shi.common import LOGGER
+from luxtronik.shi.definitions import get_data_arr, integrate_data
 
 ###############################################################################
 # ContiguousDataPart
@@ -43,6 +44,25 @@ class ContiguousDataPart:
     @property
     def count(self):
         return self.definition.count
+
+    def get_data_arr(self):
+        """
+        Normalize the field's data to a list of the correct size.
+
+        Returns:
+            list[int] | None: List of length `definition.count`, or None if insufficient.
+        """
+        return get_data_arr(self.definition, self.field)
+
+    def integrate_data(self, raw_data, data_offset):
+        """
+        Integrate the related parts of the `raw_data` into the field
+
+        Args:
+            raw_data (list): Source array of bytes/words.
+            data_offset (int): Optional offset. Defaults to definition.index.
+        """
+        integrate_data(self.definition, self.field, raw_data, data_offset)
 
 
 ###############################################################################
@@ -192,7 +212,7 @@ class ContiguousDataBlock:
         first = self.first_index
         for part in self._parts:
             data_offset = part.index - first
-            part.field.raw = part.definition.extract_raw(data_arr, data_offset)
+            part.integrate_data(data_arr, data_offset)
 
         return True
 
@@ -213,7 +233,7 @@ class ContiguousDataBlock:
         valid = True
         for part in self._parts:
             data_offset = part.index - first
-            data = part.definition.get_raw(part.field)
+            data = part.get_data_arr()
 
             if data is None:
                 valid = False

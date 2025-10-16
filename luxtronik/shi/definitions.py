@@ -1,18 +1,31 @@
-from luxtronik.datatypes import Base, Unknown, FullVersion, MajorMinorVersion
+"""
+The metadata for a field is stored as definition. For ease of use, all definitions
+of one type ('input', 'holding', ...) are provided as a sorted list of objects.
+
+"""
+
+from luxtronik.datatypes import Base, Unknown
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_DEFINITION_OFFSET,
     LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
     LUXTRONIK_LATEST_SHI_VERSION
 )
-from luxtronik.shi.common import LOGGER, parse_version, version_in_range
+from luxtronik.shi.common import (
+    LOGGER,
+    parse_version,
+    version_in_range
+)
 
+
+###############################################################################
+# LuxtronikFieldDefinition
+###############################################################################
 
 class LuxtronikFieldDefinition:
     """
     Metadata container for a Luxtronik data field.
 
-    Provides convenience methods to create fields, extract raw values,
-    and validate data arrays.
+    Also provides a method to create a related field.
     """
 
     DEFAULT_DATA = {
@@ -37,7 +50,7 @@ class LuxtronikFieldDefinition:
                 (Default: LUXTRONIK_DEFAULT_DEFINITION_OFFSET)
 
         Notes:
-            - Only 'index' is strictly required within `the data_dict`.
+            - Only 'index' is strictly required within the `data_dict`.
         """
         self._type_name = type_name
         self._offset = offset
@@ -68,15 +81,15 @@ class LuxtronikFieldDefinition:
             LOGGER.error(f"Failed to create LuxtronikFieldDefinition: '{e}' with {data_dict}")
         self._addr = self._offset + self._index
 
-    @classmethod
-    def invalid(cls):
-        """
-        Create an invalid field definition.
+    # @classmethod
+    # def invalid(cls):
+    #     """
+    #     Create an invalid field definition.
 
-        Returns:
-            LuxtronikFieldDefinition: An invalid field definition instance.
-        """
-        return cls({}, 'invalid', 0)
+    #     Returns:
+    #         LuxtronikFieldDefinition: An invalid field definition instance.
+    #     """
+    #     return cls({}, 'invalid', 0)
 
     @classmethod
     def unknown(cls, index, type_name, offset=LUXTRONIK_DEFAULT_DEFINITION_OFFSET):
@@ -122,7 +135,7 @@ class LuxtronikFieldDefinition:
         return self._valid
 
     def __repr__(self):
-        return f"({self.name}, {self.data_type}, {self.index}, {self.count})"
+        return f"(name={self.name}, data_type={self.data_type}, index={self.index}, count={self.count})"
 
     @property
     def valid(self):
@@ -191,69 +204,78 @@ class LuxtronikFieldDefinition:
         Returns:
             Base | None: Field instance or None if invalid.
         """
-        return self.data_type(self.name, self.writeable) if self else None
+        return self.data_type(self.name, self.writeable) if self.valid else None
 
-    def extract_raw(self, raw_data, data_offset=-1):
-        """
-        Extract raw values from a data array.
 
-        Args:
-            raw_data (list): Source array of bytes/words.
-            data_offset (int): Optional offset. Defaults to self.index.
+###############################################################################
+# Definition-Field-Pair methods
+###############################################################################
 
-        Returns:
-            int | list[int]: Single value or list of values, or None if insufficient data.
-        """
-        data_offset = data_offset if data_offset >= 0 else self.index
-        # Use the information of the definition to extract the raw-value
-        if self.count == 1:
-            raw = raw_data[data_offset]
-            return raw if raw != LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE else None
-        else:
-            raw = raw_data[data_offset : data_offset + self.count]
-            return raw if len(raw) == self.count and not all(data == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE for data in raw) else None
+def get_data_arr(definition, field):
+    """
+    Normalize the field's data to a list of the correct size.
 
-    def get_raw(self, field):
-        """
-        Return the field's raw value as a list of the correct size.
+    Args:
+        definition (LuxtronikFieldDefinition): Meta-data of the field.
+        field (Base): Field object that contains data to get.
 
-        Args:
-            field (Base): Field object with a `.raw` attribute.
+    Returns:
+        list[int] | None: List of length `definition.count`, or None if insufficient.
+    """
+    data = field.data
+    if not isinstance(data, list):
+        data = [data]
+    data = data[:definition.count]
+    return data if len(data) == definition.count else None
 
-        Returns:
-            list[int] | None: Normalized list of raw values, or None if insufficient.
-        """
-        return self.get_data_arr(field.raw)
+def check_data(definition, field):
+    """
+    Validate that the field contains sufficient raw data.
 
-    def get_data_arr(self, data):
-        """
-        Normalize input data to a list of the correct size.
+    Args:
+        definition (LuxtronikFieldDefinition): Meta-data of the field.
+        field (Base): Field object that contains the data to check.
 
-        Args:
-            data (int | list[int]): Single value or list of values.
+    Returns:
+        bool: True if valid, False otherwise.
+    """
+    return get_data_arr(definition, field) is not None
 
-        Returns:
-            list[int] | None: List of length `count`, or None if insufficient.
-        """
-        if not isinstance(data, list):
-            data = [data]
-        data = data[:self.count]
-        return data if len(data) == self.count else None
+def integrate_data(definition, field, raw_data, data_offset=-1):
+    """
+    Integrate raw values from a data array into the field.
 
-    def check_data(self, field):
-        """
-        Validate that the field contains sufficient raw data.
+    Args:
+        definition (LuxtronikFieldDefinition): Meta-data of the field.
+        field (Base): Field object where to integrate the data.
+        raw_data (list): Source array of bytes/words.
+        data_offset (int): Optional offset. Defaults to definition.index.
+    """
+    data_offset = data_offset if data_offset >= 0 else definition.index
+    # Use the information of the definition to extract the raw-value
+    if (data_offset + definition.count - 1) >= len(raw_data):
+        raw = None
+    elif definition.count == 1:
+        raw = raw_data[data_offset]
+        raw = raw if raw != LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE else None
+    else:
+        raw = raw_data[data_offset : data_offset + definition.count]
+        raw = raw if len(raw) == definition.count and \
+            not all(data == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE for data in raw) else None
+    field.raw = raw
 
-        Args:
-            field (Base): Field object with a `.raw` attribute.
 
-        Returns:
-            bool: True if valid, False otherwise.
-        """
-        return self.get_raw(field) is not None
-
+###############################################################################
+# LuxtronikDefinitionsDictionary
+###############################################################################
 
 class LuxtronikDefinitionsDictionary:
+    """
+    Dictionary of definitions that can be searched by index, name, or aliases.
+
+    To use aliases, they must first be registered here (locally = only valid for this dictionary)
+    or directly in the `LuxtronikDefinitionsList` (globally = valid for all newly created dictionaries).
+    """
 
     def __init__(self):
         self._index_dict = {}
@@ -458,20 +480,6 @@ class LuxtronikDefinitionsList:
     def get(self, name_or_idx, default=None): # , version=None):
         return self._lookup.get(name_or_idx, default)
         #return d if d is not None and version_in_range(version, d.since, d.until) else None
-
-    def get_version_definitions(self):
-        """
-        Retrieve all definitions that represent version fields.
-
-        Returns:
-            list[LuxtronikFieldDefinition]: List of definitions whose data_type
-            is either FullVersion or MajorMinorVersion.
-        """
-        version_definitions = []
-        for d in self._definitions:
-            if d.data_type in (FullVersion, MajorMinorVersion):
-                version_definitions.append(d)
-        return version_definitions
 
 
 

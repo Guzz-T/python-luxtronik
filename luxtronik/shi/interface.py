@@ -6,6 +6,7 @@ from luxtronik.shi.common import (
     LuxtronikSmartHomeReadTelegram,
     LuxtronikSmartHomeWriteTelegram,
 )
+from luxtronik.shi.definitions import check_data
 from luxtronik.shi.holdings import Holdings, HOLDINGS_DEFINITIONS
 from luxtronik.shi.inputs import Inputs, INPUTS_DEFINITIONS
 from luxtronik.shi.contiguous import ContiguousDataBlockList
@@ -301,8 +302,8 @@ class LuxtronikSmartHomeInterface:
 
         # Skip non-existing fields
         if not version_in_range(self._version, definition.since, definition.until):
-            return False
             field.raw = LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+            return False
 
         return True
 
@@ -326,7 +327,7 @@ class LuxtronikSmartHomeInterface:
             field.raw = data
 
         # Abort if insufficient data is provided
-        if not definition.check_data(field):
+        if not check_data(definition, field):
             LOGGER.warning(f"Data error / insufficient data provided: name={definition.name}, data={field.raw}")
             return False
 
@@ -371,15 +372,13 @@ class LuxtronikSmartHomeInterface:
             field = definition.create_field()
 
         blocks = ContiguousDataBlockList(definitions.name, read_not_write)
-        if (
-            (read_not_write and self._prepare_read_field(definition, field))
-            or (not read_not_write and self._prepare_write_field(definition, field, data, safe))
-        ):
-            blocks.collect(definition, field)
-            blocks_list.append(blocks)
-            return field
-        return None
+        if read_not_write and not self._prepare_read_field(definition, field)
+            return None
+        if not read_not_write and not self._prepare_write_field(definition, field, data, safe)
+            return None
 
+        blocks.append_single(definition, field)
+        return field
 
     def _collect_fields(self, blocks_list, data_vector, definitions, read_not_write, data, safe):
         """
@@ -394,12 +393,12 @@ class LuxtronikSmartHomeInterface:
         if self._version is None:
             # Trial-and-error mode: Add a block for every field
             blocks = ContiguousDataBlockList(definitions.name, read_not_write)
-            for definition, field in data_vector:
-                if read_not_write:
+            if read_not_write:
+                for definition, field in data_vector:
                     if self._prepare_read_field(definition, field):
                         blocks.append_single(definition, field)
-                else:
-
+            else:
+                for definition, field in data_vector:
                     if self._prepare_write_field(definition, field, data, safe):
                         blocks.append_single(definition, field)
         else:
@@ -412,7 +411,8 @@ class LuxtronikSmartHomeInterface:
                 # Organize data into contiguous blocks
                 for definition, field in data_vector:
                     if self._prepare_write_field(self, definition, field, data, safe):
-                        blocks_list.append(blocks)
+                        blocks.collect(definition, field)
+                blocks_list.append(blocks)
 
 
 # Holding methods #############################################################

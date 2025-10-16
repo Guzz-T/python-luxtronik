@@ -2,7 +2,7 @@ from luxtronik.data_vector import DataVector
 from luxtronik.datatypes import Unknown
 
 from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION
-from luxtronik.shi.definitions import LuxtronikFieldDictionary
+from luxtronik.shi.definitions import integrate_data, LuxtronikFieldDictionary
 from luxtronik.shi.contiguous import ContiguousDataBlockList
 
 ###############################################################################
@@ -165,7 +165,7 @@ class DataVectorSmartHome(DataVector):
         for definition, field in self._data.items():
             if definition.idx >= raw_len:
                 continue
-            field.raw = definition.extract_raw(raw_data)
+            integrate_data(definition, field, raw_data)
 
     def get(self, def_name_or_idx, default=None):
         """

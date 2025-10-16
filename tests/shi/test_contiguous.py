@@ -56,6 +56,54 @@ class TestContiguousDataPart:
         part = ContiguousDataPart(def_a, None)
         assert repr(part) == "(1, 2)"
 
+    def test_get_data(self):
+        part = ContiguousDataPart(def_a, field_a)
+        field_a.raw = [4, 2]
+        assert part.get_data_arr() == [4, 2]
+
+        field_a.raw = [1, 3, 5]
+        assert part.get_data_arr() == [1, 3]
+
+        field_a.raw = [9]
+        assert part.get_data_arr() == None
+
+        part = ContiguousDataPart(def_a1, field_a1)
+
+        field_a1.raw = [8]
+        assert part.get_data_arr() == [8]
+
+        field_a1.raw = 7
+        assert part.get_data_arr() == [7]
+
+    def test_integrate_data(self):
+        part = ContiguousDataPart(def_a, field_a)
+
+        part.integrate_data([1, 5, 7, 9], 0)
+        assert part.field.raw == [1, 5]
+
+        part.integrate_data([1, 5, 7, 9])
+        assert part.field.raw == [5, 7]
+
+        part.integrate_data([1, 5, 7, 9], 2)
+        assert part.field.raw == [7, 9]
+
+        part.integrate_data([1, 5, 7, 9], 3)
+        assert part.field.raw == None
+
+        part.integrate_data([1, 5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 9], 1)
+        assert part.field.raw == None
+
+        part = ContiguousDataPart(def_c1, field_c1)
+
+        part.integrate_data([2, 4, 6], 1)
+        assert part.field.raw == 4
+
+        part.integrate_data([2, 4, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE], 2)
+        assert part.field.raw == None
+
+        part.integrate_data([2, 4, 6], 5)
+        assert part.field.raw == None
+
 
 class TestContiguousDataBlock:
 
@@ -279,6 +327,7 @@ class TestContiguousDataBlockList:
         assert len(blocks) == 1
         assert blocks[0].first_index == 1
         assert blocks[0].overall_count == 6
+
 
 
 
