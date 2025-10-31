@@ -63,7 +63,7 @@ class TestContiguousDataPart:
         assert part.get_data_arr() == [4, 2]
 
         field_a.raw = [1, 3, 5]
-        assert part.get_data_arr() == [1, 3]
+        assert part.get_data_arr() is None
 
         field_a.raw = [9]
         assert part.get_data_arr() is None
@@ -215,7 +215,7 @@ class TestContiguousDataBlock:
         assert block[5].field.raw == 25
 
         valid = block.integrate_data([5, 4, 3])
-        assert valid == False
+        assert not valid
 
     def test_get_data(self):
         block = ContiguousDataBlock()
@@ -353,4 +353,4 @@ class TestContiguousDataBlockList:
 
         text = repr(blocks)
         assert text
-        assert text > text_empty
+        assert len(text) > len(text_empty)

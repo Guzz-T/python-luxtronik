@@ -1,4 +1,6 @@
 import pytest
+from unittest.mock import patch
+
 from pyModbusTCP.client import ModbusClient
 
 from luxtronik.shi.common import (
@@ -8,6 +10,7 @@ from luxtronik.shi.common import (
     LuxtronikSmartHomeWriteTelegram,
     LuxtronikSmartHomeWriteHoldingsTelegram,
 )
+import luxtronik.shi.modbus
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
 ###############################################################################
@@ -97,6 +100,7 @@ class FakeModbusClient(ModbusClient):
 class DummyTelegram(LuxtronikSmartHomeReadInputsTelegram):
     pass
 
+@patch("luxtronik.shi.modbus.LUXTRONIK_WAIT_TIME_AFTER_HOLDING_WRITE", 0)
 class TestModbusInterface:
     host = "local_host"
     port = 9876
@@ -361,10 +365,10 @@ class TestModbusInterface:
         assert list[2].data == []
 
     def test_not_defined(self):
-        telegram = DummyTelegram()
+        telegram = DummyTelegram(0, 1)
 
         try:
             self.modbus_interface.send(telegram)
             assert False
-        except Exception as e:
+        except Exception:
             pass

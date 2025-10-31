@@ -384,7 +384,7 @@ class LuxtronikSmartHomeInterface:
 
         # Abort if insufficient data is provided
         if not check_data(definition, field):
-            LOGGER.warning(f"Data error / insufficient data provided: " \
+            LOGGER.warning("Data error / insufficient data provided: " \
                 + f"name={definition.name}, data={field.raw}")
             return False
 
