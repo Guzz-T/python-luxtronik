@@ -32,7 +32,7 @@ class Base:
         assert len(self._names) > 0, "At least one name is required"
         assert all(isinstance(name, str) for name in self._names), "Names must be strings"
         self.writeable = writeable
-        self._set_by_user = False
+        self.set_by_user = False
 
     @classmethod
     def to_heatpump(cls, value):
@@ -70,7 +70,7 @@ class Base:
     def value(self, value):
         """Converts the value into heatpump units and store it."""
         self._raw = self.to_heatpump(value)
-        self._set_by_user = True
+        self.set_by_user = True
 
     @property
     def raw(self):
@@ -81,12 +81,7 @@ class Base:
     def raw(self, raw):
         """Store the raw data."""
         self._raw = raw
-        self._set_by_user = False
-
-    @property
-    def set_by_user(self):
-        """Return if the data was set by the user."""
-        return self._set_by_user
+        self.set_by_user = False
 
     def __repr__(self):
         """Returns a printable representation of the datatype object"""

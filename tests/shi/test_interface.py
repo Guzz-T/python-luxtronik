@@ -13,12 +13,10 @@ from luxtronik.shi.common import (
     LuxtronikSmartHomeReadInputsTelegram,
     LuxtronikSmartHomeWriteHoldingsTelegram,
 )
-from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 from luxtronik.shi.definitions import LuxtronikDefinition
 from luxtronik.shi.holdings import HOLDINGS_DEFINITIONS, Holdings
-from luxtronik.shi.inputs import INPUTS_DEFINITIONS, Inputs
+from luxtronik.shi.inputs import INPUTS_DEFINITIONS
 from luxtronik.shi.contiguous import (
-    ContiguousDataPart,
     ContiguousDataBlock,
     ContiguousDataBlockList,
 )
@@ -258,7 +256,7 @@ class TestLuxtronikSmartHomeInterface:
         telegram = self.interface._create_telegram(block, "input", False)
         assert telegram is None
 
-    def test_create_telegram(self):
+    def test_create_telegrams(self):
         blocks_list = []
         blocks = ContiguousDataBlockList("holding", True)
 
@@ -318,7 +316,7 @@ class TestLuxtronikSmartHomeInterface:
         telegram_data[0][1].data = [18, 4]
         telegram_data[1][1].data = [9]
         telegram_data[2][1].data = [27]
-        telegram_data[3][0][0].field._set_by_user = True
+        telegram_data[3][0][0].field.set_by_user = True
         valid = self.interface._integrate_data(telegram_data)
         assert valid
         # [index data, index for blocks, index for part]
@@ -338,8 +336,8 @@ class TestLuxtronikSmartHomeInterface:
         # [index data, index for blocks, index for part]
         assert telegram_data[0][0][0].field.raw == 18
         assert telegram_data[0][0][1].field.raw == 4
-        assert telegram_data[1][0][0].field.raw == None
-        assert telegram_data[2][0][0].field.raw == None
+        assert telegram_data[1][0][0].field.raw is None
+        assert telegram_data[2][0][0].field.raw is None
         assert telegram_data[3][0][0].field.raw == 17 # no update
 
         # integrate too less -> error
@@ -352,7 +350,7 @@ class TestLuxtronikSmartHomeInterface:
         assert telegram_data[0][0][0].field.raw == 18
         assert telegram_data[0][0][1].field.raw == 4 # no update
         assert telegram_data[1][0][0].field.raw == 1
-        assert telegram_data[2][0][0].field.raw == None
+        assert telegram_data[2][0][0].field.raw is None
         assert telegram_data[3][0][0].field.raw == 17 # no update
 
     def test_prepare(self):
@@ -367,14 +365,14 @@ class TestLuxtronikSmartHomeInterface:
 
         # supported valid write
         field.raw = 5
-        field._set_by_user = True
+        field.set_by_user = True
         valid = self.interface._prepare_write_field(definition, field, False, None)
         assert valid
         assert field.raw == 5
 
         # supported invalid write via safe
         field.raw = 6
-        field._set_by_user = True
+        field.set_by_user = True
         field.writeable = False
         valid = self.interface._prepare_write_field(definition, field, True, None)
         assert not valid
@@ -383,21 +381,21 @@ class TestLuxtronikSmartHomeInterface:
 
         # supported invalid write via set_by_user
         field.raw = 7
-        field._set_by_user = False
+        field.set_by_user = False
         valid = self.interface._prepare_write_field(definition, field, False, None)
         assert not valid
         assert field.raw == 7
 
         # supported valid write with data
         field.raw = 8
-        field._set_by_user = False
+        field.set_by_user = False
         valid = self.interface._prepare_write_field(definition, field, False, 9)
         assert valid
         assert field.value == 9
 
         # supported invalid write via data
         field.raw = []
-        field._set_by_user = True
+        field.set_by_user = True
         valid = self.interface._prepare_write_field(definition, field, False, None)
         assert not valid
         assert field.raw == []
@@ -442,7 +440,7 @@ class TestLuxtronikSmartHomeInterface:
         assert len(blocks_list) == 1
         # blocks
         assert blocks_list[0].type_name == "holding"
-        assert blocks_list[0].read_not_write == True
+        assert blocks_list[0].read_not_write
         assert len(blocks_list[0]) == 1
         # block
         assert blocks_list[0][0].first_index == 2
@@ -465,7 +463,7 @@ class TestLuxtronikSmartHomeInterface:
         assert len(blocks_list) == 2
         # blocks
         assert blocks_list[1].type_name == "holding"
-        assert blocks_list[1].read_not_write == False
+        assert not blocks_list[1].read_not_write
         assert len(blocks_list[1]) == 1
         # block
         assert blocks_list[1][0].first_index == 1
@@ -507,7 +505,7 @@ class TestLuxtronikSmartHomeInterface:
         assert len(blocks_list) == 1
         # blocks
         assert blocks_list[0].type_name == "holding"
-        assert blocks_list[0].read_not_write == True
+        assert blocks_list[0].read_not_write
         assert len(blocks_list[0]) == 3
         # block
         assert blocks_list[0][0].first_index == 0
@@ -532,7 +530,7 @@ class TestLuxtronikSmartHomeInterface:
         assert len(blocks_list) == 2
         # blocks
         assert blocks_list[1].type_name == "holding"
-        assert blocks_list[1].read_not_write == False
+        assert not blocks_list[1].read_not_write
         assert len(blocks_list[1]) == 2
         # block
         assert blocks_list[1][0].first_index == 0
@@ -569,7 +567,7 @@ class TestLuxtronikSmartHomeInterface:
         self.interface.collect_holdings_for_read(h)
         assert len(self.interface._blocks_list) == 1
         assert self.interface._blocks_list[0].type_name == "holding"
-        assert self.interface._blocks_list[0].read_not_write == True
+        assert self.interface._blocks_list[0].read_not_write
 
         # nothing to write
         self.interface.collect_holdings_for_write(self.interface.create_holdings())
@@ -579,38 +577,38 @@ class TestLuxtronikSmartHomeInterface:
         self.interface.collect_holdings(h)
         assert len(self.interface._blocks_list) == 3
         assert self.interface._blocks_list[1].type_name == "holding"
-        assert self.interface._blocks_list[1].read_not_write == False
+        assert not self.interface._blocks_list[1].read_not_write
         assert self.interface._blocks_list[2].type_name == "holding"
-        assert self.interface._blocks_list[2].read_not_write == True
+        assert self.interface._blocks_list[2].read_not_write
 
         i = self.interface.create_inputs()
         self.interface.collect_inputs(i)
         assert len(self.interface._blocks_list) == 4
         assert self.interface._blocks_list[3].type_name == "input"
-        assert self.interface._blocks_list[3].read_not_write == True
+        assert self.interface._blocks_list[3].read_not_write
 
         d = self.interface.create_data()
         self.interface.collect_data_for_read(d)
         assert len(self.interface._blocks_list) == 6
         assert self.interface._blocks_list[4].type_name == "holding"
-        assert self.interface._blocks_list[4].read_not_write == True
+        assert self.interface._blocks_list[4].read_not_write
         assert self.interface._blocks_list[5].type_name == "input"
-        assert self.interface._blocks_list[5].read_not_write == True
+        assert self.interface._blocks_list[5].read_not_write
 
         d.holdings[0] = 'Setpoint'
         self.interface.collect_data_for_write(d)
         assert len(self.interface._blocks_list) == 7
         assert self.interface._blocks_list[6].type_name == "holding"
-        assert self.interface._blocks_list[6].read_not_write == False
+        assert not self.interface._blocks_list[6].read_not_write
 
         self.interface.collect_data(d)
         assert len(self.interface._blocks_list) == 10
         assert self.interface._blocks_list[7].type_name == "holding"
-        assert self.interface._blocks_list[7].read_not_write == False
+        assert not self.interface._blocks_list[7].read_not_write
         assert self.interface._blocks_list[8].type_name == "holding"
-        assert self.interface._blocks_list[8].read_not_write == True
+        assert self.interface._blocks_list[8].read_not_write
         assert self.interface._blocks_list[9].type_name == "input"
-        assert self.interface._blocks_list[9].read_not_write == True
+        assert self.interface._blocks_list[9].read_not_write
 
         self.interface.send()
         assert len(self.interface._blocks_list) == 0
@@ -762,6 +760,7 @@ class TestLuxtronikSmartHomeInterface:
         # not existing
         def_115 = self.interface.get_input(115)
         field_115 = self.interface.create_input(115)
+        assert def_115 is None
         assert field_115 is None
 
         vector = self.interface.create_inputs()

@@ -94,7 +94,7 @@ class FakeModbusClient(ModbusClient):
 # Tests
 ###############################################################################
 
-class DummyTelegram(LuxtronikSmartHomeReadInputsTelegram)
+class DummyTelegram(LuxtronikSmartHomeReadInputsTelegram):
     pass
 
 class TestModbusInterface:

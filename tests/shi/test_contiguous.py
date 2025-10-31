@@ -66,7 +66,7 @@ class TestContiguousDataPart:
         assert part.get_data_arr() == [1, 3]
 
         field_a.raw = [9]
-        assert part.get_data_arr() == None
+        assert part.get_data_arr() is None
 
         part = ContiguousDataPart(def_a1, field_a1)
 
@@ -89,10 +89,10 @@ class TestContiguousDataPart:
         assert part.field.raw == [7, 9]
 
         part.integrate_data([1, 5, 7, 9], 3)
-        assert part.field.raw == None
+        assert part.field.raw is None
 
         part.integrate_data([1, 5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 9], 1)
-        assert part.field.raw == None
+        assert part.field.raw is None
 
         part = ContiguousDataPart(def_c1, field_c1)
 
@@ -100,10 +100,10 @@ class TestContiguousDataPart:
         assert part.field.raw == 4
 
         part.integrate_data([2, 4, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE], 2)
-        assert part.field.raw == None
+        assert part.field.raw is None
 
         part.integrate_data([2, 4, 6], 5)
-        assert part.field.raw == None
+        assert part.field.raw is None
 
 
 class TestContiguousDataBlock:
@@ -136,17 +136,17 @@ class TestContiguousDataBlock:
         block = ContiguousDataBlock()
 
         can_add = block.can_add(def_b)
-        assert can_add == True
+        assert can_add
         block.add(def_b, None)
         assert len(block) == 1
 
         can_add = block.can_add(def_c2)
-        assert can_add == False
+        assert not can_add
         block.add(def_c2, None)
         assert len(block) == 2
 
         can_add = block.can_add(def_a)
-        assert can_add == False
+        assert not can_add
         block.add(def_a, None)
         assert len(block) == 3
 
@@ -188,7 +188,7 @@ class TestContiguousDataBlock:
         assert not valid
 
         valid = block.integrate_data([11, 12, 13])
-        assert valid == True
+        assert valid
         assert block[0].field.raw == 11
         assert block[1].field.raw == [11, 12]
         assert block[2].field.raw == 13
@@ -196,7 +196,7 @@ class TestContiguousDataBlock:
         block.add(def_c, field_c)
 
         block.integrate_data([7, 6, 5, 4, 3, 2])
-        assert valid == True
+        assert valid
         assert block[0].field.raw == 7
         assert block[1].field.raw == [7, 6]
         assert block[2].field.raw == 5
@@ -206,7 +206,7 @@ class TestContiguousDataBlock:
         block.add(def_c2, field_c2)
 
         block.integrate_data([21, 22, 23, 24, 25, 26])
-        assert valid == True
+        assert valid
         assert block[0].field.raw == 21
         assert block[1].field.raw == [21, 22]
         assert block[2].field.raw == 23
@@ -227,7 +227,7 @@ class TestContiguousDataBlock:
         block.add(def_a, field_a)
 
         data_arr = block.get_data_arr()
-        assert data_arr == None
+        assert data_arr is None
 
         block = ContiguousDataBlock()
         field_b.raw = 11
@@ -241,7 +241,7 @@ class TestContiguousDataBlock:
         # To less data for one register
         field_c.raw = [21, 22]
         data_arr = block.get_data_arr()
-        assert data_arr == None
+        assert data_arr is None
 
         # Multiple data for a single register #2
         field_b.raw = 11
@@ -252,7 +252,7 @@ class TestContiguousDataBlock:
         block.add(def_c2, field_c2)
 
         data_arr = block.get_data_arr()
-        assert data_arr == None
+        assert data_arr is None
 
     def test_repr(self):
         block = ContiguousDataBlock()
@@ -272,7 +272,7 @@ class TestContiguousDataBlockList:
         blocks = ContiguousDataBlockList('foo', True)
         assert len(blocks) == 0
         assert blocks.type_name == 'foo'
-        assert blocks.read_not_write == True
+        assert blocks.read_not_write
 
     def test_iter(self):
         blocks = ContiguousDataBlockList('foo', True)

@@ -325,9 +325,6 @@ class ContiguousDataBlockList:
             definition (LuxtronikDefinition): Definition to add.
             field (Base): Associated field object.
         """
-        index = definition.index
-        count = definition.count if definition.count > 0 else 1
-
         # Start a new block if none exists or the last block cannot accept this definition
         if not self._blocks or not self._can_add or not self._blocks[-1].can_add(definition):
             self._blocks.append(ContiguousDataBlock())

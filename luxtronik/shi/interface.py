@@ -321,7 +321,7 @@ class LuxtronikSmartHomeInterface:
             else:
                 # Reset set_by_user flag
                 for part in block:
-                    part.field._set_by_user = False
+                    part.field.set_by_user = False
         return success
 
 
@@ -374,7 +374,7 @@ class LuxtronikSmartHomeInterface:
 
         # Abort if field is not writeable
         if safe and not (definition.writeable and field.writeable):
-            LOGGER.warning(f"Field marked as non-writeable: " \
+            LOGGER.warning("Field marked as non-writeable: " \
                 + f"name={definition.name}, data={field.raw}")
             return False
 

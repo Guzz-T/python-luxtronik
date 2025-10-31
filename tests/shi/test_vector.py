@@ -397,7 +397,7 @@ class TestDataVector:
             "count": 3,
             "names": "foo"
         })
-        field_10 = data_vector.add(def_10)
+        data_vector.add(def_10)
         assert not data_vector._read_blocks_up_to_date
         assert len(data_vector._read_blocks) == 2
 
