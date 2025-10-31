@@ -10,7 +10,6 @@ from luxtronik.shi.common import (
     LuxtronikSmartHomeWriteTelegram,
     LuxtronikSmartHomeWriteHoldingsTelegram,
 )
-import luxtronik.shi.modbus
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
 ###############################################################################
