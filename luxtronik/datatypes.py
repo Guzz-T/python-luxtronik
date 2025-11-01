@@ -93,6 +93,7 @@ class Base:
             f"writeable: {self.writeable}, "
             f"value: {self.value}, "
             f"raw: {self._raw}, "
+            f"set_by_user: {self.set_by_user}, "
             f"class: {self.datatype_class}, "
             f"unit: {self.datatype_unit}"
             f")"

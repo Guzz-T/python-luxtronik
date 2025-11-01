@@ -9,6 +9,7 @@ from luxtronik.shi.common import (
     LuxtronikSmartHomeReadInputsTelegram,
     LuxtronikSmartHomeWriteTelegram,
     LuxtronikSmartHomeWriteHoldingsTelegram,
+    LuxtronikSmartHomeTelegrams,
 )
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
@@ -96,10 +97,12 @@ class FakeModbusClient(ModbusClient):
 # Tests
 ###############################################################################
 
-class DummyTelegram(LuxtronikSmartHomeReadInputsTelegram):
+class DummyTelegram(LuxtronikSmartHomeReadTelegram):
     pass
 
+
 @patch("luxtronik.shi.modbus.LUXTRONIK_WAIT_TIME_AFTER_HOLDING_WRITE", 0)
+@patch("luxtronik.shi.modbus.LuxtronikSmartHomeTelegrams", LuxtronikSmartHomeTelegrams | {DummyTelegram})
 class TestModbusInterface:
     host = "local_host"
     port = 9876

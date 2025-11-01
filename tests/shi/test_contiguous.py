@@ -220,6 +220,9 @@ class TestContiguousDataBlock:
     def test_get_data(self):
         block = ContiguousDataBlock()
 
+        data_arr = block.get_data_arr()
+        assert data_arr is None
+
         # Multiple data for a single register #1
         field_a1.raw = 35
         field_a.raw = [56, 57]
@@ -237,6 +240,13 @@ class TestContiguousDataBlock:
 
         data_arr = block.get_data_arr()
         assert data_arr == [11, 21, 22, 23]
+
+        # provided data greater than overall count
+        orig_last = block._last_idx
+        block._last_idx = orig_last - 1
+        data_arr = block.get_data_arr()
+        assert data_arr == None
+        block._last_idx = orig_last
 
         # To less data for one register
         field_c.raw = [21, 22]

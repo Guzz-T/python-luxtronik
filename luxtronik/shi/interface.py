@@ -426,10 +426,14 @@ class LuxtronikSmartHomeInterface:
             field = definition.create_field()
 
         if definition is None:
+            # We have to clear non-supported fields here, see comment below
+            if (read_not_write == READ) and isinstance(def_field_name_or_idx, Base):
+                def_field_name_or_idx.raw = None
             return None
 
-        if (read_not_write == READ) and not self._prepare_read_field(definition, field):
-            return None
+        # _get_def_field_pair ensures that the field is supported, no need to call _prepare_read_field
+        #if (read_not_write == READ) and not self._prepare_read_field(definition, field):
+        #    return None
         if (read_not_write == WRITE) and not self._prepare_write_field(definition, field, safe, data):
             return None
 
