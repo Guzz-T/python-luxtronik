@@ -245,7 +245,7 @@ class TestContiguousDataBlock:
         orig_last = block._last_idx
         block._last_idx = orig_last - 1
         data_arr = block.get_data_arr()
-        assert data_arr == None
+        assert data_arr is None
         block._last_idx = orig_last
 
         # To less data for one register
