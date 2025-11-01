@@ -1146,6 +1146,103 @@ class TestLuxtronikSmartHomeInterface:
 
         assert field.raw == 2
 
+    def test_trial_and_error_mode(self):
 
-# collect field methods
-#test trial and error !!!!!!!!!!!!
+        # prepare
+        interface = LuxtronikSmartHomeInterface(FakeInterface(), None)
+
+        holdings = Holdings.empty(None)
+        h0 = holdings.add(0) # 3.90.1
+        h1 = holdings.add(1) # 3.90.1
+        h2 = holdings.add(2) # 3.90.1
+        h3 = holdings.add(3) # 3.92.0
+        h4 = holdings.add(4)
+        assert h4 is None
+
+        # add vector for read
+        interface.collect_holdings_for_read(holdings)
+        assert len(interface._blocks_list) == 1
+        assert len(interface._blocks_list[0]) == 4
+        assert len(interface._blocks_list[0][0]) == 1
+        assert interface._blocks_list[0][0][0].field == h0
+        assert len(interface._blocks_list[0][1]) == 1
+        assert interface._blocks_list[0][1][0].field == h1
+        assert len(interface._blocks_list[0][2]) == 1
+        assert interface._blocks_list[0][2][0].field == h2
+        assert len(interface._blocks_list[0][3]) == 1
+        assert interface._blocks_list[0][3][0].field == h3
+
+        # add vector for write
+        h1.raw = 10
+        h1.set_by_user = True
+        h3.raw = 1
+        h3.set_by_user = True
+        interface.collect_holdings_for_write(holdings)
+        assert len(interface._blocks_list) == 2
+        assert len(interface._blocks_list[1]) == 2
+        assert len(interface._blocks_list[1][0]) == 1
+        assert interface._blocks_list[1][0][0].field == h1
+        assert len(interface._blocks_list[1][1]) == 1
+        assert interface._blocks_list[1][1][0].field == h3
+
+        # add not existing read (success)
+        field = interface.collect_holding_for_read('unknown_foo_4')
+        assert type(field) is Unknown
+        assert len(interface._blocks_list) == 3
+        assert len(interface._blocks_list[2]) == 1
+        assert len(interface._blocks_list[2][0]) == 1
+        assert interface._blocks_list[2][0][0].definition.name == 'unknown_holding_4'
+        assert interface._blocks_list[2][0][0].definition.index == 4
+        assert interface._blocks_list[2][0][0].definition.count == 1
+        assert interface._blocks_list[2][0][0].field.name == 'unknown_holding_4'
+        assert not interface._blocks_list[2][0][0].field.writeable
+
+        # add not existing read (fail)
+        field = interface.collect_holding_for_read('bar_foo_4')
+        assert field is None
+        assert len(interface._blocks_list) == 3
+
+        # add not existing write (success)
+        field = interface.collect_holding_for_write('unknown_bar_4', 16, False)
+        assert type(field) is Unknown
+        assert len(interface._blocks_list) == 4
+        assert len(interface._blocks_list[3]) == 1
+        assert len(interface._blocks_list[3][0]) == 1
+        assert interface._blocks_list[3][0][0].field.name == 'unknown_holding_4'
+        assert not interface._blocks_list[3][0][0].field.writeable
+
+        # add not existing write (success)
+        field = interface.collect_holding_for_write('unknown_bar_4', 17, True)
+        assert field is None
+        assert len(interface._blocks_list) == 4
+
+        interface.send()
+        offset = interface.holdings.offset
+        assert len(FakeInterface.telegram_list) == 8
+        assert type(FakeInterface.telegram_list[0]) is LuxtronikSmartHomeReadHoldingsTelegram
+        assert FakeInterface.telegram_list[0].addr == offset + 0
+        assert FakeInterface.telegram_list[0].count == 1
+        assert type(FakeInterface.telegram_list[1]) is LuxtronikSmartHomeReadHoldingsTelegram
+        assert FakeInterface.telegram_list[1].addr == offset + 1
+        assert FakeInterface.telegram_list[1].count == 1
+        assert type(FakeInterface.telegram_list[2]) is LuxtronikSmartHomeReadHoldingsTelegram
+        assert FakeInterface.telegram_list[2].addr == offset + 2
+        assert FakeInterface.telegram_list[2].count == 1
+        assert type(FakeInterface.telegram_list[3]) is LuxtronikSmartHomeReadHoldingsTelegram
+        assert FakeInterface.telegram_list[3].addr == offset + 3
+        assert FakeInterface.telegram_list[3].count == 1
+        assert type(FakeInterface.telegram_list[4]) is LuxtronikSmartHomeWriteHoldingsTelegram
+        assert FakeInterface.telegram_list[4].addr == offset + 1
+        assert FakeInterface.telegram_list[4].count == 1
+        assert FakeInterface.telegram_list[4].data == [10]
+        assert type(FakeInterface.telegram_list[5]) is LuxtronikSmartHomeWriteHoldingsTelegram
+        assert FakeInterface.telegram_list[5].addr == offset + 3
+        assert FakeInterface.telegram_list[5].count == 1
+        assert FakeInterface.telegram_list[5].data == [1]
+        assert type(FakeInterface.telegram_list[6]) is LuxtronikSmartHomeReadHoldingsTelegram
+        assert FakeInterface.telegram_list[6].addr == offset + 4
+        assert FakeInterface.telegram_list[6].count == 1
+        assert type(FakeInterface.telegram_list[7]) is LuxtronikSmartHomeWriteHoldingsTelegram
+        assert FakeInterface.telegram_list[7].addr == offset + 4
+        assert FakeInterface.telegram_list[7].count == 1
+        assert FakeInterface.telegram_list[7].data == [16]

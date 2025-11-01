@@ -419,7 +419,7 @@ class LuxtronikSmartHomeInterface:
         definition, field = self._get_def_field_pair(def_field_name_or_idx, definitions)
 
         # create temporary definition for trial-and-error-mode
-        if self._version is None and definition is None and isinstance(def_field_name_or_idx, [int, str]):
+        if self._version is None and definition is None and isinstance(def_field_name_or_idx, (int, str)):
             definition = self._try_create_definition(def_field_name_or_idx, definitions)
             if definition is None:
                 return None
@@ -463,8 +463,9 @@ class LuxtronikSmartHomeInterface:
             blocks = ContiguousDataBlockList(definitions.name, read_not_write)
             if (read_not_write == READ):
                 for definition, field in data_vector.items():
-                    if self._prepare_read_field(definition, field):
-                        blocks.append_single(definition, field)
+                    # _prepare_read_field will never fail, no need to call it
+                    #if self._prepare_read_field(definition, field):
+                    blocks.append_single(definition, field)
             else:
                 for definition, field in data_vector.items():
                     if self._prepare_write_field(definition, field, data_vector.safe, None):
