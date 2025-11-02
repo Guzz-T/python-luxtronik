@@ -13,10 +13,6 @@ from luxtronik.common import get_host_lock
 from luxtronik.calculations import Calculations
 from luxtronik.parameters import Parameters
 from luxtronik.visibilities import Visibilities
-from luxtronik.shi import resolve_version
-from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
-from luxtronik.shi.holdings import Holdings
-from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
 from luxtronik.discover import discover  # noqa: F401
 from luxtronik.constants import (
     LUXTRONIK_DEFAULT_PORT,
@@ -28,6 +24,10 @@ from luxtronik.constants import (
     LUXTRONIK_SOCKET_READ_SIZE_INTEGER,
     LUXTRONIK_SOCKET_READ_SIZE_CHAR,
 )
+from luxtronik.shi import resolve_version
+from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
+from luxtronik.shi.holdings import Holdings
+from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeInterface
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
 )
@@ -479,38 +479,36 @@ class Luxtronik(LuxtronikAllData):
         port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT,
         safe=True
     ):
-        self._interface = LuxtronikInterface(host, port_config, port_shi)
+        self.interface = LuxtronikInterface(host, port_config, port_shi)
         super().__init__(version=self._interface.version, safe=safe)
         self.read()
 
     def read(self):
-        self._interface.read(self)
-        return self
+        return self.interface.read(self)
 
     def read_parameters(self):
-        return self._interface.read_parameters(self.parameters)
+        return self.interface.read_parameters(self.parameters)
 
     def read_calculations(self):
-        return self._interface.read_calculations(self.calculations)
+        return self.interface.read_calculations(self.calculations)
 
     def read_visibilities(self):
-        return self._interface.read_visibilities(self.visibilities)
+        return self.interface.read_visibilities(self.visibilities)
 
     def read_holdings(self):
-        return self._interface.read_holdings(self.holdings)
+        return self.interface.read_holdings(self.holdings)
 
     def read_inputs(self):
-        return self._interface.read_inputs(self.inputs)
+        return self.interface.read_inputs(self.inputs)
 
     def write(self, data=None):
         if data is None:
-            return self._interface.write(self)
+            return self.interface.write(self)
         else:
-            return self._interface.write(data)
+            return self.interface.write(data)
 
     def write_and_read(self, data=None):
         if data is None:
-            self._interface.write_and_read(self)
+            return self.interface.write_and_read(self)
         else:
-            self._interface.write_and_read(data)
-        return self
+            return self.interface.write_and_read(data)
