@@ -122,10 +122,6 @@ class LuxtronikSmartHomeInterface:
     def version(self):
         return self._version
 
-    @property
-    def lock(self):
-        return self._interface.lock
-
 # Helper methods ##############################################################
 
     def _get_definition(self, def_name_or_idx, definitions):
