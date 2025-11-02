@@ -1,78 +1,72 @@
 #! /usr/bin/env python3
-
 # pylint: disable=invalid-name
+"""
+Script to scan all inputs/holdings of the Smart-Home-Interface.
+Only undefined but existing fields will be dumped.
+"""
 
-"""Script to scan all inputs/holdings of the Smart-Home-Interface from 10000 to 19999. Only unknown fields will be dumped."""
 import argparse
 import logging
 
 from luxtronik.scripts import *
-from luxtronik import LuxtronikModbusTcpInterface
-from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
-from luxtronik.data_vector import LuxtronikDefinition
 from luxtronik.datatypes import Unknown
-from luxtronik.inputs import Inputs
-from luxtronik.holdings import Holdings
+from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
+from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
+from luxtronik.shi.inputs import INPUTS_DEFINITIONS
+from luxtronik.shi.holdings import HOLDINGS_DEFINITIONS
 
-LOGGER = logging.getLogger("Luxtronik.Modbus")
 logging.disable(logging.CRITICAL)
 
-def fill_with_unknown(data_vector, start, count):
+def get_undefined_fields(definitions, start, count):
     skip_count = 0
+    undefined_fields = {}
     for i in range(start, start + count):
         # Skip addresses that belongs to a previous field
         if skip_count > 0:
             skip_count -= 1
             continue
+        definition = definitions[i]
         # Add unknown
-        if not i in data_vector._data:
-            data_vector._data[i] = data_vector.create_unknown_field(i)
+        if definition is None:
+            undefined_fields[i] = Unknown(f"unknown_{definitions.name}_{i}", False)
+            #print(f"Add unknown {i}")
         else:
-            definition = data_vector._get_definition_by_idx(i)
             skip_count = definition.count - 1
+            #print(f"Skip {definition}")
+    return undefined_fields
 
-def remove_known(data_vector):
-    definitions = data_vector._definitions
-    for definition in definitions:
-        del data_vector._data[definition.index]
-
-def dump_fields(data_vector, read_cb):
-    for number, field in data_vector:
+def dump_fields(undefined_fields, offset, read_cb):
+    for number, field in undefined_fields.items():
         print(f"Number: {number:<5}", end="\r")
-        data = read_cb(number + data_vector.offset)
-        field.raw = data[0]
-        if field.raw is not None:
+        data = read_cb(number + offset, 1)
+        if data is not None:
+            field.raw = data[0]
             print_dump_row(number, field)
 
+def discover_fields(definitions, start, count, read_cb):
+    print_dump_header(f"Undefined but existing {definitions.name}s")
+    undefined_fields = get_undefined_fields(definitions, start, count)
+    dump_fields(undefined_fields, definitions.offset, read_cb)
 
 def discover_shi():
-    # pylint: disable=duplicate-code
-    """Dump all unknown fields of the Smart-Home-Interface."""
-    parser = argparse.ArgumentParser(description="Dumps all unknown fields of the Smart-Home-Interface.")
-    parser.add_argument("ip", help="IP address of Luxtronik controller to connect to")
+    parser = create_default_args_parser(
+        "Dumps all undefined but existing fields of the Smart-Home-Interface.",
+        LUXTRONIK_DEFAULT_MODBUS_PORT
+    )
     parser.add_argument(
-        "port",
+        "count",
         nargs="?",
         type=int,
-        default=LUXTRONIK_DEFAULT_MODBUS_PORT,
-        help="Port to use to connect to Luxtronik controller",
+        default=1000,
+        help="Total number of registers to check",
     )
     args = parser.parse_args()
+    print(f"Discover SHI of {args.ip}:{args.port}")
 
-    client = LuxtronikSmartHomeInterface(args.ip, args.port)
-    # pylint: enable=duplicate-code
+    client = LuxtronikModbusTcpInterface(args.ip, args.port)
 
-    print_dump_header("Inputs")
-    inputs = Inputs()
-    fill_with_unknown(inputs, 0, 10000)
-    remove_known(inputs)
-    dump_fields(inputs, client.read_inputs)
-
-    print_dump_header("Holdings")
-    holdings = Holdings()
-    fill_with_unknown(holdings, 0, 10000)
-    remove_known(holdings)
-    dump_fields(holdings, client.read_holdings)
+    discover_fields(INPUTS_DEFINITIONS, 0, args.count, client.read_inputs)
+    discover_fields(HOLDINGS_DEFINITIONS, 0, args.count, client.read_holdings)
 
 
 if __name__ == "__main__":

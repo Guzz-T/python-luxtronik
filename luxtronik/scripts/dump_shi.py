@@ -1,43 +1,35 @@
 #! /usr/bin/env python3
-
 # pylint: disable=invalid-name
-
-"""Script to dump all available Smart-Home-Interface values from Luxtronik controller"""
+"""
+Script to dump all available Smart-Home-Interface values from Luxtronik controller.
+"""
 import argparse
+import logging
 
 from luxtronik.scripts import *
-from luxtronik import LuxtronikModbusTcpInterface
+from luxtronik.shi import create_modbus_tcp
 from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 
+logging.disable(logging.CRITICAL)
+
+def dump_fields(read_cb):
+    data_vector = read_cb()
+    print_dump_header(f"{data_vector.name}s")
+    for definition, field in data_vector.items():
+        print_dump_row(definition.index, field)
 
 def dump_shi():
-    # pylint: disable=duplicate-code
-    """Dump all available Smart-Home-Interface data from the Luxtronik controller."""
-    parser = argparse.ArgumentParser(description="Dumps all Smart-Home-Interface values from Luxtronik controller")
-    parser.add_argument("ip", help="IP address of Luxtronik controller to connect to")
-    parser.add_argument(
-        "port",
-        nargs="?",
-        type=int,
-        default=LUXTRONIK_DEFAULT_MODBUS_PORT,
-        help="Port to use to connect to Luxtronik controller",
+    parser = create_default_args_parser(
+        "Dumps all Smart-Home-Interface values from Luxtronik controller.",
+        LUXTRONIK_DEFAULT_MODBUS_PORT
     )
     args = parser.parse_args()
-
-    client = LuxtronikSmartHomeInterface(args.ip, args.port)
-    # pylint: enable=duplicate-code#
-
     print(f"Dump SHI of {args.ip}:{args.port}")
 
-    print_dump_header("Inputs")
-    inputs = client.read_inputs()
-    for number, field in inputs:
-        print_dump_row(number, field)
+    shi = create_modbus_tcp(args.ip, args.port)
 
-    print_dump_header("Holdings")
-    holdings = client.read_holdings()
-    for number, field in holdings:
-        print_dump_row(number, field)
+    dump_fields(shi.read_inputs)
+    dump_fields(shi.read_holdings)
 
 
 if __name__ == "__main__":

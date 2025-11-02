@@ -65,7 +65,7 @@ def determine_version(interface):
             parsed = parse_version(field.value)
             if parsed is not None:
                 return parsed
-    LOGGER.warning("It was not possible to determine the controller version. " /
+    LOGGER.warning("It was not possible to determine the controller version. " \
         + "Switch to trial-and-error mode.")
     return None
 
@@ -77,7 +77,7 @@ def determine_version(interface):
 def create_modbus_tcp(
     host,
     port=LUXTRONIK_DEFAULT_MODBUS_PORT,
-    timeout_in_s=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
+    timeout=LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
     version=VERSION_DETECT
 ):
     """
@@ -94,7 +94,7 @@ def create_modbus_tcp(
     Args:
         host (str): Hostname or IP address of the Luxtronik controller.
         port (int): TCP port for the Modbus connection.
-        timeout_in_s (float): Timeout in seconds for the Modbus connection.
+        timeout (float): Timeout in seconds for the Modbus connection.
         version (tuple[int] | str | None): Version used to initialize the interface.
             If VERSION_DETECT is passed, the function will attempt to determine the version.
             If a str is passed, the string will be parsed into a version tuple.
@@ -104,7 +104,7 @@ def create_modbus_tcp(
         LuxtronikSmartHomeInterface:
             Initialized interface instance bound to the Modbus TCP connection.
     """
-    modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout_in_s)
+    modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout)
 
     resolved_version = version
     if resolved_version == VERSION_DETECT:
@@ -116,6 +116,8 @@ def create_modbus_tcp(
         else:
             # return None in case of an error -> trial-and-error mode
             resolved_version = parse_version(resolved_version)
+    else:
+        resolved_version = parse_version(resolved_version)
 
     LOGGER.info(f"Create smart-home-interface via modbus-TCP on {host}:{port}"
         + f" for version {resolved_version}")

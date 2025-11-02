@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 -->
 # Smart-Home-Interface
 
 ## Introduction
@@ -9,18 +10,19 @@ This source code provides an interface for the temporary control of a Luxtronik 
 Not every function can be explained in detail or even listed in the readme file. Please refer to the function documentation for further information. The examples are intended to illustrate the typical use of the interface.
 
 ## Table of Content
+
 1. [Common Usage](#common-usage)
     1. [Available Data](#available-data)
     2. [Creation](#creation)
     3. [Read](#read)
     4. [Write](#write)
     5. [Collect](#collect)
-3. [Using aliases](#using-aliases)
-4. [Alternative use cases](#alternative-use-cases)
+2. [Using aliases](#using-aliases)
+3. [Alternative use cases](#alternative-use-cases)
     1. [Latest or specific version](#latest-or-specific-version)
     2. [Trial-and-error mode](#trial-and-error-mode)
-5. [Customization](#customization)
-6. [Implementation Details](#implementation-details)
+4. [Customization](#customization)
+5. [Implementation Details](#implementation-details)
 
 ## Common Usage
 
@@ -57,7 +59,7 @@ Data fields can be accessed individually or grouped together as data vectors for
 
 The examples provided in this chapter focus on reading *inputs*, which represent live system values. However, the same principles apply to *holdings* as well, allowing for consistent usage patterns across both read-only and writable data types.
 
-__Read all fields together:__
+**Read all fields together:**
 
 Recommendation if only one data vector is to be used:
 
@@ -98,7 +100,7 @@ data = shi.read_data()
 print(data.inputs)
 ```
 
-__Read a single field:__
+**Read a single field:**
 
 For single queries, the (newly created) field is returned.
 
@@ -116,7 +118,7 @@ op_mode = shi.read_input(op_mode_def)
 print(op_mode)
 ```
 
-__Read a subset:__
+**Read a subset:**
 
 It is also possible to read only a selected subset of data fields together. To do this, a new, empty data vector must first be created. The desired fields can then be added to this vector individually. Once all relevant fields have been included, the vector can be read in a single operation, allowing for efficient and targeted data access tailored to specific use cases.
 
@@ -138,7 +140,7 @@ print(inputs['operation_mode'])
 
 Just like reading, writing to data fields can be done individually or in grouped form using data vectors. This allows multiple configuration values to be updated in a single operation. Only fields for which the user has updated the value are written.
 
-__Write all (updated by the user) fields together:__
+**Write all (updated by the user) fields together:**
 
 Recommendation if only one data vector is to be used:
 
@@ -210,7 +212,7 @@ to "overwrite" existing names or register indices.
 
 There are two ways to register:
 
-__global:__
+**global:**
 
 The aliases are registered in the `LuxtronikDefinitionsList`. They are then available in every newly created data vector.
 
@@ -224,7 +226,7 @@ data = shi.read()
 print(data.inputs[any_hashable_alias].value)
 ```
 
-__local:__
+**local:**
 
 The aliases can also only be registered in a specific data vector.
 
@@ -248,6 +250,7 @@ but there is no guarantee that the fields they contains
 will match the current firmware version of the controller.
 
 Use a specific versions:
+
 ```python
 from luxtronik.shi import create_modbus_tcp
 from luxtronik.shi.holdings import Holdings
@@ -293,7 +296,7 @@ success = shi.write_holdings(holdings)
 
 ## Customization
 
-__Safe / non-safe:__
+**Safe / non-safe:**
 
 Only data fields with a known and verified function are marked as writable by default. This precaution helps prevent unintended changes and ensures that write operations target safe and well-understood parameters. When performing a write or preparing a data vector for writing, a `safe` flag can be used to control how strictly this classification is enforced. If the flag is set, the interface will only write to fields that are both marked as writable and considered safe. Fields that are not writable will be skipped. If the flag is not set, the interface will attempt to write to all fields that carries user data in the vector, regardless of their classification — this includes fields that are not marked as writable and those whose safety is uncertain. This flexibility is particularly useful for testing or exploring undocumented functionality.
 
@@ -301,7 +304,7 @@ Only data fields with a known and verified function are marked as writable by de
 shi.write_holding('heating_mode', 'Setpoint', safe=False)
 ```
 
-__Custom definitions:__
+**Custom definitions:**
 
 If you discover a new field or want to experiment with one that isn’t yet part of the standard definitions, you can add it manually to your local configuration. If you're confident in its behavior and purpose, please consider reporting it so it can be reviewed and potentially included in future versions of the interface. Since this is not the norm, there is currently no convenient function that allows for easier definition.
 
@@ -342,7 +345,7 @@ shi.inputs.add({
   Data blocks are used to perform bulk read or write operations in a
   single sequential transfer to minimize communication overhead.
 
-```
+```json
 Index
       +------------+      +------------+      +------------+
 0x00  | Register 0 |      | Field 0    |      | Data block |
@@ -436,3 +439,5 @@ Version-dependent on None:
 - **Telegrams**:
   A telegram defines a read or write operation to be performed.
   Several telegrams can be handled in one transmission.
+
+<!-- markdownlint-enable MD013 -->
