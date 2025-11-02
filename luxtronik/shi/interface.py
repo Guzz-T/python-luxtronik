@@ -122,6 +122,10 @@ class LuxtronikSmartHomeInterface:
     def version(self):
         return self._version
 
+    @property
+    def lock(self):
+        return self._interface.lock
+
 # Helper methods ##############################################################
 
     def _get_definition(self, def_name_or_idx, definitions):
@@ -968,7 +972,7 @@ class LuxtronikSmartHomeInterface:
         self.send()
         return data
 
-    def write_data(self, data=None):
+    def write_data(self, data):
         """
         Write the data of all fields within the data vector collection
         that are supported by the controller.
