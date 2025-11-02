@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
-
 # pylint: disable=invalid-name, disable=too-many-locals
-
-"""Script to watch all value changes from the Smart-Home-Interface of the Luxtronik controller"""
+"""
+Script to watch all value changes from the Smart-Home-Interface of the Luxtronik controller
+"""
 
 import argparse
 from collections import OrderedDict
