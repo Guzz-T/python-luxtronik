@@ -14,12 +14,18 @@ from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 from luxtronik.shi.common import LuxtronikSmartHomeReadInputsTelegram
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
-@contextmanager
-def measure_performance(repeats=200):
-    start = time.perf_counter()
-    yield range(repeats)
-    end = time.perf_counter()
-    print(f"Runtime: {end - start:.6f} s")
+class TimeMeasurement:
+    def __init__(self):
+        self.duration = 0
+        self._start = 0
+
+    def __enter__(self):
+        self._start = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        end = time.perf_counter()
+        self.duration = end - self._start
 
 def performance_shi():
     parser = create_default_args_parser(
@@ -31,74 +37,53 @@ def performance_shi():
 
     shi = create_modbus_tcp(args.ip, args.port)
     client = shi._interface
+    num_inputs = len(shi.inputs)
 
-    # with measure_performance(100) as loop:
-    #     print("(A: Modbus) Read 100 single inputs with bare modbus interface")
-    #     client._connect()
-    #     for _ in loop:
-    #         client._client.read_input_registers(10002, 1)
-    #     client._disconnect()
+    with TimeMeasurement() as t:
+        client._connect()
+        for _ in range(0, 100):
+            client._client.read_input_registers(10002, 1)
+        client._disconnect()
+    print(f"Read inputs with bare modbus interface: {100 / t.duration:.1f} fields/s")
 
-    # with measure_performance(100) as loop:
-    #     print("(A: Modbus) Read 100 single inputs one after another with re-connect every time")
-    #     for _ in loop:
-    #         client.read_inputs(10002, 1)
+    with TimeMeasurement() as t:
+        for _ in range(0, 100):
+            client.read_inputs(10002, 1)
+    print(f"Read inputs one after another with re-connect every time: {100 / t.duration:.1f} fields/s")
 
-    # with measure_performance(100) as loop:
-    #     print("(A: Modbus) Read 100 single holdings one after another with re-connect every time")
-    #     for _ in loop:
-    #         client.read_holdings(10000, 1)
+    with TimeMeasurement() as t:
+        telegrams = []
+        for _ in range(0, 100):
+            telegrams.append(LuxtronikSmartHomeReadInputsTelegram(10002, 1))
+        client.send(telegrams)
+    print(f"Read inputs within one telegram list: {100 / t.duration:.1f} fields/s")
 
-    # with measure_performance(100) as loop:
-    #     print("(A: Modbus) Read 100 inputs within one telegram list")
-    #     telegrams = []
-    #     for _ in loop:
-    #         telegrams.append(LuxtronikSmartHomeReadInputsTelegram(10002, 1))
-    #     client.send(telegrams)
+    with TimeMeasurement() as t:
+        telegrams = []
+        for definition in shi.inputs:
+            telegrams.append(LuxtronikSmartHomeReadInputsTelegram(definition.addr, definition.count))
+        for _ in range(0, 10):
+            client.send(telegrams)
+    print(f"Read whole input vector field by field: {(10 * num_inputs) / t.duration:.1f} fields/s")
 
-    # with measure_performance(100) as loop:
-    #     print(f"(B: Contiguous blocks) Read 100x the whole inputs vector ({len(shi.inputs)} inputs) field by field")
-    #     telegrams = []
-    #     for definition in shi.inputs:
-    #         telegrams.append(LuxtronikSmartHomeReadInputsTelegram(definition.addr, definition.count))
-    #     for _ in loop:
-    #         client.send(telegrams)
-
-    # with measure_performance(100) as loop:
-    #     print(f"(B: Contiguous blocks) Read 100x the whole inputs vector ({len(shi.inputs)} inputs) with data blocks")
-    #     inputs = shi.create_inputs()
-    #     for _ in loop:
-    #         shi.read_inputs(inputs)
-
-    # with measure_performance(100) as loop:
-    #     print("(C: Vector) Read 100x the whole inputs vector with new data vectors")
-    #     for _ in loop:
-    #         shi.read_inputs()
-
-    # with measure_performance(100) as loop:
-    #     print("(C: Vector) Read 100x the whole inputs vector with the same data vector")
-    #     inputs = shi.create_inputs()
-    #     for _ in loop:
-    #         shi.read_inputs(inputs)
-
-    with measure_performance(10) as loop:
-        print("(D: Collect) Read 10x10 whole inputs vectors with re-connect every time")
+    with TimeMeasurement() as t:
         inputs = shi.create_inputs()
-        for _ in loop:
-            for _ in loop:
-                shi.read_inputs(inputs)
+        for _ in range(0, 10):
+            shi.read_inputs(inputs)
+    print(f"Read whole input vector with data blocks (same data vector): {(10 * num_inputs) / t.duration:.1f} fields/s")
 
-    with measure_performance(10) as loop:
-        print("(D: Collect) Read 10x10 whole inputs vectors via collect with only one connection each")
+    with TimeMeasurement() as t:
+        for _ in range(0, 10):
+            shi.read_inputs()
+    print(f"Read whole input vector with data blocks (create new data vectors): {(10 * num_inputs) / t.duration:.1f} fields/s")
+
+    with TimeMeasurement() as t:
         inputs = shi.create_inputs()
-        for _ in loop:
-            for _ in loop:
+        for _ in range(0, 5):
+            for _ in range(0, 5):
                 shi.collect_inputs(inputs)
             shi.send()
-
-
-
-
+    print(f"Collect and send multiple input vectors: {(5 * 5 * num_inputs) / t.duration:.1f} fields/s")
 
 
 if __name__ == "__main__":
