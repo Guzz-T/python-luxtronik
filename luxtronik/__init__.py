@@ -480,7 +480,7 @@ class Luxtronik(LuxtronikAllData):
         port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT
     ):
         self.interface = LuxtronikInterface(host, port, port_shi)
-        super().__init__(version=self._interface.version, safe=safe)
+        super().__init__(version=self.interface.version, safe=safe)
         self.read()
 
     def read(self):
