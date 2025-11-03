@@ -475,11 +475,11 @@ class Luxtronik(LuxtronikAllData):
     def __init__(
         self,
         host,
-        port_config=LUXTRONIK_DEFAULT_PORT,
+        port=LUXTRONIK_DEFAULT_PORT,
         safe=True,
         port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT
     ):
-        self.interface = LuxtronikInterface(host, port_config, port_shi)
+        self.interface = LuxtronikInterface(host, port, port_shi)
         super().__init__(version=self._interface.version, safe=safe)
         self.read()
 
