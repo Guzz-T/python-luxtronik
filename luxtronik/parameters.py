@@ -1192,7 +1192,7 @@ class Parameters(DataVector):
             1145: Unknown("Unknown_Parameter_1145"),
             1146: Unknown("Unknown_Parameter_1146"),
             1147: Unknown("Unknown_Parameter_1147"),
-            1148: Unknown("Unknown_Parameter_1148"),
+            1148: Celsius(["HEATING_TARGET_TEMP_ROOM_THERMOSTAT", "Unknown_Parameter_1148"], True),
             1149: Unknown("Unknown_Parameter_1149"),
             1150: Unknown("Unknown_Parameter_1150"),
             1151: Unknown("Unknown_Parameter_1151"),
