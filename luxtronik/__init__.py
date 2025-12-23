@@ -342,6 +342,10 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
     the configuration interface and the smart home interface.
 
     For simplicity, only the basic functions are offered.
+
+    Attention! It must be ensured that `LuxtronikSocketInterface` and
+    `LuxtronikSmartHomeInterface` do not instantiate the same fields.
+    Otherwise, the derivations will overwrite each other.
     """
 
     def __init__(
@@ -426,11 +430,15 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         """
         if isinstance(data, Parameters):
             with self.lock:
-                LuxtronikSocketInterface.write(self, data.parameters)
+                LuxtronikSocketInterface.write(self, data)
                 shi_result = True
         elif isinstance(data, Holdings):
             with self.lock:
                 shi_result = LuxtronikSmartHomeInterface.write_holdings(self, data)
+        # Because of LuxtronikAllData(LuxtronikSmartHomeData) we must use type(..)
+        elif type(data) is LuxtronikSmartHomeData:
+            with self.lock:
+                shi_result = LuxtronikSmartHomeInterface.write(self, data)
         elif isinstance(data, LuxtronikAllData):
             with self.lock:
                 LuxtronikSocketInterface.write(self, data.parameters)
@@ -459,7 +467,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         Returns:
             bool: True if no errors occurred, otherwise False.
         """
-        with self._lux_lock:
+        with self.lock:
             self.write_all(data)
             data = self.read_all(data)
         return data
@@ -479,36 +487,40 @@ class Luxtronik(LuxtronikAllData):
         safe=True,
         port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT
     ):
-        self.interface = LuxtronikInterface(host, port, port_shi)
-        super().__init__(version=self.interface.version, safe=safe)
+        self._interface = LuxtronikInterface(host, port, port_shi)
+        super().__init__(version=self._interface.version, safe=safe)
         self.read()
 
+    @property
+    def interface(self):
+        return self._interface
+
     def read(self):
-        return self.interface.read(self)
+        return self._interface.read(self)
 
     def read_parameters(self):
-        return self.interface.read_parameters(self.parameters)
+        return self._interface.read_parameters(self.parameters)
 
     def read_calculations(self):
-        return self.interface.read_calculations(self.calculations)
+        return self._interface.read_calculations(self.calculations)
 
     def read_visibilities(self):
-        return self.interface.read_visibilities(self.visibilities)
+        return self._interface.read_visibilities(self.visibilities)
 
     def read_holdings(self):
-        return self.interface.read_holdings(self.holdings)
+        return self._interface.read_holdings(self.holdings)
 
     def read_inputs(self):
-        return self.interface.read_inputs(self.inputs)
+        return self._interface.read_inputs(self.inputs)
 
     def write(self, data=None):
         if data is None:
-            return self.interface.write(self)
+            return self._interface.write(self)
         else:
-            return self.interface.write(data)
+            return self._interface.write(data)
 
     def write_and_read(self, data=None):
         if data is None:
-            return self.interface.write_and_read(self)
+            return self._interface.write_and_read(self)
         else:
-            return self.interface.write_and_read(data)
+            return self._interface.write_and_read(data)

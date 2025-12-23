@@ -10,7 +10,8 @@ from luxtronik.shi.constants import (
     LUXTRONIK_LATEST_SHI_VERSION,
 )
 from luxtronik.shi.common import LOGGER, parse_version
-from luxtronik.shi.inputs import INPUTS_DEFINITIONS
+from luxtronik.shi.inputs import Inputs, INPUTS_DEFINITIONS
+from luxtronik.shi.holdings import Holdings, HOLDINGS_DEFINITIONS
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 from luxtronik.shi.interface import LuxtronikSmartHomeInterface
 

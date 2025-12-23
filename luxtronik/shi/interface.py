@@ -322,7 +322,7 @@ class LuxtronikSmartHomeInterface:
             if (read_not_write == READ):
                 valid = block.integrate_data(telegram.data)
                 if not valid:
-                    LOGGER.error(f"Failed to integrate read data into {block}")
+                    LOGGER.debug(f"Failed to integrate read data into {block}")
                 success &= valid
             else:
                 # Reset write_pending flag
