@@ -43,22 +43,22 @@ WAIT_TIME_AFTER_PARAMETER_WRITE = 1
 
 def is_socket_closed(sock: socket.socket) -> bool:
     """Check is socket closed."""
-	# Alternative to socket.MSG_DONTWAIT in recv.
-	# Works on Windows and Linux.
+    # Alternative to socket.MSG_DONTWAIT in recv.
+    # Works on Windows and Linux.
     sock.setblocking(False)
     try:
         # this will try to read bytes without blocking and also without removing them from buffer
         data = sock.recv(LUXTRONIK_SOCKET_READ_SIZE_PEEK, socket.MSG_PEEK)
-        closed = len(data) == 0
+        is_closed = len(data) == 0
     except BlockingIOError:
-        closed = False  # socket is open and reading from it would block
+        is_closed = False  # socket is open and reading from it would block
     except ConnectionResetError:  # pylint: disable=broad-except
-        closed = True  # socket was closed for some other reason
+        is_closed = True  # socket was closed for some other reason
     except Exception as err:  # pylint: disable=broad-except
         LOGGER.exception("Unexpected exception when checking if socket is closed", exc_info=err)
-        closed = False
+        is_closed = False
     sock.setblocking(True)
-    return closed
+    return is_closed
 
 
 class LuxtronikData:
@@ -455,7 +455,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         """
         return self.write_all(data)
 
-    def write_and_read(self, data):
+    def write_and_read(self, write_data, read_data=None):
         """
         Write and then read the data of all fields within the data vector collection
         that are supported by the controller.
@@ -468,8 +468,8 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
             bool: True if no errors occurred, otherwise False.
         """
         with self.lock:
-            self.write_all(data)
-            data = self.read_all(data)
+            self.write_all(write_data)
+            data = self.read_all(read_data)
         return data
 
 
@@ -521,6 +521,6 @@ class Luxtronik(LuxtronikAllData):
 
     def write_and_read(self, data=None):
         if data is None:
-            return self._interface.write_and_read(self)
+            return self._interface.write_and_read(self, self)
         else:
-            return self._interface.write_and_read(data)
+            return self._interface.write_and_read(data, self)

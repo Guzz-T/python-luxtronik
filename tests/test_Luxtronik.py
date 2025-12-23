@@ -100,42 +100,42 @@ def fake_resolve_version(modbus_interface):
 class TestLuxtronik:
 
     def test_if_init(self):
-        l = LuxtronikInterface('host', 1234, 5678)
+        lux = LuxtronikInterface('host', 1234, 5678)
 
-        assert l._host == 'host'
-        assert l._port == 1234
-        assert l._interface._client._port == 5678
-        assert l.version == (3, 99, 11, 0)
+        assert lux._host == 'host'
+        assert lux._port == 1234
+        assert lux._interface._client._port == 5678
+        assert lux.version == (3, 99, 11, 0)
 
     def test_if_lock(self):
-        l = LuxtronikInterface('host', 1234, 5678)
-        l.lock.acquire(blocking=False)
-        l.lock.acquire(blocking=False)
-        l.lock.release()
-        l.lock.release()
+        lux = LuxtronikInterface('host', 1234, 5678)
+        lux.lock.acquire(blocking=False)
+        lux.lock.acquire(blocking=False)
+        lux.lock.release()
+        lux.lock.release()
 
     def test_if_create_all_data(self):
-        l = LuxtronikInterface('host', 1234, 5678)
+        lux = LuxtronikInterface('host', 1234, 5678)
 
-        data = l.create_all_data()
+        data = lux.create_all_data()
         assert type(data) is LuxtronikAllData
 
     def test_if_read_all(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = LuxtronikInterface('host', 1234, 5678)
+        lux = LuxtronikInterface('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 0
         assert FakeShiInterface.read_counter == 0
 
-        data1 = l.read_all()
+        data1 = lux.read_all()
         assert type(data1) is LuxtronikAllData
         assert data1.parameters.get(0).raw == 2
         assert data1.inputs[0].raw == 3
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        data2 = l.read(data1)
+        data2 = lux.read(data1)
         assert data1 == data2
         assert FakeSocketInterface.read_counter == 6
         assert FakeShiInterface.read_counter == 4
@@ -143,142 +143,149 @@ class TestLuxtronik:
     def test_if_write_all(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = LuxtronikInterface('host', 1234, 5678)
+        lux = LuxtronikInterface('host', 1234, 5678)
 
         assert FakeSocketInterface.write_counter == 0
         assert FakeShiInterface.write_counter == 0
 
         p = Parameters()
-        result = l.write_all(p)
+        result = lux.write_all(p)
         assert result
         assert FakeSocketInterface.write_counter == 1
         assert FakeShiInterface.write_counter == 0
 
         d = LuxtronikAllData()
-        data = l.write_and_read(d)
+        data = lux.write_and_read(p, d)
         assert data == d
         assert data.inputs[0].raw == 3
         assert FakeSocketInterface.write_counter == 2
-        assert FakeShiInterface.write_counter == 1
+        assert FakeShiInterface.write_counter == 0
 
         h = Holdings()
-        result = l.write_all(h)
+        result = lux.write_all(h)
+        assert result
+        assert FakeSocketInterface.write_counter == 2
+        assert FakeShiInterface.write_counter == 1
+
+        s = LuxtronikSmartHomeData()
+        result = lux.write(s)
         assert result
         assert FakeSocketInterface.write_counter == 2
         assert FakeShiInterface.write_counter == 2
 
-        s = LuxtronikSmartHomeData()
-        result = l.write(s)
-        assert result
-        assert FakeSocketInterface.write_counter == 2
-        assert FakeShiInterface.write_counter == 3
-
-        result = l.write_all(None)
+        result = lux.write_all(None)
         assert not result
         assert FakeSocketInterface.write_counter == 2
+        assert FakeShiInterface.write_counter == 2
+
+        d = LuxtronikAllData()
+        data = lux.write_and_read(d, d)
+        assert data == d
+        assert data.inputs[0].raw == 3
+        assert FakeSocketInterface.write_counter == 3
         assert FakeShiInterface.write_counter == 3
 
     def test_lux_init(self):
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
-        assert isinstance(l, LuxtronikAllData)
-        assert isinstance(l.interface, LuxtronikInterface)
+        assert isinstance(lux, LuxtronikAllData)
+        assert isinstance(lux.interface, LuxtronikInterface)
 
     def test_read(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        l.read()
-        assert l.parameters.get(0).raw == 2
-        assert l.inputs[0].raw == 3
+        lux.read()
+        assert lux.parameters.get(0).raw == 2
+        assert lux.inputs[0].raw == 3
         assert FakeSocketInterface.read_counter == 6
         assert FakeShiInterface.read_counter == 4
 
     def test_read_parameters(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        l.read_parameters()
-        assert l.parameters.get(0).raw == 2
-        assert l.inputs[0].raw == 3
+        lux.read_parameters()
+        assert lux.parameters.get(0).raw == 2
+        assert lux.inputs[0].raw == 3
         assert FakeSocketInterface.read_counter == 4
         assert FakeShiInterface.read_counter == 2
 
     def test_read_visibilities(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        l.read_visibilities()
-        assert l.visibilities.get(0).raw == 4
-        assert l.inputs[0].raw == 3
+        lux.read_visibilities()
+        assert lux.visibilities.get(0).raw == 4
+        assert lux.inputs[0].raw == 3
         assert FakeSocketInterface.read_counter == 4
         assert FakeShiInterface.read_counter == 2
 
     def test_read_calculations(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        l.read_calculations()
-        assert l.calculations.get(0).raw == 6
-        assert l.inputs[0].raw == 3
+        lux.read_calculations()
+        assert lux.calculations.get(0).raw == 6
+        assert lux.inputs[0].raw == 3
         assert FakeSocketInterface.read_counter == 4
         assert FakeShiInterface.read_counter == 2
 
     def test_read_inputs(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        l.read_inputs()
-        assert l.parameters.get(0).raw == 2
-        assert l.inputs[0].raw == 3
+        lux.read_inputs()
+        assert lux.parameters.get(0).raw == 2
+        assert lux.inputs[0].raw == 3
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 3
 
     def test_read_holdings(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 2
 
-        l.read_holdings()
-        assert l.parameters.get(0).raw == 2
-        assert l.holdings[1].raw == 5
+        lux.read_holdings()
+        assert lux.parameters.get(0).raw == 2
+        assert lux.holdings[1].raw == 5
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.read_counter == 3
 
     def test_write(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.write_counter == 0
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.write_counter == 0
         assert FakeShiInterface.read_counter == 2
 
-        result = l.write()
+        result = lux.write()
         assert result
         assert FakeSocketInterface.write_counter == 1
         assert FakeSocketInterface.read_counter == 3
@@ -286,7 +293,7 @@ class TestLuxtronik:
         assert FakeShiInterface.read_counter == 2
 
         data = LuxtronikAllData()
-        result = l.write(data)
+        result = lux.write(data)
         assert result
         assert FakeSocketInterface.write_counter == 2
         assert FakeSocketInterface.read_counter == 3
@@ -296,14 +303,14 @@ class TestLuxtronik:
     def test_write_and_read(self):
         FakeSocketInterface.reset()
         FakeShiInterface.reset()
-        l = Luxtronik('host', 1234, 5678)
+        lux = Luxtronik('host', 1234, 5678)
 
         assert FakeSocketInterface.write_counter == 0
         assert FakeSocketInterface.read_counter == 3
         assert FakeShiInterface.write_counter == 0
         assert FakeShiInterface.read_counter == 2
 
-        result = l.write_and_read()
+        result = lux.write_and_read()
         assert result
         assert FakeSocketInterface.write_counter == 1
         assert FakeSocketInterface.read_counter == 6
@@ -311,7 +318,7 @@ class TestLuxtronik:
         assert FakeShiInterface.read_counter == 4
 
         data = LuxtronikAllData()
-        result = l.write_and_read(data)
+        result = lux.write_and_read(data)
         assert result
         assert FakeSocketInterface.write_counter == 2
         assert FakeSocketInterface.read_counter == 9

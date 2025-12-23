@@ -5,10 +5,13 @@ Script to scan all inputs/holdings of the Smart-Home-Interface.
 Only undefined but existing fields will be dumped.
 """
 
-import argparse
 import logging
 
-from luxtronik.scripts import *
+from luxtronik.scripts import (
+    create_default_args_parser,
+    print_dump_header,
+    print_dump_row
+)
 from luxtronik.datatypes import Unknown
 from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 from luxtronik.shi.modbus import LuxtronikModbusTcpInterface

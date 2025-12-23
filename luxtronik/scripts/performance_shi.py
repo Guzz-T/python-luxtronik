@@ -4,15 +4,14 @@
 Script to measure different access methods of the Smart-Home-Interface.
 """
 
-import argparse
-from contextlib import contextmanager
 import time
 
-from luxtronik.scripts import *
+from luxtronik.scripts import (
+    create_default_args_parser
+)
 from luxtronik.shi import create_modbus_tcp
 from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 from luxtronik.shi.common import LuxtronikSmartHomeReadInputsTelegram
-from luxtronik.shi.modbus import LuxtronikModbusTcpInterface
 
 class TimeMeasurement:
     def __init__(self):

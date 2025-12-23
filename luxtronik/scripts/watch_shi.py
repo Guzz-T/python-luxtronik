@@ -4,14 +4,16 @@
 Script to watch all value changes from the Smart-Home-Interface of the Luxtronik controller
 """
 
-import argparse
 from collections import OrderedDict
 import logging
 #import select
 #import sys
 import time
 
-from luxtronik.scripts import *
+from luxtronik.scripts import (
+    create_default_args_parser,
+    print_watch_header
+)
 from luxtronik.shi import create_modbus_tcp
 from luxtronik.shi.constants import LUXTRONIK_DEFAULT_MODBUS_PORT
 
