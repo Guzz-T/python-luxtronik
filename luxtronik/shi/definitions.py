@@ -10,6 +10,7 @@ but can be expanded by the user.
 from luxtronik.datatypes import Unknown
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_DEFINITION_OFFSET,
+    LUXTRONIK_SHI_REGISTER_BIT_SIZE,
     LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
 )
 from luxtronik.shi.common import (
@@ -549,6 +550,37 @@ class LuxtronikDefinitionsList:
 # Definition-Field-Pair methods
 ###############################################################################
 
+VALUE_MASK = (1 << LUXTRONIK_SHI_REGISTER_BIT_SIZE) - 1
+
+def pack_values(values, reverse=False):
+    """Packs a list of integers into one large integer."""
+    count = len(values)
+
+    result = 0
+    for idx, value in enumerate(values):
+        # normal: idx = 0..n-1
+        # reversed index: highest chunk first
+        bit_index = (count - 1 - idx) if reverse else idx
+
+        result |= (value & VALUE_MASK) << (LUXTRONIK_SHI_REGISTER_BIT_SIZE * bit_index)
+
+    return result
+
+def unpack_values(packed, count, reverse=False):
+    """Unpacks 'count' values from a packed integer."""
+    values = []
+
+    for idx in range(count):
+        # normal: idx = 0..n-1
+        # reversed: highest chunk first
+        bit_index = (count - 1 - idx) if reverse else idx
+
+        chunk = (packed >> (LUXTRONIK_SHI_REGISTER_BIT_SIZE * bit_index)) & VALUE_MASK
+        values.append(chunk)
+
+    return values
+
+
 def get_data_arr(definition, field):
     """
     Normalize the field's data to a list of the correct size.
@@ -562,6 +594,11 @@ def get_data_arr(definition, field):
             or None if the data size does not match.
     """
     data = field.raw
+    if data is None:
+        return None
+    if field.concatenate_multiple_data_chunks:
+        # Usually big-endian (reverse=True) is used
+        data = unpack_values(data, definition.count, True)
     if not isinstance(data, list):
         data = [data]
     return data if len(data) == definition.count else None
@@ -600,4 +637,7 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
         raw = raw_data[data_offset : data_offset + definition.count]
         raw = raw if len(raw) == definition.count and \
             not any(data == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE for data in raw) else None
+        if field.concatenate_multiple_data_chunks and raw is not None:
+            # Usually big-endian (reverse=True) is used
+            raw = pack_values(raw, True)
     field.raw = raw
