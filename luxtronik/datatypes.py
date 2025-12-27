@@ -965,8 +965,8 @@ class TimeOfDay2(Base):
 
         return val
 
-class HeatPumpState(BitMaskBase):
-    """HeatPumpState datatype, converts from and to list of HeatPumpState codes."""
+class HeatPumpStatus(BitMaskBase):
+    """HeatPumpStatus datatype, converts from and to list of HeatPumpStatus codes."""
 
     bit_values = {
         0: "VD1",
@@ -980,8 +980,8 @@ class HeatPumpState(BitMaskBase):
     values_postfix = " running"
 
 
-class ModeState(SelectionBase):
-    """ModeState datatype, converts from and to list of ModeState codes."""
+class ModeStatus(SelectionBase):
+    """ModeStatus datatype, converts from and to list of ModeStatus codes."""
 
     codes = {
         0: "Disabled",    # Heating / Hot water is disabled
@@ -997,7 +997,7 @@ class ControlMode(SelectionBase):
         0: "Off",       # System value is used
         1: "Setpoint",  # Setpoint register value is used
         2: "Offset",    # System values + offset register value is used
-        3: "Level",     # System values + smart-home-interface-settings
+        3: "Level",     # System values + smart home interface settings
                         # register value is used
     }
 
@@ -1035,13 +1035,13 @@ class LevelMode(SelectionBase):
     codes = {
         0: "Normal",     # No correction
         1: "Increased",  # Increase the temperature by the values
-                         # within the smart-home-interface-settings
+                         # within the smart home interface settings
                          # TODO: Function unknown – requires further analysis
         2: "Increased2", # Increase the temperature by the values
-                         # within the smart-home-interface-settings
+                         # within the smart home interface settings
                          # TODO: Function unknown – requires further analysis
         3: "Decreased",  # Decrease the temperature by the values
-                         # within the smart-home-interface-settings
+                         # within the smart home interface settings
                          # TODO: Function unknown – requires further analysis
     }
 

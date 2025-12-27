@@ -552,8 +552,21 @@ class LuxtronikDefinitionsList:
 
 VALUE_MASK = (1 << LUXTRONIK_SHI_REGISTER_BIT_SIZE) - 1
 
-def pack_values(values, reverse=False):
-    """Packs a list of integers into one large integer."""
+def pack_values(values, reverse=True):
+    """
+    Packs a list of data chunks into one integer.
+
+    Args:
+        values (list[int]): raw data; distributed across multiple registers.
+        reverse (bool): Use big-endian/MSB-first if true, 
+            otherwise use little-endian/LSB-first order.
+
+    Returns:
+        int: Packed raw data as a single integer value.
+
+    Note:
+        The smart home interface uses a chunk size of 16 bits.
+    """
     count = len(values)
 
     result = 0
@@ -566,8 +579,22 @@ def pack_values(values, reverse=False):
 
     return result
 
-def unpack_values(packed, count, reverse=False):
-    """Unpacks 'count' values from a packed integer."""
+def unpack_values(packed, count, reverse=True):
+    """
+    Unpacks 'count' values from a packed integer.
+
+    Args:
+        packed (int): Packed raw data as a single integer value.
+        count (int): Number of chunks to unpack.
+        reverse (bool): Use big-endian/MSB-first if true, 
+            otherwise use little-endian/LSB-first order.
+
+    Returns:
+        list[int]: List of unpacked raw data values.
+
+    Note:
+        The smart home interface uses a chunk size of 16 bits.
+    """
     values = []
 
     for idx in range(count):
@@ -598,7 +625,7 @@ def get_data_arr(definition, field):
         return None
     if field.concatenate_multiple_data_chunks:
         # Usually big-endian (reverse=True) is used
-        data = unpack_values(data, definition.count, True)
+        data = unpack_values(data, definition.count)
     if not isinstance(data, list):
         data = [data]
     return data if len(data) == definition.count else None
@@ -639,5 +666,5 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
             not any(data == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE for data in raw) else None
         if field.concatenate_multiple_data_chunks and raw is not None:
             # Usually big-endian (reverse=True) is used
-            raw = pack_values(raw, True)
+            raw = pack_values(raw)
     field.raw = raw

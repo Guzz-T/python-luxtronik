@@ -235,6 +235,8 @@ class TestSelectionBase:
         assert a.to_heatpump("Unknown_214") == 214
         assert a.to_heatpump(0) == 0
         assert a.to_heatpump("1") == 1
+        assert a.to_heatpump(2.3) == 2
+        assert a.to_heatpump("3.1") is None
 
 
 class SelectionBaseChild(SelectionBase):
@@ -285,6 +287,7 @@ class TestSelectionBaseChild:
         assert a.to_heatpump("d") is None
         assert a.to_heatpump(None) is None
         assert a.to_heatpump(2) == 2
+        assert a.to_heatpump("3") == 3
 
 
 class TestBitMaskBase:
@@ -451,19 +454,19 @@ class TestScalingBaseChild:
         assert a.to_heatpump(-100) == -8
 
 
-class ScalingBaseInt16Child(ScalingBase):
+class ScalingBaseInt4Child(ScalingBase):
     """Child class of ScalingBase containing a scaling_factor to test it in the context of TestScalingBaseChild"""
 
     data_width = 4 # bits
 
 
-class TestScalingBaseInt16Child:
+class TestScalingBaseInt4Child:
     """Test suite for 16-bit ScalingBase datatype"""
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
 
-        a = ScalingBaseInt16Child("")
+        a = ScalingBaseInt4Child("")
         assert a.from_heatpump(None) is None
         assert a.from_heatpump(0) == 0
         assert a.from_heatpump(1) == 1
@@ -475,7 +478,7 @@ class TestScalingBaseInt16Child:
     def test_to_heatpump(self):
         """Test cases for to_heatpump function"""
 
-        a = ScalingBaseInt16Child("")
+        a = ScalingBaseInt4Child("")
         assert a.to_heatpump(None) is None
         assert a.to_heatpump(0) == 0
         assert a.to_heatpump(26) == 26

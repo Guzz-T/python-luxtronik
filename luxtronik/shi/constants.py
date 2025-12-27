@@ -1,4 +1,4 @@
-"""Constants used throughout the Luxtronik Smart Home Interface (SHI) module."""
+"""Constants used throughout the Luxtronik smart home interface (SHI) module."""
 
 from typing import Final
 
@@ -28,7 +28,7 @@ LUXTRONIK_SHI_REGISTER_BIT_SIZE = 16
 # have been returning this value (0x7FFF)
 LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE: Final = 32767
 
-# First Luxtronik firmware version that supports the Smart Home Interface (SHI)
+# First Luxtronik firmware version that supports the smart home interface (SHI)
 LUXTRONIK_FIRST_VERSION_WITH_SHI: Final = (3, 90, 1, 0)
 
 # Latest supported Luxtronik firmware version
