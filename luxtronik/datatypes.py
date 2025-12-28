@@ -1056,8 +1056,8 @@ class BufferType(SelectionBase):
     }
 
 
-class PowerLimit(ScalingBase):
-    """PowerLimit datatype, converts from and to PowerLimit."""
+class PowerKW(ScalingBase):
+    """PowerKW datatype, converts from and to PowerKW."""
 
     datatype_class = "power"
     datatype_unit = "kW"

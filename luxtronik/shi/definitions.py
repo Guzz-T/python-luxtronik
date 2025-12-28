@@ -558,7 +558,7 @@ def pack_values(values, reverse=True):
 
     Args:
         values (list[int]): raw data; distributed across multiple registers.
-        reverse (bool): Use big-endian/MSB-first if true, 
+        reverse (bool): Use big-endian/MSB-first if true,
             otherwise use little-endian/LSB-first order.
 
     Returns:
@@ -586,7 +586,7 @@ def unpack_values(packed, count, reverse=True):
     Args:
         packed (int): Packed raw data as a single integer value.
         count (int): Number of chunks to unpack.
-        reverse (bool): Use big-endian/MSB-first if true, 
+        reverse (bool): Use big-endian/MSB-first if true,
             otherwise use little-endian/LSB-first order.
 
     Returns:
@@ -623,7 +623,8 @@ def get_data_arr(definition, field):
     data = field.raw
     if data is None:
         return None
-    if field.concatenate_multiple_data_chunks:
+    if not isinstance(data, list) and definition.count > 1 \
+            and field.concatenate_multiple_data_chunks:
         # Usually big-endian (reverse=True) is used
         data = unpack_values(data, definition.count)
     if not isinstance(data, list):
