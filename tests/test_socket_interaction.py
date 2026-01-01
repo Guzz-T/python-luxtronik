@@ -315,7 +315,7 @@ class TestSocketInteraction:
         ###################################
         lux.parameters.queue = {2: 502}
         lux.write_and_read()
-        # Currently write_and_read triggers to separate connections/operations
+        # Currently write_and_read triggers two separate connections/operations
         s = FakeSocket.prev_instance
         assert s.written_values[2] == 502
 
@@ -326,7 +326,7 @@ class TestSocketInteraction:
 
         p.queue = {3: 503}
         lux.write_and_read(p)
-        # Currently write_and_read triggers to separate connections/operations
+        # Currently write_and_read triggers two separate connections/operations
         s = FakeSocket.prev_instance
         assert s.written_values[3] == 503
 
