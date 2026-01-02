@@ -50,6 +50,11 @@ class Base:
         """Converts value from heatpump units."""
         return value
 
+    @classmethod
+    def unit(cls, value):
+        """Converts value from heatpump units."""
+        return cls.datatype_unit
+
     @property
     def name(self):
         """Return the (most common) name of the entry."""
@@ -151,6 +156,12 @@ class SelectionBase(Base):
         return [value for _, value in cls.codes.items()]
 
     @classmethod
+    def sanitize_option(cls, option):
+        if isinstance(option, str):
+            return option.lower().replace('-', '_').trim()
+        return option
+
+    @classmethod
     def from_heatpump(cls, value):
         if value is None:
             return None
@@ -160,12 +171,14 @@ class SelectionBase(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        value_is_str = isinstance(value, str)
+        value = cls.sanitize_option(value)
         for index, code in cls.codes.items():
-            if code == value:
+            if cls.sanitize_option(code) == value:
                 return index
-        if isinstance(value, str) and value.startswith(cls.unknown_prefix):
-            return int(value.split(cls.unknown_delimiter)[1])
-        if isinstance(value, (int, float)) or (isinstance(value, str) and value.isdigit()):
+        if value_is_str and value.startswith(cls.unknown_prefix.lower()):
+            return int(value.split(cls.unknown_delimiter.lower())[1])
+        if isinstance(value, (int, float)) or (value_is_str and value.isdigit()):
             return int(value)
         return None
 
