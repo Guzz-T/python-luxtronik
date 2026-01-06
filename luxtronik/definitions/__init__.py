@@ -13,6 +13,7 @@ from luxtronik.common import (
 )
 from luxtronik.datatypes import Unknown
 
+# TODO: Remove this LOGGER
 import logging
 LOGGER = logging.getLogger("Luxtronik.SmartHomeInterface")
 

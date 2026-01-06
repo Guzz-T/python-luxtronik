@@ -3,11 +3,10 @@ Python module for controlling a Luxtronik heat pump controller
 via the config interface.
 """
 
-# pylint: disable=unused-import
 from luxtronik.cfi.constants import (
-    LUXTRONIK_DEFAULT_PORT,
+    LUXTRONIK_DEFAULT_PORT,  # noqa: F401
 )
-from luxtronik.cfi.calculations import CALCULATIONS_DEFINITIONS, Calculations
-from luxtronik.cfi.parameters import PARAMETERS_DEFINITIONS, Parameters
-from luxtronik.cfi.visibilities import VISIBILITIES_DEFINITIONS, Visibilities
-from luxtronik.cfi.interface import LuxtronikData, LuxtronikSocketInterface
+from luxtronik.cfi.calculations import CALCULATIONS_DEFINITIONS, Calculations  # noqa: F401
+from luxtronik.cfi.parameters import PARAMETERS_DEFINITIONS, Parameters  # noqa: F401
+from luxtronik.cfi.visibilities import VISIBILITIES_DEFINITIONS, Visibilities  # noqa: F401
+from luxtronik.cfi.interface import LuxtronikData, LuxtronikSocketInterface  # noqa: F401
