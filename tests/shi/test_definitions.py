@@ -1,4 +1,3 @@
-from luxtronik.datatypes import Unknown
 from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.shi.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
 from luxtronik.shi.definitions import (
