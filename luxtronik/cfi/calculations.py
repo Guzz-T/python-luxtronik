@@ -11,7 +11,7 @@ from luxtronik.definitions.calculations import (
 )
 
 from luxtronik.cfi.constants import CALCULATIONS_FIELD_NAME
-from luxtronik.data_vector import DataVector
+from luxtronik.cfi.vector import DataVectorConfig
 from luxtronik.datatypes import Base
 
 
@@ -24,7 +24,7 @@ CALCULATIONS_DEFINITIONS: Final = LuxtronikDefinitionsList(
     CALCULATIONS_DEFAULT_DATA_TYPE
 )
 
-class Calculations(DataVector):
+class Calculations(DataVectorConfig):
     """Class that holds all calculations."""
 
     name = CALCULATIONS_FIELD_NAME
@@ -33,11 +33,6 @@ class Calculations(DataVector):
     _obsolete = {
         "ID_WEB_SoftStand": "get_firmware_version()"
     }
-
-    def __init__(self):
-        super().__init__()
-        for d in CALCULATIONS_DEFINITIONS:
-            self._data.add(d, d.create_field())
 
     @property
     def calculations(self):

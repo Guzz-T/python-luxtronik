@@ -162,23 +162,25 @@ class LuxtronikSocketInterface:
         return self._read(data)
 
     def _write(self, parameters):
-        for index, value in parameters.queue.items():
-            if not isinstance(index, int) or not isinstance(value, int):
-                LOGGER.warning(
-                    "%s: Parameter id '%s' or value '%s' invalid!",
-                    self._host,
-                    index,
-                    value,
-                )
-                continue
-            LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, index, value)
-            self._send_ints(LUXTRONIK_PARAMETERS_WRITE, index, value)
-            cmd = self._read_int()
-            LOGGER.debug("%s: Command %s", self._host, cmd)
-            val = self._read_int()
-            LOGGER.debug("%s: Value %s", self._host, val)
-        # Flush queue after writing all values
-        parameters.queue = {}
+        for index, field in parameters.items():
+            if field.write_pending:
+                value = field.raw
+                if not isinstance(index, int) or not isinstance(value, int):
+                    LOGGER.warning(
+                        "%s: Parameter id '%s' or value '%s' invalid!",
+                        self._host,
+                        index,
+                        value,
+                    )
+                    field.write_pending = False
+                    continue
+                LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, index, value)
+                self._send_ints(LUXTRONIK_PARAMETERS_WRITE, index, value)
+                cmd = self._read_int()
+                LOGGER.debug("%s: Command %s", self._host, cmd)
+                val = self._read_int()
+                LOGGER.debug("%s: Value %s", self._host, val)
+            field.write_pending = False
         # Give the heatpump a short time to handle the value changes/calculations:
         time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
 
