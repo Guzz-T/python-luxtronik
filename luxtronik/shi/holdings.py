@@ -7,7 +7,7 @@ from luxtronik.definitions import LuxtronikDefinitionsList
 from luxtronik.definitions.holdings import (
     HOLDINGS_DEFINITIONS_LIST,
     HOLDINGS_OFFSET,
-    HOLDINGS_DEFAULT_DATA_TYPE,
+    HOLDINGS_DEFAULT_DATA_TYPE
 )
 
 from luxtronik.shi.constants import HOLDINGS_FIELD_NAME

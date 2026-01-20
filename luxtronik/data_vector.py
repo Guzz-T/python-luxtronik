@@ -8,7 +8,7 @@ from luxtronik.constants import (
     LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
 )
 
-from luxtronik.datatypes import Base
+from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinition, LuxtronikDefinitionsDictionary
 
 
@@ -98,7 +98,9 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
     else:
         raw = raw_data[data_offset : data_offset + definition.count]
         raw = raw if len(raw) == definition.count else None
-        if field.concatenate_multiple_data_chunks and raw is not None:
+        should_pack = field.concatenate_multiple_data_chunks \
+            and definition.reg_bits > 0 # and definition.count > 1
+        if should_pack and raw is not None :
             # Usually big-endian (reverse=True) is used
             raw = pack_values(raw, definition.reg_bits)
 
@@ -120,8 +122,9 @@ def get_data_arr(definition, field):
     data = field.raw
     if data is None:
         return None
-    if not isinstance(data, list) and definition.count > 1 \
-            and field.concatenate_multiple_data_chunks:
+    should_unpack = field.concatenate_multiple_data_chunks \
+        and definition.reg_bits > 0 and definition.count > 1
+    if should_unpack and not isinstance(data, list):
         # Usually big-endian (reverse=True) is used
         data = unpack_values(data, definition.count, definition.reg_bits)
     if not isinstance(data, list):
@@ -500,11 +503,10 @@ class DataVector:
             for index in range(definition.index, next_idx):
                 undefined.discard(index)
             integrate_data(definition, field, raw_data)
-            field.write_pending = False
         # create an unknown field for additional data
         for index in undefined:
             # self.logger.warning(f"Entry '%d' not in list of {self.name}", index)
-            definition = LuxtronikDefinition.unknown(index, self.name, self.definitions.offset)
+            definition = self.definitions.create_unknown_definition(index)
             field = definition.create_field()
             field.raw = raw_data[index]
             self._data.add_sorted(definition, field)

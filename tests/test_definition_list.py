@@ -24,8 +24,6 @@ KEY_SINCE = "since"
 KEY_UNTIL = "until"
 KEY_DESC = "description"
 
-VALID_DATA_TYPES = ("UINT16", "UINT32", "INT16", "INT32")
-
 
 class RunTestDefinitionList:
 
