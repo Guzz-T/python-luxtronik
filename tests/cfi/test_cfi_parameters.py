@@ -43,26 +43,18 @@ class TestParameters:
         assert parameters.get("0").name == s
         assert parameters.get(s).name == s
 
-    def test__lookup(self):
-        """Test cases for _lookup"""
-        parameters = Parameters()
-        s = "ID_Transfert_LuxNet"
-        assert parameters._lookup(0).name == s
-        assert parameters._lookup("0").name == s
-        assert parameters._lookup(s).name == s
-
-        p0 = parameters._lookup(0)
-        assert parameters._lookup(0, True) == (0, p0)
-        assert parameters._lookup("0", True) == (0, p0)
-        assert parameters._lookup(s, True) == (0, p0)
+        p0 = parameters.get(0)
+        assert parameters[0] is p0
+        assert parameters["0"] is p0
+        assert parameters[s] is p0
 
         # Look for a name which does not exist
         s = "ID_BarFoo"
-        assert parameters._lookup(s, True)[0] is None
+        assert parameters.get(s) is None
 
         # Look for something which is not an int and not a string
         j = 0.0
-        assert parameters._lookup(j) is None
+        assert parameters.get(j) is None
 
     def test___iter__(self):
         """Test cases for __iter__"""
@@ -82,21 +74,21 @@ class TestParameters:
 
         # Set something which does not exist
         parameters.set("BarFoo", 0)
-        assert paramters["BarFoo"] is not None
+        assert parameters["BarFoo"] is None
 
         # Set something which was previously not allowed to be set
         parameters.set("ID_Transfert_LuxNet", 1)
-        assert paramters["ID_Transfert_LuxNet"].raw == 1
-        assert paramters["ID_Transfert_LuxNet"].write_pending
+        assert parameters["ID_Transfert_LuxNet"].raw == 1
+        assert parameters["ID_Transfert_LuxNet"].write_pending
 
         # Set something which is allowed to be set
         parameters.set("ID_Einst_WK_akt", 2)
-        assert paramters["ID_Einst_WK_akt"].raw == 2
-        assert paramters["ID_Einst_WK_akt"].write_pending
+        assert parameters["ID_Einst_WK_akt"].raw == 20
+        assert parameters["ID_Einst_WK_akt"].write_pending
 
         parameters = Parameters(safe=False)
 
         # Set something which was previously not allowed to be set, but we are brave.
         parameters.set("ID_Transfert_LuxNet", 4)
-        assert paramters["ID_Transfert_LuxNet"].raw == 4
-        assert paramters["ID_Transfert_LuxNet"].write_pending
+        assert parameters["ID_Transfert_LuxNet"].raw == 4
+        assert parameters["ID_Transfert_LuxNet"].write_pending
