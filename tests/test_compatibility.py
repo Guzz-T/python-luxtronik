@@ -1915,8 +1915,12 @@ class TestCompatibility:
             print_caption = True
             for old_name, old_idx in mapping.items():
                 def_by_name = obj.definitions.get(old_name)
-                def_by_idx = obj.definitions.get(old_idx)
-                if (def_by_name.index != old_idx) or (def_by_idx.name != def_by_name.name):
+                field_by_name = obj.get(old_name)
+                if (def_by_name is None) \
+                        or (field_by_name is None) \
+                        or (def_by_name.index != old_idx) \
+                        or (def_by_name.name != field_by_name.name) \
+                        or (old_name not in def_by_name.names):
                     # We do not use assert here, in order to catch all incompatibilities at once.
                     if print_caption:
                         print(f"### Incompatibilities - {caption}:")
