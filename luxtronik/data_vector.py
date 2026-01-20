@@ -101,6 +101,7 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
         if field.concatenate_multiple_data_chunks and raw is not None:
             # Usually big-endian (reverse=True) is used
             raw = pack_values(raw, definition.reg_bits)
+
     raw = raw if definition.check_raw_not_none(raw) else None
     field.raw = raw
 

@@ -19,26 +19,32 @@ Base.concatenate_multiple_data_chunks = False
 def_a1 = LuxtronikDefinition({
     'index': 1,
     'count': 1,
+    'datatype': 'INT16',
 }, 'test', 100)
 def_a = LuxtronikDefinition({
     'index': 1,
     'count': 2,
+    'datatype': 'INT16',
 }, 'test', 100)
 def_b = LuxtronikDefinition({
     'index': 3,
     'count': 1,
+    'datatype': 'INT16',
 }, 'test', 100)
 def_c = LuxtronikDefinition({
     'index': 4,
     'count': 3,
+    'datatype': 'INT16',
 }, 'test', 100)
 def_c1 = LuxtronikDefinition({
     'index': 4,
     'count': 1,
+    'datatype': 'INT16',
 }, 'test', 100)
 def_c2 = LuxtronikDefinition({
     'index': 5,
     'count': 1,
+    'datatype': 'INT16',
 }, 'test', 100)
 defs = []
 
@@ -99,7 +105,7 @@ class TestContiguousDataPart:
         assert part.field.raw is None
 
         part.integrate_data([1, 5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 9], 1)
-        assert part.field.raw is None
+        assert part.field.raw == [5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
 
         part = ContiguousDataPart(def_c1, field_c1)
 
