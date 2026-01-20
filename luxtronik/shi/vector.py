@@ -75,6 +75,19 @@ class DataVectorSmartHome(DataVector):
     def version(self):
         return self._version
 
+    def update_read_blocks(self):
+        """
+        (Re-)Create the data block list (`ContiguousDataBlockList`) for read-operations.
+
+        Since the data blocks do not change as long as no new fields are added,
+        it is sufficient to regenerate them only when a change occurs.
+        """
+        if not self._read_blocks_up_to_date:
+            self._read_blocks.clear()
+            for definition, field in self._data.items():
+                self._read_blocks.collect(definition, field)
+        self._read_blocks_up_to_date = True
+
     def add(self, def_field_name_or_idx, alias=None):
         """
         Adds an additional version-dependent field (= included in class variable
@@ -115,17 +128,3 @@ class DataVectorSmartHome(DataVector):
             self._data.add_sorted(definition, field, alias)
             return field
         return None
-
-    def update_read_blocks(self):
-        """
-        (Re-)Create the data block list (`ContiguousDataBlockList`) for read-operations.
-
-        Since the data blocks do not change as long as no new fields are added,
-        it is sufficient to regenerate them only when a change occurs.
-        """
-        if not self._read_blocks_up_to_date:
-            self._read_blocks.clear()
-            for definition, field in self._data.pairs:
-                self._read_blocks.collect(definition, field)
-        self._read_blocks_up_to_date = True
-
