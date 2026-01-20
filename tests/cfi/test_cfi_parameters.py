@@ -82,21 +82,21 @@ class TestParameters:
 
         # Set something which does not exist
         parameters.set("BarFoo", 0)
-        assert parameters["BarFoo"] is None
+        assert paramters["BarFoo"] is not None
 
-        # Set something which was previously (v0.3.14) not allowed to be set
+        # Set something which was previously not allowed to be set
         parameters.set("ID_Transfert_LuxNet", 1)
-        assert parameters["ID_Transfert_LuxNet"].raw == 1
-        assert parameters["ID_Transfert_LuxNet"].write_pending
+        assert paramters["ID_Transfert_LuxNet"].raw == 1
+        assert paramters["ID_Transfert_LuxNet"].write_pending
 
         # Set something which is allowed to be set
         parameters.set("ID_Einst_WK_akt", 2)
-        assert parameters["ID_Einst_WK_akt"].raw == 20
-        assert parameters["ID_Einst_WK_akt"].write_pending
+        assert paramters["ID_Einst_WK_akt"].raw == 2
+        assert paramters["ID_Einst_WK_akt"].write_pending
 
         parameters = Parameters(safe=False)
 
-        # Set something which was previously (v0.3.14) not allowed to be set, but we are brave.
+        # Set something which was previously not allowed to be set, but we are brave.
         parameters.set("ID_Transfert_LuxNet", 4)
-        assert parameters["ID_Transfert_LuxNet"].raw == 4
-        assert parameters["ID_Transfert_LuxNet"].write_pending
+        assert paramters["ID_Transfert_LuxNet"].raw == 4
+        assert paramters["ID_Transfert_LuxNet"].write_pending

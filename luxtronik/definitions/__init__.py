@@ -38,16 +38,9 @@ class LuxtronikDefinition:
         "names": [],
         "since": "",
         "until": "",
-        "datatype": "",
-        "bit_offset": None,
-        "bit_count": None,
+        "datatype": "UINT32",
         "description": "",
     }
-
-    # It is permissible not to specify a data type.
-    # In this case, all functions based on it will be disabled.
-    VALID_DATA_TYPES = ("", "UINT16", "UINT32", "UINT64", "INT16", "INT32", "INT64")
-
 
     def __init__(self, data_dict, type_name, offset):
         """
@@ -90,23 +83,14 @@ class LuxtronikDefinition:
             self._offset = int(offset)
             self._addr = self._offset + self._index
             self._data_type = data_dict["datatype"]
-            data_type_valid = self._data_type in self.VALID_DATA_TYPES
-            self._valid &= data_type_valid
-            data_type_valid &= self._data_type != ""
-            self._bit_offset = data_dict["bit_offset"]
-            bit_count = data_dict["bit_count"]
-            if bit_count:
-                self._num_bits = bit_count
-            else:
-                self._num_bits = int(self._data_type.replace('U', '').replace('INT', '')) \
-                    if data_type_valid else 0
+            self._num_bits = int(self._data_type.replace('U', '').replace('INT', ''))
         except Exception as e:
             self._valid = False
             self._index = 0
             LOGGER.error(f"Failed to create LuxtronikDefinition: '{e}' with {data_dict}")
 
     @classmethod
-    def unknown(cls, index, type_name, offset, data_type=""):
+    def unknown(cls, index, type_name, offset):
         """
         Create an "unknown" definition.
 
@@ -114,15 +98,13 @@ class LuxtronikDefinition:
             index (int): The register index of the "unknown" definition.
             type_name (str): The type name e.g. 'holding', 'input', ... .
             offset (str): Offset of the address from the specified index.
-            data_type (str): Data type of the field (see VALID_DATA_TYPES).
 
         Returns:
             LuxtronikDefinition: A definition marked as unknown.
         """
         return cls({
             "index": index,
-            "names": [f"unknown_{type_name.lower()}_{index}"],
-            "datatype": data_type,
+            "names": [f"unknown_{type_name.lower()}_{index}"]
         }, type_name, offset)
 
     def __bool__(self):
@@ -168,16 +150,13 @@ class LuxtronikDefinition:
         return self._writeable
 
     @property
-    def data_type(self):
-        return self._data_type
-
-    @property
-    def bit_offset(self):
-        return self._bit_offset
-
-    @property
     def num_bits(self):
         return self._num_bits
+
+    @property
+    def reg_bits(self):
+        """Return the number of bits per register."""
+        return self._num_bits // self._count
 
     @property
     def names(self):
@@ -249,7 +228,7 @@ class LuxtronikDefinitionsDictionary:
 
     def __contains__(self, def_name_or_idx):
         if isinstance(def_name_or_idx, LuxtronikDefinition):
-            return any(def_name_or_idx is d for d in self._name_dict.values())
+            return any(def_name_or_idx is d for d in self._index_dict.values())
         return self._get(def_name_or_idx) is not None
 
     def _add_alias(self, definition, alias):
@@ -437,17 +416,16 @@ class LuxtronikDefinitionsList:
     (locally = only valid for that dictionary).
     """
 
-    def _init_instance(self, name, offset, default_data_type, version):
+    def _init_instance(self, name, offset, version):
         """Re-usable method to initialize all instance variables."""
         self._name = name
         self._offset = offset
-        self._default_data_type = default_data_type
         self._version = version
         # sorted list of all definitions
         self._definitions = []
         self._lookup = LuxtronikDefinitionsDictionary()
 
-    def __init__(self, definitions_list, name, offset, default_data_type):
+    def __init__(self, definitions_list, name, offset):
         """
         Initialize the (by index sorted) definitions list.
 
@@ -464,7 +442,7 @@ class LuxtronikDefinitionsList:
             - The value of count must always be greater than or equal to 1
             - All names should be unique
         """
-        self._init_instance(name, offset, default_data_type, None)
+        self._init_instance(name, offset, None)
 
         # Add definition objects only for valid items.
         # The correct sorting has already been ensured by the pytest
@@ -486,7 +464,7 @@ class LuxtronikDefinitionsList:
                 If None is passed, all available fields are added.
         """
         obj = cls.__new__(cls) # this don't call __init__()
-        obj._init_instance(definitions.name, definitions.offset, definitions._default_data_type, version)
+        obj._init_instance(definitions.name, definitions.offset, version)
 
         for d in definitions:
             if d.valid and version_in_range(obj._version, d.since, d.until):
@@ -520,7 +498,7 @@ class LuxtronikDefinitionsList:
         Returns:
             LuxtronikDefinition: A definition marked as unknown.
         """
-        return LuxtronikDefinition.unknown(index, self._name, self._offset, self._default_data_type)
+        return LuxtronikDefinition.unknown(index, self._name, self._offset)
 
     def register_alias(self, def_name_or_idx, alias):
         """

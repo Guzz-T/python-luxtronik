@@ -8,11 +8,10 @@ from luxtronik.definitions.parameters import (
     PARAMETERS_DEFINITIONS_LIST,
     PARAMETERS_OFFSET,
     PARAMETERS_DEFAULT_DATA_TYPE,
-    PARAMETERS_OUTDATED,
 )
 
 from luxtronik.cfi.constants import PARAMETERS_FIELD_NAME
-from luxtronik.data_vector import DataVector
+from luxtronik.cfi.vector import DataVectorConfig
 
 
 LOGGER = logging.getLogger(__name__)
@@ -24,19 +23,12 @@ PARAMETERS_DEFINITIONS: Final = LuxtronikDefinitionsList(
     PARAMETERS_DEFAULT_DATA_TYPE
 )
 
-class Parameters(DataVector):
+class Parameters(DataVectorConfig):
     """Class that holds all parameters."""
 
+    logger = LOGGER
     name = PARAMETERS_FIELD_NAME
     definitions = PARAMETERS_DEFINITIONS
-    _outdated = PARAMETERS_OUTDATED
-
-    def __init__(self, safe=True):
-        """Initialize parameters class."""
-        super().__init__()
-        self.safe = safe
-        for d in PARAMETERS_DEFINITIONS:
-            self._data.add(d, d.create_field())
 
     @property
     def parameters(self):

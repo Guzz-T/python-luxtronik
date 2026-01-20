@@ -2,7 +2,6 @@ import re
 
 from luxtronik.common import parse_version
 from luxtronik.datatypes import Base
-from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.definitions.calculations import CALCULATIONS_DEFINITIONS_LIST
 from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS_LIST
 from luxtronik.definitions.inputs import INPUTS_DEFINITIONS_LIST
@@ -24,6 +23,8 @@ KEY_MAX = "max"
 KEY_SINCE = "since"
 KEY_UNTIL = "until"
 KEY_DESC = "description"
+
+VALID_DATA_TYPES = ("UINT16", "UINT32", "INT16", "INT32")
 
 
 class RunTestDefinitionList:
@@ -185,7 +186,7 @@ class RunTestDefinitionList:
         for definition in self.definitions:
             if KEY_DATATYPE in definition:
                 data_type = definition[KEY_DATATYPE]
-                assert data_type in LuxtronikDefinition.VALID_DATA_TYPES, \
+                assert data_type in VALID_DATA_TYPES, \
                     f"Datatype must be set correctly: {definition}"
 
     def test_since(self):
