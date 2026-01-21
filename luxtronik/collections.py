@@ -204,9 +204,6 @@ class LuxtronikFieldsDictionary:
     def __getitem__(self, def_field_name_or_idx):
         return self.get(def_field_name_or_idx)
 
-    def __setitem__(self, def_name_or_idx, value):
-        assert False, "__setitem__ not implemented."
-
     def __len__(self):
         return len(self._def_lookup._index_dict)
 
@@ -262,7 +259,7 @@ class LuxtronikFieldsDictionary:
         return self._pairs
 
     @property
-    def def_dict(self):
+    def definitions(self):
         """Return the internal definition dictionary"""
         return self._def_lookup
 
