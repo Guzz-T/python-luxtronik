@@ -2,13 +2,7 @@
 
 import logging
 
-from luxtronik.constants import (
-    LUXTRONIK_NAME_CHECK_PREFERRED,
-    LUXTRONIK_NAME_CHECK_OBSOLETE,
-    LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE,
-)
-
-from luxtronik.datatypes import Base, Unknown
+from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinition, LuxtronikDefinitionsDictionary
 
 

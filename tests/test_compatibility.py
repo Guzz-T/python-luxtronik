@@ -1925,7 +1925,7 @@ class TestCompatibility:
                     if print_caption:
                         print(f"### Incompatibilities - {caption}:")
                         print_caption = False
-                    print(f'"{old_name}" is not registered for {old_idx}: "{cur_name}",')
+                    print(f'"{old_name}" is not registered for {old_idx}: "{def_by_name.name}",')
                     ok = False
         assert ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
 
