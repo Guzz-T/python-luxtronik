@@ -259,8 +259,8 @@ class LuxtronikFieldsDictionary:
         return self._pairs
 
     @property
-    def definitions(self):
-        """Return the internal definition dictionary"""
+    def def_dict(self):
+        """Return the internal definition dictionary, containing all added definitions"""
         return self._def_lookup
 
     def add(self, definition, field, alias=None):
@@ -278,6 +278,14 @@ class LuxtronikFieldsDictionary:
             self._pairs.append(LuxtronikDefFieldPair(definition, field))
 
     def add_sorted(self, definition, field, alias=None):
+        """
+        Behaves like the normal `add` but then sorts the pairs.
+
+        Args:
+            definition (LuxtronikDefinition): Definition related to the field.
+            field (Base): Field to add.
+            alias (Hashable | None): Alias, which can be used to access the field again.
+        """
         if definition.valid:
             self.add(definition, field, alias)
             # sort _pairs by definition.index
@@ -310,11 +318,11 @@ class LuxtronikFieldsDictionary:
 
     def get(self, def_field_name_or_idx, default=None):
         """
-        Retrieve a field by definition, name or register index.
+        Retrieve a field by definition, name or register index, or the field itself.
 
         Args:
-            def_field_name_or_idx (LuxtronikDefinition | str | int):
-                Definition, name, or register index to be used to search for the field.
+            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
+                Definition, field, name, or register index to be used to search for the field.
 
         Returns:
             Base | None: The field found or the provided default if not found.
