@@ -26,7 +26,6 @@ PARAMETERS_DEFINITIONS: Final = LuxtronikDefinitionsList(
 class Parameters(DataVectorConfig):
     """Class that holds all parameters."""
 
-    logger = LOGGER
     name = PARAMETERS_FIELD_NAME
     definitions = PARAMETERS_DEFINITIONS
 

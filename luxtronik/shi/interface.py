@@ -3,8 +3,8 @@
 import logging
 
 from luxtronik.common import classproperty, version_in_range
+from luxtronik.collections import get_data_arr
 from luxtronik.datatypes import Base
-from luxtronik.data_vector import get_data_arr
 from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
