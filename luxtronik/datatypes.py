@@ -408,7 +408,7 @@ class Timestamp(Base):
 
     @classmethod
     def to_heatpump(cls, value):
-        if not isinstance(value, float):
+        if not isinstance(value, (int, float, datetime.datetime)):
             return None
         return datetime.datetime.timestamp(value)
 
@@ -1138,12 +1138,10 @@ class FullVersion(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if not isinstance(value, list):
+        if not isinstance(value, list) or len(value) <= 2:
             return None
         if len(value) >= 3:
             return f"{value[0]}.{value[1]}.{value[2]}"
-        else:
-            return "0"
 
 
 class Unknown(Base):
