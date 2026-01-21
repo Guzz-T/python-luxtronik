@@ -29,11 +29,6 @@ class Visibilities(DataVectorConfig):
     name = VISIBILITIES_FIELD_NAME
     definitions = VISIBILITIES_DEFINITIONS
 
-    def __init__(self):
-        super().__init__()
-        for d in VISIBILITIES_DEFINITIONS:
-            self._data.add(d, d.create_field())
-
     @property
     def visibilities(self):
         return self._data

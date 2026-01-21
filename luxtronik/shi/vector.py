@@ -2,9 +2,7 @@
 import logging
 
 from luxtronik.common import version_in_range
-from luxtronik.data_vector import LuxtronikFieldsDictionary, DataVector
-from luxtronik.datatypes import Base, Unknown
-from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.data_vector import DataVector
 
 from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION
 from luxtronik.shi.contiguous import ContiguousDataBlockList
@@ -21,11 +19,8 @@ class DataVectorSmartHome(DataVector):
 
     def _init_instance(self, version, safe):
         """Re-usable method to initialize all instance variables."""
-        self.safe = safe
+        super()._init_instance(safe)
         self._version = version
-
-        # Dictionary that holds all fields
-        self._data = LuxtronikFieldsDictionary()
 
         # Instead of re-create the block-list on every read, we just update it
         # on first time used or on next time used if some fields are added.
