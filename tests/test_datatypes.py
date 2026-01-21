@@ -620,7 +620,7 @@ class TestTimestamp:
         # pylint: disable=fixme
         # TODO Consider to drop microseconds when dealing with this datatype?
         b = datetime.datetime.now()
-        assert a.from_heatpump(datetime.datetime.timestamp(b)) == b
+        assert a.from_heatpump(datetime.datetime.timestamp(b)) is None
 
     def test_to_heatpump(self):
         """Test cases for to_heatpump function"""
@@ -1009,9 +1009,9 @@ class TestFullVersion:
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
 
-        assert FullVersion.from_heatpump(112) == "0"
-        assert FullVersion.from_heatpump(0) == "0"
-        assert FullVersion.from_heatpump([0, 12]) == "0"
+        assert FullVersion.from_heatpump(112) is None
+        assert FullVersion.from_heatpump(0) is None
+        assert FullVersion.from_heatpump([0, 12]) is None
         assert FullVersion.from_heatpump([0, 12, 3]) == "0.12.3"
 
 class TestIcon:
