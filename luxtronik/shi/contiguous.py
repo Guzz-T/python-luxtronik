@@ -6,7 +6,7 @@ or a non-existent register within a read/write operation will result in a transm
 
 import logging
 
-from luxtronik.data_vector import LuxtronikDefFieldPair
+from luxtronik.collections import LuxtronikDefFieldPair
 
 
 LOGGER = logging.getLogger(__name__)

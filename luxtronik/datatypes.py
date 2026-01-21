@@ -48,15 +48,11 @@ class Base:
     @classmethod
     def to_heatpump(cls, value):
         """Converts value into heatpump units."""
-        if not isinstance(value, int):
-            return None
         return value
 
     @classmethod
     def from_heatpump(cls, value):
         """Converts value from heatpump units."""
-        if not isinstance(value, int):
-            return None
         return value
 
     @classproperty
