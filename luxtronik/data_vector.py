@@ -214,8 +214,8 @@ class DataVector:
             if all_not_version_dependent:
                 definition = self.definitions.get(definition)
             else:
-                # def_dict contains only valid and addable definitions
-                definition = self._data.def_dict.get(definition)
+                # _data.definitions contains only valid and previously added definitions
+                definition = self._data.definitions.get(definition)
         return definition, field
 
     def get(self, def_name_or_idx, default=None):
