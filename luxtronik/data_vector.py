@@ -175,13 +175,14 @@ class DataVector:
 
 # Parse methods ###############################################################
 
-    def parse(self, raw_data):
+    def parse(self, raw_data, num_bits):
         """
         Parse raw data into the corresponding fields.
 
         Args:
             raw_data (list[int]): List of raw register values.
                 The raw data must start at register index 0.
+            num_bits (int): Number of bits per register.
         """
         raw_len = len(raw_data)
         undefined = {i for i in range(0, raw_len)}
@@ -193,7 +194,7 @@ class DataVector:
                 continue
             for index in range(definition.index, next_idx):
                 undefined.discard(index)
-            pair.integrate_data(raw_data)
+            pair.integrate_data(raw_data, num_bits)
         # create an unknown field for additional data
         for index in undefined:
             # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)

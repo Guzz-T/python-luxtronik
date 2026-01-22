@@ -72,13 +72,14 @@ def unpack_values(packed, count, num_bits, reverse=True):
 
     return values
 
-def get_data_arr(definition, field):
+def get_data_arr(definition, field, num_bits):
     """
     Normalize the field's data to a list of the correct size.
 
     Args:
         definition (LuxtronikDefinition): Meta-data of the field.
         field (Base): Field object that contains data to get.
+        num_bits (int): Number of bits per register.
 
     Returns:
         list[int] | None: List of length `definition.count`,
@@ -88,15 +89,15 @@ def get_data_arr(definition, field):
     if data is None:
         return None
     should_unpack = field.concatenate_multiple_data_chunks \
-        and definition.reg_bits > 0 and definition.count > 1
+        and definition.count > 1
     if should_unpack and not isinstance(data, list):
         # Usually big-endian (reverse=True) is used
-        data = unpack_values(data, definition.count, definition.reg_bits)
+        data = unpack_values(data, definition.count, num_bits)
     if not isinstance(data, list):
         data = [data]
     return data if len(data) == definition.count else None
 
-def integrate_data(definition, field, raw_data, data_offset=-1):
+def integrate_data(definition, field, raw_data, num_bits, data_offset=-1):
     """
     Integrate raw values from a data array into the field.
 
@@ -104,6 +105,7 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
         definition (LuxtronikDefinition): Meta-data of the field.
         field (Base): Field object where to integrate the data.
         raw_data (list): Source array of bytes/words.
+        num_bits (int): Number of bits per register.
         data_offset (int): Optional offset. Defaults to `definition.index`.
     """
     # Use data_offset if provided, otherwise the index
@@ -116,11 +118,10 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
     else:
         raw = raw_data[data_offset : data_offset + definition.count]
         raw = raw if len(raw) == definition.count else None
-        should_pack = field.concatenate_multiple_data_chunks \
-            and definition.reg_bits > 0 # and definition.count > 1
+        should_pack = field.concatenate_multiple_data_chunks
         if should_pack and raw is not None :
             # Usually big-endian (reverse=True) is used
-            raw = pack_values(raw, definition.reg_bits)
+            raw = pack_values(raw, num_bits)
 
     raw = raw if definition.check_raw_not_none(raw) else None
     field.raw = raw
@@ -161,24 +162,28 @@ class LuxtronikDefFieldPair:
     def count(self):
         return self.definition.count
 
-    def get_data_arr(self):
+    def get_data_arr(self, num_bits):
         """
         Normalize the field's data to a list of the correct size.
+
+        Args:
+            num_bits (int): Number of bits per chunk.
 
         Returns:
             list[int] | None: List of length `definition.count`, or None if insufficient.
         """
-        return get_data_arr(self.definition, self.field)
+        return get_data_arr(self.definition, self.field, num_bits)
 
-    def integrate_data(self, raw_data, data_offset=-1):
+    def integrate_data(self, raw_data, num_bits, data_offset=-1):
         """
         Integrate the related parts of the `raw_data` into the field
 
         Args:
             raw_data (list): Source array of register values.
             data_offset (int): Optional offset. Defaults to `definition.index`.
+            num_bits (int): Number of bits per chunk.
         """
-        integrate_data(self.definition, self.field, raw_data, data_offset)
+        integrate_data(self.definition, self.field, raw_data, num_bits, data_offset)
 
 ###############################################################################
 # Field dictionary for data vectors

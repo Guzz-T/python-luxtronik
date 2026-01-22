@@ -165,11 +165,6 @@ class LuxtronikDefinition:
         return self._num_bits
 
     @property
-    def reg_bits(self):
-        """Return the number of bits per register."""
-        return self._num_bits // self._count
-
-    @property
     def names(self):
         return self._names
 
