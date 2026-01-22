@@ -92,7 +92,7 @@ class TestDataVector:
         data_vector = DataVectorTest(parse_version("1.2"))
         assert data_vector.version == (1, 2, 0, 0)
         assert len(data_vector) == 2
-        assert len(data_vector._data._pairs) == 3
+        assert len(data_vector._data.pairs()) == 3
         assert not data_vector._read_blocks_up_to_date
         assert len(data_vector._read_blocks) == 0
 
@@ -409,7 +409,6 @@ class TestHoldings:
         """Test cases for initialization"""
         holdings = Holdings()
         assert holdings.name == "holding"
-        assert holdings.holdings == holdings._data
 
 
 class TestInputs:
@@ -419,4 +418,3 @@ class TestInputs:
         """Test cases for initialization"""
         inputs = Inputs()
         assert inputs.name == "input"
-        assert inputs.inputs == inputs._data

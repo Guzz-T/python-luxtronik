@@ -28,7 +28,3 @@ class Visibilities(DataVectorConfig):
 
     name = VISIBILITIES_FIELD_NAME
     definitions = VISIBILITIES_DEFINITIONS
-
-    @property
-    def visibilities(self):
-        return self._data
