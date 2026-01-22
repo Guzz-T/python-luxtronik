@@ -165,7 +165,7 @@ class DataVector:
         Forward the `LuxtronikFieldsDictionary.items` method.
         Please check its documentation.
         """
-        return self._data.items()
+        return iter(self._data.items())
 
 
 # Alias methods ###############################################################
@@ -198,7 +198,7 @@ class DataVector:
             definition, field = pair
             # skip this field if there are not enough data
             next_idx = definition.index + definition.count
-            if next_idx >= raw_len:
+            if next_idx > raw_len:
                 # not enough registers
                 continue
             # remove all used indices from the list of undefined indices

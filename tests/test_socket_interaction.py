@@ -16,6 +16,7 @@ from tests.fake import (
 @mock.patch("socket.create_connection", fake_create_connection)
 @mock.patch("luxtronik.LuxtronikModbusTcpInterface", FakeModbus)
 class TestSocketInteraction:
+
     def check_luxtronik_data(self, lux, check_for_true=True):
         cp = self.check_data_vector(lux.parameters)
         cc = self.check_data_vector(lux.calculations)
@@ -32,8 +33,8 @@ class TestSocketInteraction:
             fct = fake_calculation_value
         elif type(data_vector) is Visibilities:
             fct = fake_visibility_value
-        for idx, entry in data_vector.items():
-            if entry.raw != fct(idx):
+        for d, f in data_vector.items():
+            if f.raw != fct(d.index):
                 return False
         return True
 
@@ -43,8 +44,8 @@ class TestSocketInteraction:
         self.clear_data_vector(lux.visibilities)
 
     def clear_data_vector(self, data_vector):
-        for idx, entry in data_vector.items():
-            entry.raw = 0
+        for d, f in data_vector.items():
+            f.raw = 0
 
     def test_luxtronik_socket_interface(self):
         host = "my_heatpump"

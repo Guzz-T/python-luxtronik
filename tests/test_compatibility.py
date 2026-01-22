@@ -1933,13 +1933,13 @@ class TestCompatibility:
         ok = True
         for mapping, obj, caption in values:
             print_caption = True
-            for cur_idx, entry in obj:
-                if entry.name not in mapping:
+            for definition, field in obj.items():
+                if field.name not in mapping:
                     # We do not use assert here, in order to catch all incompatibilities at once.
                     # The output can be copied to the dicts above
                     if print_caption:
                         print(f"### Missing - {caption}:")
                         print_caption = False
-                    print(f'"{entry.name}": {cur_idx},')
+                    print(f'"{field.name}": {definition.index},')
                     ok = False
         assert ok, f"Found missing {obj.name}. Please consider to add them to the test suite."

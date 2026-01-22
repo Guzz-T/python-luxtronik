@@ -171,7 +171,7 @@ class ContiguousDataBlock:
         first = self.first_index
         for part in self._parts:
             data_offset = part.index - first
-            part.integrate_data(data_arr, data_offset, LUXTRONIK_SHI_REGISTER_BIT_SIZE)
+            part.integrate_data(data_arr, LUXTRONIK_SHI_REGISTER_BIT_SIZE, data_offset)
 
         return True
 
@@ -192,7 +192,7 @@ class ContiguousDataBlock:
         valid = True
         for part in self._parts:
             data_offset = part.index - first
-            data = part.get_data_arr()
+            data = part.get_data_arr(LUXTRONIK_SHI_REGISTER_BIT_SIZE)
 
             if data is None:
                 valid = False

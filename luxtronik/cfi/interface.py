@@ -162,20 +162,20 @@ class LuxtronikSocketInterface:
         return self._read(data)
 
     def _write(self, parameters):
-        for index, field in parameters.items():
+        for definition, field in parameters.items():
             if field.write_pending:
                 value = field.raw
-                if not isinstance(index, int) or not isinstance(value, int):
+                if not isinstance(definition.index, int) or not isinstance(value, int):
                     LOGGER.warning(
                         "%s: Parameter id '%s' or value '%s' invalid!",
                         self._host,
-                        index,
+                        definition.index,
                         value,
                     )
                     field.write_pending = False
                     continue
-                LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, index, value)
-                self._send_ints(LUXTRONIK_PARAMETERS_WRITE, index, value)
+                LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, definition.index, value)
+                self._send_ints(LUXTRONIK_PARAMETERS_WRITE, definition.index, value)
                 cmd = self._read_int()
                 LOGGER.debug("%s: Command %s", self._host, cmd)
                 val = self._read_int()
@@ -194,7 +194,7 @@ class LuxtronikSocketInterface:
         for _ in range(0, length):
             data.append(self._read_int())
         LOGGER.info("%s: Read %d parameters", self._host, length)
-        self._parse(parameters, data)
+        parameters.parse(data, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
         return parameters
 
     def _read_calculations(self, calculations):
@@ -209,7 +209,7 @@ class LuxtronikSocketInterface:
         for _ in range(0, length):
             data.append(self._read_int())
         LOGGER.info("%s: Read %d calculations", self._host, length)
-        self._parse(calculations, data)
+        calculations.parse(data, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
         return calculations
 
     def _read_visibilities(self, visibilities):
@@ -222,7 +222,7 @@ class LuxtronikSocketInterface:
         for _ in range(0, length):
             data.append(self._read_char())
         LOGGER.info("%s: Read %d visibilities", self._host, length)
-        self._parse(visibilities, data)
+        visibilities.parse(data, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
         return visibilities
 
     def _send_ints(self, *ints):
@@ -260,39 +260,3 @@ class LuxtronikSocketInterface:
         "Low-level helper to receive a signed int"
         reading = self._read_bytes(LUXTRONIK_SOCKET_READ_SIZE_CHAR)
         return struct.unpack(">b", reading)[0]
-
-    def _parse(self, data_vector, raw_data):
-        """
-        Parse raw data into the corresponding fields.
-
-        Args:
-            data_vector (DataVector): Data vector in which
-                the raw data is to be integrated.
-            raw_data (list[int]): List of raw register values.
-                The raw data must start at register index 0.
-        """
-        raw_len = len(raw_data)
-        # Prepare a list of undefined indices
-        undefined = {i for i in range(0, raw_len)}
-
-        # integrate the data into the fields
-        for pair in data_vector.data.pairs():
-            definition, field = pair
-            # skip this field if there are not enough data
-            next_idx = definition.index + definition.count
-            if next_idx > raw_len:
-                # not enough registers
-                field.raw = None
-                continue
-            # remove all used indices from the list of undefined indices
-            for index in range(definition.index, next_idx):
-                undefined.discard(index)
-            pair.integrate_data(raw_data, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
-
-        # create an unknown field for additional data
-        for index in undefined:
-            # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)
-            definition = data_vector.definitions.create_unknown_definition(index)
-            field = definition.create_field()
-            field.raw = raw_data[index]
-            data_vector.data.add_sorted(definition, field)
