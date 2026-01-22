@@ -45,7 +45,7 @@ class DataVector:
             idx (int): Register index.
 
         Returns:
-            Unknown: A field instance of type 'Unknown'.
+            Unknown: A field instance of type `Unknown`.
         """
         return Unknown(f"unknown_{cls.name}_{idx}", False)
 
@@ -112,63 +112,68 @@ class DataVector:
 
     @property
     def data(self):
+        """
+        Return the internal `LuxtronikFieldsDictionary`.
+        Please check its documentation.
+        """
         return self._data
 
     def __getitem__(self, def_name_or_idx):
+        """
+        Array-style access to method `get`.
+        Please check its documentation.
+        """
         return self.get(def_name_or_idx)
 
     def __setitem__(self, def_name_or_idx, value):
+        """
+        Array-style access to method `set`.
+        Please check its documentation.
+        """
         return self.set(def_name_or_idx, value)
 
     def __len__(self):
+        """
+        Forward the `LuxtronikFieldsDictionary.__len__` method.
+        Please check its documentation.
+        """
         return len(self._data)
 
     def __iter__(self):
+        """
+        Forward the `LuxtronikFieldsDictionary.__iter__` method.
+        Please check its documentation.
+        """
         return iter(self._data)
 
     def __contains__(self, def_field_name_or_idx):
         """
-        Check whether the data vector contains a name, index,
-        or definition matching an added field, or the field itself.
-
-        If `def_field_name_or_idx`
-        - is a definition -> check whether a field with this definition has been added
-        - is a field -> check whether this field has been added
-        - is a name -> check whether a field with this name has been added
-        - is a idx -> check whether a field with this index has been added
-
-        Args:
-            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
-                Definition object, field object, field name or register index.
-
-        Returns:
-            True if the searched element was found, otherwise False.
+        Forward the `LuxtronikFieldsDictionary.__contains__` method.
+        Please check its documentation.
         """
         return def_field_name_or_idx in self._data
 
     def values(self):
-        return iter(self._data.values())
+        """
+        Forward the `LuxtronikFieldsDictionary.values` method.
+        Please check its documentation.
+        """
+        return self._data.values()
 
     def items(self):
-        return iter(self._data.items())
+        """
+        Forward the `LuxtronikFieldsDictionary.items` method.
+        Please check its documentation.
+        """
+        return self._data.items()
 
 
 # Alias methods ###############################################################
 
     def register_alias(self, def_field_name_or_idx, alias):
         """
-        Add an alternative name (or anything hashable else)
-        that can be used to access a specific field.
-
-        Args:
-            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
-                Field to which the alias is to be added.
-                Either by definition, name, register index, or the field itself.
-            alias (Hashable): Alias, which can be used to access the field again.
-
-        Returns:
-            Base | None: The field to which the alias was added,
-                or None if not possible
+        Forward the `LuxtronikFieldsDictionary.register_alias` method.
+        Please check its documentation.
         """
         return self._data.register_alias(def_field_name_or_idx, alias)
 
@@ -185,16 +190,22 @@ class DataVector:
             num_bits (int): Number of bits per register.
         """
         raw_len = len(raw_data)
+        # Prepare a list of undefined indices
         undefined = {i for i in range(0, raw_len)}
-        for pair in self._data.pairs():
+
+        # integrate the data into the fields
+        for pair in self._data.items():
             definition, field = pair
+            # skip this field if there are not enough data
             next_idx = definition.index + definition.count
             if next_idx >= raw_len:
                 # not enough registers
                 continue
+            # remove all used indices from the list of undefined indices
             for index in range(definition.index, next_idx):
                 undefined.discard(index)
             pair.integrate_data(raw_data, num_bits)
+
         # create an unknown field for additional data
         for index in undefined:
             # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)
@@ -209,6 +220,12 @@ class DataVector:
     def _get_definition(self, def_field_name_or_idx, all_not_version_dependent):
         """
         Look-up a definition by name, index, a field instance or by the definition itself.
+
+        If `def_field_name_or_idx`
+        - is a definition -> lookup the definition by the definition's name
+        - is a field -> lookup the definition by the field's name
+        - is a name -> lookup the field by the name
+        - is a idx -> lookup the field by the index
 
         Args:
             def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
@@ -226,24 +243,31 @@ class DataVector:
         definition = def_field_name_or_idx
         field = None
         if isinstance(def_field_name_or_idx, Base):
+            # In case we got a field, search for the description by the field name
             definition = def_field_name_or_idx.name
             field = def_field_name_or_idx
         if not isinstance(def_field_name_or_idx, LuxtronikDefinition):
             if all_not_version_dependent:
+                # definitions contains all available definitions
                 definition = self.definitions.get(definition)
             else:
                 # _data.def_dict contains only valid and previously added definitions
                 definition = self._data.def_dict.get(definition)
         return definition, field
 
-
-
-    def get(self, def_name_or_idx, default=None):
+    def get(self, def_field_name_or_idx, default=None):
         """
-        Retrieve a field by definition, name or register index.
+        Retrieve an added field by definition, field, name or register index.
+        Triggers a key error when we try to query obsolete fields.
+
+        If `def_field_name_or_idx`
+        - is a definition -> lookup the field by the definition
+        - is a field -> lookup the field by the field's name
+        - is a name -> lookup the field by the name
+        - is a idx -> lookup the field by the index
 
         Args:
-            def_name_or_idx (LuxtronikDefinition | str | int):
+            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
                 Definition, name, or register index to be used to search for the field.
 
         Returns:
@@ -253,12 +277,14 @@ class DataVector:
             If multiple fields added for the same index/name,
             the last added takes precedence.
         """
-        obsolete_entry = self._obsolete.get(def_name_or_idx, None)
+        # check for obsolete
+        obsolete_entry = self._obsolete.get(def_field_name_or_idx, None)
         if obsolete_entry:
-            raise KeyError(f"The name '{def_name_or_idx}' is obsolete! Use '{obsolete_entry}' instead.")
-        field = self._data.get(def_name_or_idx, default)
+            raise KeyError(f"The name '{def_field_name_or_idx}' is obsolete! Use '{obsolete_entry}' instead.")
+        # look-up the field
+        field = self._data.get(def_field_name_or_idx, default)
         if field is None:
-            LOGGER.warning(f"entry '{def_name_or_idx}' not found")
+            LOGGER.warning(f"entry '{def_field_name_or_idx}' not found")
         return field
 
     def set(self, def_field_name_or_idx, value):
@@ -267,6 +293,12 @@ class DataVector:
 
         The value is set, even if the field marked as non-writeable.
         No data validation is performed either.
+
+        If `def_field_name_or_idx`
+        - is a definition -> lookup the field by the definition and set the value
+        - is a field -> set the value of this field
+        - is a name -> lookup the field by the name and set the value
+        - is a idx -> lookup the field by the index and set the value
 
         Args:
             def_field_name_or_idx (LuxtronikDefinition | Base | int | str):

@@ -263,7 +263,7 @@ class TestLuxtronikFieldsDictionary:
     def test_add(self):
         d = LuxtronikFieldsDictionary()
         assert len(d) == 0
-        assert len(d.pairs()) == 0
+        assert len(d.items()) == 0
 
         u = LuxtronikDefinition.unknown(1, "test", 0)
         f = u.create_field()
@@ -314,7 +314,7 @@ class TestLuxtronikFieldsDictionary:
         d, _, _ = self.create_instance()
         # 3 different indices
         assert len(d) == 3
-        assert len(d.pairs()) == 4
+        assert len(d.items()) == 4
 
     def test_get_contains(self):
         d, u, f = self.create_instance()
