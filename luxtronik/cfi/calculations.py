@@ -32,10 +32,6 @@ class Calculations(DataVectorConfig):
     definitions = CALCULATIONS_DEFINITIONS
     _outdated = CALCULATIONS_OUTDATED
 
-    @property
-    def calculations(self):
-        return self._data
-
     def get_firmware_version(self):
         """Get the firmware version as string."""
         return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])

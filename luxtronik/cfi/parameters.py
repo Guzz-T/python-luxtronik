@@ -28,7 +28,3 @@ class Parameters(DataVectorConfig):
 
     name = PARAMETERS_FIELD_NAME
     definitions = PARAMETERS_DEFINITIONS
-
-    @property
-    def parameters(self):
-        return self._data

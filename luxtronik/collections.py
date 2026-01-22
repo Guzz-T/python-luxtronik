@@ -10,7 +10,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 ###############################################################################
-# Common functions
+# Common methods
 ###############################################################################
 
 def pack_values(values, num_bits, reverse=True):
@@ -72,6 +72,30 @@ def unpack_values(packed, count, num_bits, reverse=True):
 
     return values
 
+def get_data_arr(definition, field):
+    """
+    Normalize the field's data to a list of the correct size.
+
+    Args:
+        definition (LuxtronikDefinition): Meta-data of the field.
+        field (Base): Field object that contains data to get.
+
+    Returns:
+        list[int] | None: List of length `definition.count`,
+            or None if the data size does not match.
+    """
+    data = field.raw
+    if data is None:
+        return None
+    should_unpack = field.concatenate_multiple_data_chunks \
+        and definition.reg_bits > 0 and definition.count > 1
+    if should_unpack and not isinstance(data, list):
+        # Usually big-endian (reverse=True) is used
+        data = unpack_values(data, definition.count, definition.reg_bits)
+    if not isinstance(data, list):
+        data = [data]
+    return data if len(data) == definition.count else None
+
 def integrate_data(definition, field, raw_data, data_offset=-1):
     """
     Integrate raw values from a data array into the field.
@@ -100,30 +124,6 @@ def integrate_data(definition, field, raw_data, data_offset=-1):
 
     raw = raw if definition.check_raw_not_none(raw) else None
     field.raw = raw
-
-def get_data_arr(definition, field):
-    """
-    Normalize the field's data to a list of the correct size.
-
-    Args:
-        definition (LuxtronikDefinition): Meta-data of the field.
-        field (Base): Field object that contains data to get.
-
-    Returns:
-        list[int] | None: List of length `definition.count`,
-            or None if the data size does not match.
-    """
-    data = field.raw
-    if data is None:
-        return None
-    should_unpack = field.concatenate_multiple_data_chunks \
-        and definition.reg_bits > 0 and definition.count > 1
-    if should_unpack and not isinstance(data, list):
-        # Usually big-endian (reverse=True) is used
-        data = unpack_values(data, definition.count, definition.reg_bits)
-    if not isinstance(data, list):
-        data = [data]
-    return data if len(data) == definition.count else None
 
 ###############################################################################
 # Definition / field pair
@@ -175,7 +175,7 @@ class LuxtronikDefFieldPair:
         Integrate the related parts of the `raw_data` into the field
 
         Args:
-            raw_data (list): Source array of bytes/words.
+            raw_data (list): Source array of register values.
             data_offset (int): Optional offset. Defaults to `definition.index`.
         """
         integrate_data(self.definition, self.field, raw_data, data_offset)

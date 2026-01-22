@@ -13,7 +13,6 @@ class TestParameters:
         """Test cases for initialization"""
         parameters = Parameters()
         assert parameters.name == "parameter"
-        assert parameters.parameters == parameters._data
         assert parameters.safe
 
         parameters = Parameters(False)
@@ -22,7 +21,7 @@ class TestParameters:
     def test_data(self):
         """Test cases for the data dictionary"""
         parameters = Parameters()
-        data = parameters.parameters
+        data = parameters.data
 
         # The Value must be a fields
         # The key can be an index

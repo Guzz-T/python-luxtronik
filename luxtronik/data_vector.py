@@ -16,7 +16,7 @@ LOGGER = logging.getLogger(__name__)
 
 class DataVector:
     """
-    Class that holds a vector of data entries.
+    Class that holds a vector of data fields.
 
     Provides access to fields by name, index or alias.
     To use aliases, they must first be registered here (locally = only valid
@@ -50,32 +50,43 @@ class DataVector:
         return Unknown(f"unknown_{cls.name}_{idx}", False)
 
     @classmethod
-    def create_any_field(cls, name_or_idx):
+    def create_any_field(cls, def_name_or_idx):
         """
         Create a field object from an available definition
         (= included in class variable `cls.definitions`).
         Be careful! The used controller firmware
         may not support this field.
 
+        If `def_name_or_idx`
+        - is a definition -> create the field from the provided definition
+        - is a name -> lookup the definition by name and create the field
+        - is a idx -> lookup definition by index and create the field
+
         Args:
-            name_or_idx (str | int): Field name or register index.
+            def_name_or_idx (LuxtronikDefinition | str | int): Definitions object,
+                field name or register index.
 
         Returns:
             Base | None: The created field, or None if not found or not valid.
         """
-        # The definitions object hold all available definitions
-        definition = cls.definitions.get(name_or_idx)
+        definition, _ = self._get_definition(def_name_or_idx, True)
         if definition is not None and definition.valid:
             return definition.create_field()
         return None
 
-    def create_field(self, name_or_idx):
+    def create_field(self, def_name_or_idx):
         """
         Create a field object from a version-dependent definition (= included in
         class variable `cls.definitions` and is valid for `self.version`).
 
+        If `def_name_or_idx`
+        - is a definition -> create the field from the provided definition
+        - is a name -> lookup the definition by name and create the field
+        - is a idx -> lookup definition by index and create the field
+
         Args:
-            name_or_idx (str | int): Field name or register index.
+            def_name_or_idx (str | int): Definitions object,
+                field name or register index.
 
         Returns:
             Base | None: The created field, or None if not found or not valid.
@@ -119,6 +130,12 @@ class DataVector:
         """
         Check whether the data vector contains a name, index,
         or definition matching an added field, or the field itself.
+
+        If `def_field_name_or_idx`
+        - is a definition -> check whether a field with this definition has been added
+        - is a field -> check whether this field has been added
+        - is a name -> check whether a field with this name has been added
+        - is a idx -> check whether a field with this index has been added
 
         Args:
             def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
@@ -218,6 +235,8 @@ class DataVector:
                 definition = self._data.def_dict.get(definition)
         return definition, field
 
+
+
     def get(self, def_name_or_idx, default=None):
         """
         Retrieve a field by definition, name or register index.
@@ -255,9 +274,7 @@ class DataVector:
             value (int | List[int]): Value to set
         """
         field = def_field_name_or_idx
-        print(field)
         if not isinstance(field, Base):
             field = self.get(def_field_name_or_idx)
-        print(field)
         if field is not None:
             field.value = value
