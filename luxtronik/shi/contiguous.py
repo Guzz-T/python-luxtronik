@@ -7,6 +7,7 @@ or a non-existent register within a read/write operation will result in a transm
 import logging
 
 from luxtronik.collections import LuxtronikDefFieldPair
+from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 
 
 LOGGER = logging.getLogger(__name__)
@@ -170,7 +171,7 @@ class ContiguousDataBlock:
         first = self.first_index
         for part in self._parts:
             data_offset = part.index - first
-            part.integrate_data(data_arr, data_offset)
+            part.integrate_data(data_arr, data_offset, LUXTRONIK_SHI_REGISTER_BIT_SIZE)
 
         return True
 
