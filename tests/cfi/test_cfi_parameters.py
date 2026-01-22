@@ -4,6 +4,8 @@
 
 from luxtronik import Parameters
 from luxtronik.datatypes import Base
+from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.cfi.constants import LUXTRONIK_CFI_REGISTER_BIT_SIZE
 
 
 class TestParameters:
@@ -26,12 +28,12 @@ class TestParameters:
         # The Value must be a fields
         # The key can be an index
         assert isinstance(data[0], Base)
-        for k in data:
-            assert isinstance(k, int)
+        for d in data:
+            assert isinstance(d, LuxtronikDefinition)
         for v in data.values():
             assert isinstance(v, Base)
-        for k, v in data.items():
-            assert isinstance(k, int)
+        for d, v in data.items():
+            assert isinstance(d, LuxtronikDefinition)
             assert isinstance(v, Base)
 
     def test_get(self):
@@ -55,15 +57,32 @@ class TestParameters:
         j = 0.0
         assert parameters.get(j) is None
 
+    def test_parse(self):
+        """Test cases for _parse"""
+        parameters = Parameters()
+
+        n = 2000
+        t = list(range(0, n + 1))
+        parameters.parse(t, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
+
+        p = parameters.get(n)
+
+        assert p.name == f"unknown_parameter_{n}"
+        assert p.raw == n
+
     def test___iter__(self):
         """Test cases for __iter__"""
         parameters = Parameters()
 
-        for i, p in parameters:
-            if i == 0:
+        for d, p in parameters.items():
+            if d.index == 0:
                 assert p.name == "ID_Transfert_LuxNet"
-            elif i == 1:
+                assert d is parameters.data.def_dict.get(0)
+                assert p is parameters.get(0)
+            elif d.index == 1:
                 assert p.name == "ID_Einst_WK_akt"
+                assert d is parameters.data.def_dict.get(1)
+                assert p is parameters.get(1)
             else:
                 break
 

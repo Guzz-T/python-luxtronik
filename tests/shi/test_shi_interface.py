@@ -1244,7 +1244,7 @@ class TestLuxtronikSmartHomeInterface:
         for d in definitions:
             assert d.name in vector
             assert d in interface.holdings
-        for f in vector:
+        for f in vector.values():
             assert f.name in definitions
             assert f.name in interface.holdings
 
@@ -1255,7 +1255,7 @@ class TestLuxtronikSmartHomeInterface:
         for d in definitions:
             assert d.name in vector
             assert d in interface.inputs
-        for f in vector:
+        for f in vector.values():
             assert f.name in definitions
             assert f.name in interface.inputs
 

@@ -2,6 +2,7 @@
 from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
 from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.contiguous import (
     ContiguousDataPart,
     ContiguousDataBlock,
@@ -73,49 +74,49 @@ class TestContiguousDataPart:
     def test_get_data(self):
         part = ContiguousDataPart(def_a, field_a)
         field_a.raw = [4, 2]
-        assert part.get_data_arr() == [4, 2]
+        assert part.get_data_arr(LUXTRONIK_SHI_REGISTER_BIT_SIZE) == [4, 2]
 
         field_a.raw = [1, 3, 5]
-        assert part.get_data_arr() is None
+        assert part.get_data_arr(LUXTRONIK_SHI_REGISTER_BIT_SIZE) is None
 
         field_a.raw = [9]
-        assert part.get_data_arr() is None
+        assert part.get_data_arr(LUXTRONIK_SHI_REGISTER_BIT_SIZE) is None
 
         part = ContiguousDataPart(def_a1, field_a1)
 
         field_a1.raw = [8]
-        assert part.get_data_arr() == [8]
+        assert part.get_data_arr(LUXTRONIK_SHI_REGISTER_BIT_SIZE) == [8]
 
         field_a1.raw = 7
-        assert part.get_data_arr() == [7]
+        assert part.get_data_arr(LUXTRONIK_SHI_REGISTER_BIT_SIZE) == [7]
 
     def test_integrate_data(self):
         part = ContiguousDataPart(def_a, field_a)
 
-        part.integrate_data([1, 5, 7, 9], 0)
+        part.integrate_data([1, 5, 7, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 0)
         assert part.field.raw == [1, 5]
 
-        part.integrate_data([1, 5, 7, 9])
+        part.integrate_data([1, 5, 7, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE)
         assert part.field.raw == [5, 7]
 
-        part.integrate_data([1, 5, 7, 9], 2)
+        part.integrate_data([1, 5, 7, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 2)
         assert part.field.raw == [7, 9]
 
-        part.integrate_data([1, 5, 7, 9], 3)
+        part.integrate_data([1, 5, 7, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 3)
         assert part.field.raw is None
 
-        part.integrate_data([1, 5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 9], 1)
+        part.integrate_data([1, 5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 1)
         assert part.field.raw == [5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
 
         part = ContiguousDataPart(def_c1, field_c1)
 
-        part.integrate_data([2, 4, 6], 1)
+        part.integrate_data([2, 4, 6], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 1)
         assert part.field.raw == 4
 
-        part.integrate_data([2, 4, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE], 2)
+        part.integrate_data([2, 4, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 2)
         assert part.field.raw is None
 
-        part.integrate_data([2, 4, 6], 5)
+        part.integrate_data([2, 4, 6], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 5)
         assert part.field.raw is None
 
 
