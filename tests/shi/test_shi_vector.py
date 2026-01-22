@@ -1,6 +1,7 @@
 from luxtronik.common import parse_version
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinitionsList
+from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.vector import DataVectorSmartHome
 from luxtronik.shi.holdings import Holdings
 from luxtronik.shi.inputs import Inputs
@@ -249,30 +250,40 @@ class TestDataVector:
         data_vector.add(5)
         data_vector.add(9)
 
-        for index, idx in enumerate(data_vector):
+        for index, definition in enumerate(data_vector):
             if index == 0:
-                assert idx == 5
+                assert definition.idx == 5
+                assert definition.name == "field_5"
             if index == 1:
-                assert idx == 9 # field_9
+                assert definition.idx == 9
+                assert definition.name == "field_9a"
             if index == 2:
+                assert definition.idx == 9
+                assert definition.name == "field_9"
+            if index == 3:
                 assert False
 
         for index, field in enumerate(data_vector.values()):
             if index == 0:
                 assert field.name == 'field_5'
             if index == 1:
-                assert field.name == 'field_9'
+                assert field.name == 'field_9a'
             if index == 2:
+                assert field.name == 'field_9'
+            if index == 3:
                 assert False
 
-        for index, (idx, field) in enumerate(data_vector.items()):
+        for index, (definition, field) in enumerate(data_vector.items()):
             if index == 0:
-                assert idx == 5
+                assert definition.idx == 5
                 assert field.name == 'field_5'
             if index == 1:
-                assert idx == 9
-                assert field.name == 'field_9'
+                assert definition.idx == 9
+                assert field.name == 'field_9a'
             if index == 2:
+                assert definition.idx == 9
+                assert field.name == 'field_9'
+            if index == 3:
                 assert False
 
     def test_set(self):
@@ -301,6 +312,33 @@ class TestDataVector:
         assert field_5.write_pending
         assert field_9.value == 6
         assert field_9.write_pending
+
+    def test_parse(self):
+        data_vector = DataVectorTest(parse_version("1.1.2"))
+        field_5 = data_vector[5]
+        field_9 = data_vector[9]
+        field_9a = data_vector['field_9a']
+
+        # not enough data
+        data = [1]
+        data_vector.parse(data, LUXTRONIK_SHI_REGISTER_BIT_SIZE)
+        assert field_5.value is None
+        assert field_9.value is None
+        assert field_9a.value is None
+
+        # data only for field 5
+        data = [1, 2, 3, 4, 5, 6, 7]
+        data_vector.parse(data, LUXTRONIK_SHI_REGISTER_BIT_SIZE)
+        assert field_5.value == 6
+        assert field_9.value is None
+        assert field_9a.value is None
+
+        # data for all fields
+        data = [9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2]
+        data_vector.parse(data, LUXTRONIK_SHI_REGISTER_BIT_SIZE)
+        assert field_5.value == 4
+        assert field_9.value == [0, -1]
+        assert field_9a.value == 0
 
     def test_alias(self):
         TEST_DEFINITIONS.register_alias('field_9a', 10)
