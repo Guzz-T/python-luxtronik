@@ -84,7 +84,7 @@ class DataVectorSmartHome(DataVector):
         """
         if not self._read_blocks_up_to_date:
             self._read_blocks.clear()
-            for definition, field in self._data.pairs():
+            for definition, field in self._data.items():
                 self._read_blocks.collect(definition, field)
         self._read_blocks_up_to_date = True
 

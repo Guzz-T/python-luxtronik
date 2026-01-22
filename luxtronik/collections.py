@@ -167,7 +167,7 @@ class LuxtronikDefFieldPair:
         Normalize the field's data to a list of the correct size.
 
         Args:
-            num_bits (int): Number of bits per chunk.
+            num_bits (int): Number of bits per register.
 
         Returns:
             list[int] | None: List of length `definition.count`, or None if insufficient.
@@ -181,7 +181,7 @@ class LuxtronikDefFieldPair:
         Args:
             raw_data (list): Source array of register values.
             data_offset (int): Optional offset. Defaults to `definition.index`.
-            num_bits (int): Number of bits per chunk.
+            num_bits (int): Number of bits per register.
         """
         integrate_data(self.definition, self.field, raw_data, num_bits, data_offset)
 
@@ -191,13 +191,12 @@ class LuxtronikDefFieldPair:
 
 class LuxtronikFieldsDictionary:
     """
-    Dictionary that behaves like the earlier data vector dictionaries (index-field-dictionary),
-    with the addition that obsolete fields are also supported and can be addressed by name.
+    Dictionary that maps definitions, names or indices to added fields.
     Aliases are also supported.
     """
 
     def __init__(self):
-        # There may be several names or alias that points to one definition.
+        # There may be several names or alias that points to one definition and field.
         # So in order to spare memory we split the name/index-to-field-lookup
         # into a name/index-to-definition-lookup and a definition-to-field-lookup
         self._def_lookup = LuxtronikDefinitionsDictionary()
@@ -207,23 +206,30 @@ class LuxtronikFieldsDictionary:
         self._pairs = [] # list of LuxtronikDefFieldPair
 
     def __getitem__(self, def_field_name_or_idx):
+        """
+        Array-style access to method `get`.
+        Please check its documentation.
+        """
         return self.get(def_field_name_or_idx)
 
     def __len__(self):
-        return len(self._def_lookup._index_dict)
+        """Return the number of added fields."""
+        return len(self._pairs)
 
     def __iter__(self):
-        """
-        Iterate over all non-obsolete indices. If an index is assigned multiple times,
-        only the index of the preferred definition will be output.
-        """
-        all_related_defs = self._def_lookup._index_dict.values()
-        return iter([d.index for d in self._pairs if d in all_related_defs])
+        """Return the iterator over all definitions related to the added fields."""
+        return iter([d for d, _ in self._pairs])
 
     def __contains__(self, def_field_name_or_idx):
         """
         Check whether the data vector contains a name, index,
         or definition matching an added field, or the field itself.
+
+        If `def_field_name_or_idx`
+        - is a definition -> check whether a field with this definition has been added
+        - is a field -> check whether this field has been added
+        - is a name -> check whether a field with this name has been added
+        - is a idx -> check whether a field with this index has been added
 
         Args:
             def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
@@ -241,32 +247,33 @@ class LuxtronikFieldsDictionary:
             return def_field_name_or_idx in self._def_lookup
 
     def values(self):
-        """
-        Iterator for all added non-obsolete fields. If an index is assigned multiple times,
-        only the field of the preferred definition will be output.
-        """
-        all_related_defs = self._def_lookup._index_dict.values()
-        return iter([f for d, f in self._pairs if d in all_related_defs])
+        """Return the iterator over all added fields."""
+        return iter([f for _, f in self._pairs])
 
     def items(self):
-        """
-        Iterator for all non-obsolete index-field-pairs (list of tuples with
-        0: index, 1: field) contained herein. If an index is assigned multiple times,
-        only the index-field-pair of the preferred definition will be output.
-        """
-        all_related_defs = self._def_lookup._index_dict.values()
-        return iter([(d.index, f) for d, f in self._pairs if d in all_related_defs])
+        """Return the iterator over all added definition-field-pairs."""
+        return iter(self._pairs)
 
+    @property
     def pairs(self):
-        """
-        Return all definition-field-pairs contained herein.
-        """
+        """Return all definition-field-pairs contained herein."""
         return self._pairs
 
     @property
     def def_dict(self):
-        """Return the internal definition dictionary, containing all added definitions"""
+        """
+        Return the internal definition dictionary,
+        containing all definitions related to the added fields.
+        """
         return self._def_lookup
+
+    @property
+    def field_dict(self):
+        """
+        Return the internal field dictionary,
+        containing all added fields.
+        """
+        return self._field_lookup
 
     def add(self, definition, field, alias=None):
         """
@@ -276,6 +283,8 @@ class LuxtronikFieldsDictionary:
             definition (LuxtronikDefinition): Definition related to the field.
             field (Base): Field to add.
             alias (Hashable | None): Alias, which can be used to access the field again.
+
+        Note: Only use this method if the definitions order is already correct.
         """
         if definition.valid:
             self._def_lookup.add(definition, alias)
@@ -311,8 +320,8 @@ class LuxtronikFieldsDictionary:
             Base | None: The field to which the alias was added,
                 or None if not possible
         """
-        # Resolve a field input
         def_name_or_idx = def_field_name_or_idx
+        # Resolve a field argument
         if isinstance(def_name_or_idx, Base):
             def_name_or_idx = def_name_or_idx.name
         # register alias
@@ -323,7 +332,13 @@ class LuxtronikFieldsDictionary:
 
     def get(self, def_field_name_or_idx, default=None):
         """
-        Retrieve a field by definition, name or register index, or the field itself.
+        Retrieve an added field by definition, name or register index, or the field itself.
+
+        If `def_field_name_or_idx`
+        - is a definition -> lookup the field by the definition
+        - is a field -> lookup the field by the field's name
+        - is a name -> lookup the field by the name
+        - is a idx -> lookup the field by the index
 
         Args:
             def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
