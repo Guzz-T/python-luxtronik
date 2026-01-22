@@ -34,10 +34,6 @@ class Calculations(DataVectorConfig):
         "ID_WEB_SoftStand": "get_firmware_version()"
     }
 
-    @property
-    def calculations(self):
-        return self._data
-
     def get_firmware_version(self):
         """Get the firmware version as string."""
         return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])
