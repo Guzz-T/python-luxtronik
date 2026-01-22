@@ -69,7 +69,11 @@ class DataVector:
         Returns:
             Base | None: The created field, or None if not found or not valid.
         """
-        definition, _ = self._get_definition(def_name_or_idx, True)
+        if isinstance(def_name_or_idx, LuxtronikDefinition):
+            definition = def_name_or_idx
+        else:
+            # The definitions object hold all available definitions
+            definition = cls.definitions.get(def_name_or_idx)
         if definition is not None and definition.valid:
             return definition.create_field()
         return None
@@ -91,7 +95,7 @@ class DataVector:
         Returns:
             Base | None: The created field, or None if not found or not valid.
         """
-        definition, _ = self._get_definition(name_or_idx, False)
+        definition, _ = self._get_definition(def_name_or_idx, False)
         if definition is not None and definition.valid:
             return definition.create_field()
         return None

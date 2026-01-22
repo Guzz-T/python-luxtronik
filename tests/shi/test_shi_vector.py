@@ -92,8 +92,8 @@ class TestDataVector:
         # create versioned data vector
         data_vector = DataVectorTest(parse_version("1.2"))
         assert data_vector.version == (1, 2, 0, 0)
-        assert len(data_vector) == 2
-        assert len(data_vector._data.items()) == 3
+        assert len(data_vector) == 3
+        assert len(data_vector._data.pairs) == 3
         assert not data_vector._read_blocks_up_to_date
         assert len(data_vector._read_blocks) == 0
 
@@ -216,8 +216,8 @@ class TestDataVector:
         def_9a = data_vector.definitions['field_9a']
         field = data_vector.add(def_9a)
         assert def_9a in data_vector
-        assert len(data_vector) == 2
-        assert len(data_vector.data._pairs) == 3
+        assert len(data_vector) == 3
+        assert len(data_vector.data.pairs) == 3
         assert field.name == 'field_9a'
 
         # Get via index (last added)
@@ -252,13 +252,13 @@ class TestDataVector:
 
         for index, definition in enumerate(data_vector):
             if index == 0:
-                assert definition.idx == 5
+                assert definition.index == 5
                 assert definition.name == "field_5"
             if index == 1:
-                assert definition.idx == 9
+                assert definition.index == 9
                 assert definition.name == "field_9a"
             if index == 2:
-                assert definition.idx == 9
+                assert definition.index == 9
                 assert definition.name == "field_9"
             if index == 3:
                 assert False
@@ -275,13 +275,13 @@ class TestDataVector:
 
         for index, (definition, field) in enumerate(data_vector.items()):
             if index == 0:
-                assert definition.idx == 5
+                assert definition.index == 5
                 assert field.name == 'field_5'
             if index == 1:
-                assert definition.idx == 9
+                assert definition.index == 9
                 assert field.name == 'field_9a'
             if index == 2:
-                assert definition.idx == 9
+                assert definition.index == 9
                 assert field.name == 'field_9'
             if index == 3:
                 assert False
@@ -436,8 +436,8 @@ class TestDataVector:
         data_vector.add("field_invalid")
         assert len(data_vector) == 3
         data_vector.add(10) # field_9a alias
-        assert len(data_vector) == 3
-        assert len(data_vector._data._pairs) == 4
+        assert len(data_vector) == 4
+        assert len(data_vector.data.pairs) == 4
 
 
 class TestHoldings:
