@@ -92,7 +92,7 @@ class TestDataVector:
         data_vector = DataVectorTest(parse_version("1.2"))
         assert data_vector.version == (1, 2, 0, 0)
         assert len(data_vector) == 2
-        assert len(data_vector._data.pairs()) == 3
+        assert len(data_vector._data.items()) == 3
         assert not data_vector._read_blocks_up_to_date
         assert len(data_vector._read_blocks) == 0
 
