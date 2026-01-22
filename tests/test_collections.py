@@ -40,95 +40,75 @@ class TestDefinitionFieldPair:
 
         # get from value
         definition._count = 1
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = 5
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 32)
         assert arr == [5]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(32)
 
         # get from value
         definition._count = 1
-        definition._num_bits = 16
-        definition._data_type = 'INT16'
         field.raw = 5
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr == [5]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
         # get from array
         definition._count = 2
-        definition._num_bits = 64
-        definition._data_type = 'INT64'
         field.raw = [7, 3]
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 32)
         assert arr == [7, 3]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(32)
 
         # get from array
         definition._count = 2
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = [7, 3]
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr == [7, 3]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
         # too much data
         definition._count = 2
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = [4, 8, 1]
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr is None
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
         # insufficient data
         definition._count = 2
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = [9]
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr is None
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
         field.concatenate_multiple_data_chunks = True
 
         # get from array
         definition._count = 2
-        definition._num_bits = 64
-        definition._data_type = 'INT64'
         field.raw = 0x00000007_00000003
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 32)
         assert arr == [7, 3]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(32)
 
         # get from array
         definition._count = 2
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = 0x0007_0003
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr == [7, 3]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
         # too much data
         definition._count = 2
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = 0x0004_0008_0001
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr == [8, 1]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
         # insufficient data
         definition._count = 2
-        definition._num_bits = 32
-        definition._data_type = 'INT32'
         field.raw = 0x0009
-        arr = get_data_arr(definition, field)
+        arr = get_data_arr(definition, field, 16)
         assert arr == [0, 9]
-        assert arr == pair.get_data_arr()
+        assert arr == pair.get_data_arr(16)
 
     def test_integrate(self):
         definition = LuxtronikDefinition.unknown(2, 'Foo', 30)
@@ -140,110 +120,102 @@ class TestDefinitionFieldPair:
 
         # set array
         definition._count = 2
-        definition._num_bits = 64
         definition._data_type = 'INT64'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 32)
         assert field.raw == [3, 4]
-        pair.integrate_data(data, 4)
+        pair.integrate_data(data, 32, 4)
         assert field.raw == [5, 6]
-        integrate_data(definition, field, data, 7)
+        integrate_data(definition, field, data, 32, 7)
         assert field.raw is None
-        pair.integrate_data(data, 0)
+        pair.integrate_data(data, 32, 0)
         assert field.raw == [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
 
         # set array
         definition._count = 2
-        definition._num_bits = 32
         definition._data_type = 'INT32'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 16)
         assert field.raw == [3, 4]
-        pair.integrate_data(data, 4)
+        pair.integrate_data(data, 16, 4)
         assert field.raw == [5, 6]
-        integrate_data(definition, field, data, 7)
+        integrate_data(definition, field, data, 16, 7)
         assert field.raw is None
-        pair.integrate_data(data, 0)
+        pair.integrate_data(data, 16, 0)
         assert field.raw == [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
 
         # set value
         definition._count = 1
-        definition._num_bits = 32
         definition._data_type = 'INT32'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 32)
         assert field.raw == 3
-        pair.integrate_data(data, 5)
+        pair.integrate_data(data, 32, 5)
         assert field.raw == 6
-        integrate_data(definition, field, data, 9)
+        integrate_data(definition, field, data, 32, 9)
         assert field.raw is None
-        pair.integrate_data(data, 1)
+        pair.integrate_data(data, 32, 1)
         # Currently there is no magic "not available" value for 32 bit values -> not None
         # This applies also to similar lines below
         assert field.raw == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
 
         # set value
         definition._count = 1
-        definition._num_bits = 16
         definition._data_type = 'INT16'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 16)
         assert field.raw == 3
-        pair.integrate_data(data, 5)
+        pair.integrate_data(data, 16, 5)
         assert field.raw == 6
-        integrate_data(definition, field, data, 9)
+        integrate_data(definition, field, data, 16, 9)
         assert field.raw is None
-        pair.integrate_data(data, 1)
+        pair.integrate_data(data, 16, 1)
         assert field.raw is None
 
         field.concatenate_multiple_data_chunks = True
 
         # set array
         definition._count = 2
-        definition._num_bits = 64
         definition._data_type = 'INT64'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 32)
         assert field.raw == 0x00000003_00000004
-        pair.integrate_data(data, 4)
+        pair.integrate_data(data, 32, 4)
         assert field.raw == 0x00000005_00000006
-        integrate_data(definition, field, data, 7)
+        integrate_data(definition, field, data, 32, 7)
         assert field.raw is None
-        pair.integrate_data(data, 0)
+        pair.integrate_data(data, 32, 0)
         assert field.raw == 0x00000001_00007FFF
 
         # set array
         definition._count = 2
-        definition._num_bits = 32
         definition._data_type = 'INT32'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 16)
         assert field.raw == 0x0003_0004
-        pair.integrate_data(data, 4)
+        pair.integrate_data(data, 16, 4)
         assert field.raw == 0x0005_0006
-        integrate_data(definition, field, data, 7)
+        integrate_data(definition, field, data, 16, 7)
         assert field.raw is None
-        pair.integrate_data(data, 0)
+        pair.integrate_data(data, 16, 0)
         assert field.raw == 0x0001_7FFF
 
         # set value
         definition._count = 1
-        definition._num_bits = 32
         definition._data_type = 'INT32'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 32)
         assert field.raw == 0x00000003
-        pair.integrate_data(data, 5)
+        pair.integrate_data(data, 32, 5)
         assert field.raw == 0x00000006
-        integrate_data(definition, field, data, 9)
+        integrate_data(definition, field, data, 32, 9)
         assert field.raw is None
-        pair.integrate_data(data, 1)
+        pair.integrate_data(data, 32, 1)
         assert field.raw == 0x00007FFF
 
         # set value
         definition._count = 1
-        definition._num_bits = 16
         definition._data_type = 'INT16'
-        integrate_data(definition, field, data)
+        integrate_data(definition, field, data, 16)
         assert field.raw == 0x0003
-        pair.integrate_data(data, 5)
+        pair.integrate_data(data, 16, 5)
         assert field.raw == 0x0006
-        integrate_data(definition, field, data, 9)
+        integrate_data(definition, field, data, 16, 9)
         assert field.raw is None
-        pair.integrate_data(data, 1)
+        pair.integrate_data(data, 16, 1)
         assert field.raw is None
 
         field.concatenate_multiple_data_chunks = False
@@ -255,39 +227,42 @@ class TestLuxtronikFieldsDictionary:
         d = LuxtronikFieldsDictionary()
 
         assert type(d._def_lookup) is LuxtronikDefinitionsDictionary
+        assert d.def_dict is d._def_lookup
         assert type(d._field_lookup) is dict
-        assert len(d._field_lookup.values()) == 0
+        assert d.field_dict is d._field_lookup
         assert type(d._pairs) is list
-        assert len(d._pairs) == 0
+        assert d.pairs is d._pairs
+        assert len(d.field_dict) == 0
+        assert len(d.pairs) == 0
 
     def test_add(self):
         d = LuxtronikFieldsDictionary()
         assert len(d) == 0
-        assert len(d.items()) == 0
+        assert len(d.pairs) == 0
 
         u = LuxtronikDefinition.unknown(1, "test", 0)
         f = u.create_field()
         d.add(u, f)
         assert len(d) == 1
-        assert len(d._pairs) == 1
-        assert d._pairs[0].definition is u
-        assert d._pairs[0].field is f
+        assert len(d.pairs) == 1
+        assert d.pairs[0].definition is u
+        assert d.pairs[0].field is f
 
         u = LuxtronikDefinition.unknown(2, "test", 0)
         f = u.create_field()
         d.add(u, f)
         assert len(d) == 2
-        assert len(d._pairs) == 2
-        assert d._pairs[1].definition is u
-        assert d._pairs[1].field is f
+        assert len(d.pairs) == 2
+        assert d.pairs[1].definition is u
+        assert d.pairs[1].field is f
 
         u = LuxtronikDefinition.unknown(0, "test", 0)
         f = u.create_field()
         d.add_sorted(u, f)
         assert len(d) == 3
         assert len(d._pairs) == 3
-        assert d._pairs[0].definition is u
-        assert d._pairs[0].field is f
+        assert d.pairs[0].definition is u
+        assert d.pairs[0].field is f
 
     def create_instance(self):
         d = LuxtronikFieldsDictionary()
@@ -313,8 +288,8 @@ class TestLuxtronikFieldsDictionary:
     def test_len(self):
         d, _, _ = self.create_instance()
         # 3 different indices
-        assert len(d) == 3
-        assert len(d.items()) == 4
+        assert len(d) == 4
+        assert len(d.pairs) == 4
 
     def test_get_contains(self):
         d, u, f = self.create_instance()
@@ -340,42 +315,55 @@ class TestLuxtronikFieldsDictionary:
 
     def test_iter(self):
         d, _, _ = self.create_instance()
-        for idx, key in enumerate(d):
+        for idx, d in enumerate(d):
             if idx == 0:
-                assert key == 1
+                assert d.name == "unknown_test_1"
+                assert d.index == 1
             if idx == 1:
-                assert key == 2
+                assert d.name == "unknown_test_2"
+                assert d.index == 2
             if idx == 2:
-                assert key == 3
+                assert d.name == "base2"
+                assert d.index == 2
+            if idx == 3:
+                assert d.name == "base3"
+                assert d.index == 3
 
     def test_values(self):
         d, _, _ = self.create_instance()
-        for idx, value in enumerate(d.values()):
+        for idx, f in enumerate(d.values()):
             if idx == 0:
-                assert type(value) is Unknown
-                assert value.name == "unknown_test_1"
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_1"
             if idx == 1:
-                assert type(value) is Base
-                assert value.name == "base2"
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_2"
             if idx == 2:
-                assert type(value) is Base
-                assert value.name == "base3"
+                assert type(f) is Base
+                assert f.name == "base2"
+            if idx == 3:
+                assert type(f) is Base
+                assert f.name == "base3"
 
     def test_items(self):
         d, _, _ = self.create_instance()
-        for idx, (key, value) in enumerate(d.items()):
+        for idx, (d, f) in enumerate(d.items()):
             if idx == 0:
-                assert key == 1
-                assert type(value) is Unknown
-                assert value.name == "unknown_test_1"
+                assert d.index == 1
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_1"
             if idx == 1:
-                assert key == 2
-                assert type(value) is Base
-                assert value.name == "base2"
+                assert d.index == 2
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_2"
             if idx == 2:
-                assert key == 3
-                assert type(value) is Base
-                assert value.name == "base3"
+                assert d.index == 2
+                assert type(f) is Base
+                assert f.name == "base2"
+            if idx == 3:
+                assert d.index == 3
+                assert type(f) is Base
+                assert f.name == "base3"
 
     class MyTestClass:
         pass
