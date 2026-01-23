@@ -90,7 +90,7 @@ class TestDataVector:
         assert field is None
 
         # create field by def
-        field = DataVectorTest.create_any_field(def_list[3])
+        field = DataVectorTest.create_any_field(TEST_DEFINITIONS._definitions[2])
         assert field.name == 'field_9a'
         assert field.writeable
         assert type(field) is Base
