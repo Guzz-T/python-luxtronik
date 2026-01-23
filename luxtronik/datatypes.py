@@ -1,6 +1,7 @@
 """datatype conversions."""
 
 import datetime
+import ipaddress
 import socket
 import struct
 
@@ -327,6 +328,31 @@ class Seconds(Base):
     datatype_unit = "s"
 
 
+class Pulses(Base):
+    """Pulses datatype, converts from and to Pulses."""
+
+    datatype_class = "pulses"
+
+
+class IPAddress(Base):
+    """IP Address datatype, converts from and to an IP Address."""
+
+    datatype_class = "ipaddress"
+
+    def from_heatpump(self, value):
+        if value < 0:
+            return str(ipaddress.IPv4Address(value + 2**32))
+        if value > 2**32:
+            return str(ipaddress.IPv4Address(value - 2**32))
+        return str(ipaddress.IPv4Address(value))
+
+    def to_heatpump(self, value):
+        result = int(ipaddress.IPv4Address(value))
+        if result > 2**32:
+            return result - 2**32
+        return result
+
+
 class IPv4Address(Base):
     """IPv4 address datatype, converts from and to an IPv4 address."""
 
@@ -588,6 +614,15 @@ class Count(Base):
     """Count datatype, converts from and to Count."""
 
     datatype_class = "count"
+
+
+class Version(Base):
+    """Version datatype, converts from and to a Heatpump Version."""
+
+    datatype_class = "version"
+
+    def from_heatpump(self, value):
+        return "".join([chr(c) for c in value]).strip("\x00")
 
 
 class Character(Base):
