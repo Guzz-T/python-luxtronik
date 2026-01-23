@@ -1,16 +1,13 @@
 """datatype conversions."""
 
 import datetime
-import logging
+import ipaddress
 import socket
 import struct
 
 from luxtronik.common import classproperty
 
 from functools import total_ordering
-
-
-LOGGER = logging.getLogger(__name__)
 
 
 @total_ordering
@@ -69,8 +66,6 @@ class Base:
     def value(self, value):
         """Converts the value into heatpump units and store it."""
         self._raw = self.to_heatpump(value)
-        if self._raw is None:
-            LOGGER.warning(f"Value '{value}' not valid for field '{self.name}'")
         self.write_pending = True
 
     @property
@@ -80,7 +75,7 @@ class Base:
 
     @raw.setter
     def raw(self, raw):
-        """Store the raw data. For internal use only"""
+        """Store the raw data."""
         self._raw = raw
         self.write_pending = False
 
@@ -128,30 +123,6 @@ class Base:
             and self.datatype_class == other.datatype_class
             and self.datatype_unit == other.datatype_unit
         )
-
-    def check_for_write(self, safe=True):
-        """
-        Returns true if the field is writable and the field data is valid.
-
-        Args:
-            safe (bool, Default: True): Flag for blocking write operations
-                if the field is not marked as writable
-
-        Returns:
-            bool: True if the data is writable, otherwise False.
-        """
-        if self.writeable or not safe:
-            # We support integers
-            if isinstance(self._raw, int):
-                return True
-            # and list of integers
-            elif isinstance(self._raw, list) and all(isinstance(value, int) for value in self._raw):
-                return True
-            else:
-                LOGGER.error(f"Value of '{self.name}' invalid!")
-        else:
-            LOGGER.warning(f"'{self.name}' not safe for writing!")
-        return False
 
 
 class SelectionBase(Base):
@@ -355,6 +326,31 @@ class Seconds(Base):
 
     datatype_class = "timespan"
     datatype_unit = "s"
+
+
+class Pulses(Base):
+    """Pulses datatype, converts from and to Pulses."""
+
+    datatype_class = "pulses"
+
+
+class IPAddress(Base):
+    """IP Address datatype, converts from and to an IP Address."""
+
+    datatype_class = "ipaddress"
+
+    def from_heatpump(self, value):
+        if value < 0:
+            return str(ipaddress.IPv4Address(value + 2**32))
+        if value > 2**32:
+            return str(ipaddress.IPv4Address(value - 2**32))
+        return str(ipaddress.IPv4Address(value))
+
+    def to_heatpump(self, value):
+        result = int(ipaddress.IPv4Address(value))
+        if result > 2**32:
+            return result - 2**32
+        return result
 
 
 class IPv4Address(Base):
@@ -618,6 +614,15 @@ class Count(Base):
     """Count datatype, converts from and to Count."""
 
     datatype_class = "count"
+
+
+class Version(Base):
+    """Version datatype, converts from and to a Heatpump Version."""
+
+    datatype_class = "version"
+
+    def from_heatpump(self, value):
+        return "".join([chr(c) for c in value]).strip("\x00")
 
 
 class Character(Base):
