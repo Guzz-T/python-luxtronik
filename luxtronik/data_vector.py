@@ -182,43 +182,6 @@ class DataVector:
         return self._data.register_alias(def_field_name_or_idx, alias)
 
 
-# Parse methods ###############################################################
-
-    def parse(self, raw_data, num_bits):
-        """
-        Parse raw data into the corresponding fields.
-
-        Args:
-            raw_data (list[int]): List of raw register values.
-                The raw data must start at register index 0.
-            num_bits (int): Number of bits per register.
-        """
-        raw_len = len(raw_data)
-        # Prepare a list of undefined indices
-        undefined = {i for i in range(0, raw_len)}
-
-        # integrate the data into the fields
-        for pair in self._data.items():
-            definition, field = pair
-            # skip this field if there are not enough data
-            next_idx = definition.index + definition.count
-            if next_idx > raw_len:
-                # not enough registers
-                continue
-            # remove all used indices from the list of undefined indices
-            for index in range(definition.index, next_idx):
-                undefined.discard(index)
-            pair.integrate_data(raw_data, num_bits)
-
-        # create an unknown field for additional data
-        for index in undefined:
-            # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)
-            definition = self.definitions.create_unknown_definition(index)
-            field = definition.create_field()
-            field.raw = raw_data[index]
-            self._data.add_sorted(definition, field)
-
-
 # Get and set methods #########################################################
 
     def _get_definition(self, def_field_name_or_idx, all_not_version_dependent):

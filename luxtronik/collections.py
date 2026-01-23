@@ -99,12 +99,12 @@ def get_data_arr(definition, field, num_bits):
 
 def integrate_data(definition, field, raw_data, num_bits, data_offset=-1):
     """
-    Integrate raw values from a data array into the field.
+    Integrate the related parts of the `raw_data` into the field.
 
     Args:
         definition (LuxtronikDefinition): Meta-data of the field.
         field (Base): Field object where to integrate the data.
-        raw_data (list): Source array of bytes/words.
+        raw_data (list): Source array of register values.
         num_bits (int): Number of bits per register.
         data_offset (int): Optional offset. Defaults to `definition.index`.
     """
@@ -147,41 +147,47 @@ class LuxtronikDefFieldPair:
         self.definition = definition
 
     def __iter__(self):
+        """
+        Yield the definition and the field to unpack the object like `d, f = pair`.
+        """
         yield self.definition
         yield self.field
 
     @property
     def index(self):
+        """
+        Forward the `LuxtronikDefinition.index` property.
+        Please check its documentation.
+        """
         return self.definition.index
 
     @property
     def addr(self):
+        """
+        Forward the `LuxtronikDefinition.addr` property.
+        Please check its documentation.
+        """
         return self.definition.addr
 
     @property
     def count(self):
+        """
+        Forward the `LuxtronikDefinition.count` property.
+        Please check its documentation.
+        """
         return self.definition.count
 
     def get_data_arr(self, num_bits):
         """
-        Normalize the field's data to a list of the correct size.
-
-        Args:
-            num_bits (int): Number of bits per register.
-
-        Returns:
-            list[int] | None: List of length `definition.count`, or None if insufficient.
+        Forward the `get_data_arr` method with the stored objects.
+        Please check its documentation.
         """
         return get_data_arr(self.definition, self.field, num_bits)
 
     def integrate_data(self, raw_data, num_bits, data_offset=-1):
         """
-        Integrate the related parts of the `raw_data` into the field
-
-        Args:
-            raw_data (list): Source array of register values.
-            data_offset (int): Optional offset. Defaults to `definition.index`.
-            num_bits (int): Number of bits per register.
+        Forward the `integrate_data` method with the stored objects.
+        Please check its documentation.
         """
         integrate_data(self.definition, self.field, raw_data, num_bits, data_offset)
 
