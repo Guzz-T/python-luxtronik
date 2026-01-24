@@ -3,7 +3,6 @@
 # pylint: disable=too-few-public-methods,invalid-name,too-many-lines
 
 import logging
-logging.disable(logging.CRITICAL)
 
 from luxtronik import (
     Calculations,
@@ -14,7 +13,6 @@ from luxtronik import (
 )
 
 from luxtronik.datatypes import (
-    AccessLevel,
     Base,
     BivalenceLevel,
     Bool,
@@ -36,8 +34,6 @@ from luxtronik.datatypes import (
     HeatpumpCode,
     HotWaterMode,
     Hours,
-    Hours2,
-    IPv4Address,
     Icon,
     Kelvin,
     KelvinInt16,
@@ -64,7 +60,6 @@ from luxtronik.datatypes import (
     SolarMode,
     Speed,
     SwitchoffFile,
-    TimeOfDay,
     TimeOfDay2,
     TimerProgram,
     Timestamp,
@@ -74,6 +69,7 @@ from luxtronik.datatypes import (
     Voltage,
 )
 
+logging.disable(logging.CRITICAL)
 
 
 class Pulses(Base):
@@ -2115,8 +2111,6 @@ class TestCompatibility:
             "unknown_holding_60": (60, Unknown),
             "heat_overall_mode": (65, ControlMode),
             "heat_overall_offset": (66, KelvinInt16),
-            "heat_overall_mode": (65, ControlMode),
-            "heat_overall_offset": (66, KelvinInt16),
             "heat_overall_level": (67, LevelMode),
             "circulation": (70, OnOffMode),
             "hot_water_extra": (71, OnOffMode),
@@ -2143,7 +2137,7 @@ class TestCompatibility:
                 # Try to get the definition of the "old name"
                 try:
                     def_by_name = data_vector.definitions.get(old_name)
-                except Exception as e:
+                except Exception:
                     def_by_name = None
                 old_found = def_by_name is not None
                 old_is_obsolete = old_name in data_vector._obsolete
@@ -2177,24 +2171,24 @@ class TestCompatibility:
             if do_print:
                 print(f"############################## Incompatibilities - {caption}:")
                 if obsolete_found:
-                    print(f"############################## obsolete")
+                    print("############################## obsolete")
                     for err in obsolete_found:
                         print(err)
                 if old_not_found:
-                    print(f"############################## not found")
+                    print("############################## not found")
                     for err in old_not_found:
                         print(err)
                 if old_idx_wrong:
-                    print(f"############################## idx wrong")
+                    print("############################## idx wrong")
                     for err in old_idx_wrong:
                         print(err)
                 if old_type_changed:
-                    print(f"############################## type changed")
+                    print("############################## type changed")
                     for err in old_type_changed:
                         print(err)
 
             all_ok &= ok
-        assert ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
+        assert all_ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
 
         # Second, we check if all names are present in the above dicts.
         all_ok = True
@@ -2220,4 +2214,4 @@ class TestCompatibility:
                         print(err)
 
             all_ok &= ok
-        assert all_ok, f"Found missing entries. Please consider to add them to the test suite."
+        assert all_ok, "Found missing entries. Please consider to add them to the test suite."
