@@ -18,6 +18,9 @@ from luxtronik.datatypes import *
 class Pulses(Base):
     pass
 
+class IPAddress(Base):
+    pass
+
 class TestCompatibility:
     """Test suite for compatibilities"""
 
