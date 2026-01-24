@@ -8,6 +8,7 @@ from luxtronik.definitions.visibilities import (
     VISIBILITIES_DEFINITIONS_LIST,
     VISIBILITIES_OFFSET,
     VISIBILITIES_DEFAULT_DATA_TYPE,
+    VISIBILITIES_OUTDATED,
 )
 
 from luxtronik.cfi.constants import VISIBILITIES_FIELD_NAME
@@ -28,3 +29,4 @@ class Visibilities(DataVectorConfig):
 
     name = VISIBILITIES_FIELD_NAME
     definitions = VISIBILITIES_DEFINITIONS
+    _outdated = VISIBILITIES_OUTDATED
