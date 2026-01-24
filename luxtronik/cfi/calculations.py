@@ -30,13 +30,9 @@ class Calculations(DataVectorConfig):
     name = CALCULATIONS_FIELD_NAME
     definitions = CALCULATIONS_DEFINITIONS
 
-    _obsolete = {
-        "ID_WEB_SoftStand": "get_firmware_version()"
-    }
-
     def get_firmware_version(self):
         """Get the firmware version as string."""
-        return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])
+        return "".join([str(super(Calculations, self).get(i).value) for i in range(81, 91)])
 
     def _get_firmware_version(self):
         """Get the firmware version as string like in previous versions."""

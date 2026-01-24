@@ -2,11 +2,21 @@
 
 # pylint: disable=too-few-public-methods,invalid-name,too-many-lines
 
+import logging
+logging.disable(logging.CRITICAL)
+
 from luxtronik import (
     Calculations,
     Parameters,
     Visibilities,
+    Inputs,
+    Holdings,
 )
+from luxtronik.datatypes import *
+
+
+class Pulses(Base):
+    pass
 
 class TestCompatibility:
     """Test suite for compatibilities"""
@@ -1143,69 +1153,64 @@ class TestCompatibility:
             "Unknown_Parameter_1124": (1124, Unknown),
             "Unknown_Parameter_1125": (1125, Unknown),
             # New in 'main' branch:
-            "SILENT_MODE": 1087,
-            "ID_Einst_SuSilence": 1092,
-            "ID_Einst_SilenceTimer_0": 1093,
-            "ID_Einst_SilenceTimer_1": 1094,
-            "ID_Einst_SilenceTimer_2": 1095,
-            "ID_Einst_SilenceTimer_3": 1096,
-            "ID_Einst_SilenceTimer_4": 1097,
-            "ID_Einst_SilenceTimer_5": 1098,
-            "ID_Einst_SilenceTimer_6": 1099,
-            "ID_Einst_SilenceTimer_7": 1100,
-            "ID_Einst_SilenceTimer_8": 1101,
-            "ID_Einst_SilenceTimer_9": 1102,
-            "ID_Einst_SilenceTimer_10": 1103,
-            "ID_Einst_SilenceTimer_11": 1104,
-            "ID_Einst_SilenceTimer_12": 1105,
-            "ID_Einst_SilenceTimer_13": 1106,
-            "ID_Einst_SilenceTimer_14": 1107,
-            "ID_Einst_SilenceTimer_15": 1108,
-            "ID_Einst_SilenceTimer_16": 1109,
-            "ID_Einst_SilenceTimer_17": 1110,
-            "ID_Einst_SilenceTimer_18": 1111,
-            "ID_Einst_SilenceTimer_19": 1112,
-            "ID_Einst_SilenceTimer_20": 1113,
-            "LAST_DEFROST_TIMESTAMP": 1119,
-            "Unknown_Parameter_1126": 1126,
-            "Unknown_Parameter_1127": 1127,
-            "Unknown_Parameter_1128": 1128,
-            "Unknown_Parameter_1129": 1129,
-            "Unknown_Parameter_1130": 1130,
-            "Unknown_Parameter_1131": 1131,
-            "Unknown_Parameter_1132": 1132,
-            "Unknown_Parameter_1133": 1133,
-            "Unknown_Parameter_1134": 1134,
-            "Unknown_Parameter_1135": 1135,
-            "Unknown_Parameter_1136": 1136,
-            "HEAT_ENERGY_INPUT": 1136,
-            "Unknown_Parameter_1137": 1137,
-            "DHW_ENERGY_INPUT": 1137,
-            "Unknown_Parameter_1138": 1138,
-            "Unknown_Parameter_1139": 1139,
-            "COOLING_ENERGY_INPUT": 1139,
-            "Unknown_Parameter_1140": 1140,
-            "SECOND_HEAT_GENERATOR_AMOUNT_COUNTER": 1140,
-            "Unknown_Parameter_1141": 1141,
-            "Unknown_Parameter_1142": 1142,
-            "Unknown_Parameter_1143": 1143,
-            "Unknown_Parameter_1144": 1144,
-            "Unknown_Parameter_1145": 1145,
-            "Unknown_Parameter_1146": 1146,
-            "Unknown_Parameter_1147": 1147,
-            "Unknown_Parameter_1148": 1148,
-            "HEATING_TARGET_TEMP_ROOM_THERMOSTAT": 1148,
-            "Unknown_Parameter_1149": 1149,
-            "Unknown_Parameter_1150": 1150,
-            "Unknown_Parameter_1151": 1151,
-            "Unknown_Parameter_1152": 1152,
-            "Unknown_Parameter_1153": 1153,
-            "Unknown_Parameter_1154": 1154,
-            "Unknown_Parameter_1155": 1155,
-            "Unknown_Parameter_1156": 1156,
-            "Unknown_Parameter_1157": 1157,
-            "POWER_LIMIT_SWITCH": 1158,
-            "POWER_LIMIT_VALUE": 1159,
+            "SILENT_MODE": (1087, OnOffMode),
+            "ID_Einst_SuSilence": (1092, TimerProgram),
+            "ID_Einst_SilenceTimer_0": (1093, TimeOfDay2),
+            "ID_Einst_SilenceTimer_1": (1094, TimeOfDay2),
+            "ID_Einst_SilenceTimer_2": (1095, TimeOfDay2),
+            "ID_Einst_SilenceTimer_3": (1096, TimeOfDay2),
+            "ID_Einst_SilenceTimer_4": (1097, TimeOfDay2),
+            "ID_Einst_SilenceTimer_5": (1098, TimeOfDay2),
+            "ID_Einst_SilenceTimer_6": (1099, TimeOfDay2),
+            "ID_Einst_SilenceTimer_7": (1100, TimeOfDay2),
+            "ID_Einst_SilenceTimer_8": (1101, TimeOfDay2),
+            "ID_Einst_SilenceTimer_9": (1102, TimeOfDay2),
+            "ID_Einst_SilenceTimer_10": (1103, TimeOfDay2),
+            "ID_Einst_SilenceTimer_11": (1104, TimeOfDay2),
+            "ID_Einst_SilenceTimer_12": (1105, TimeOfDay2),
+            "ID_Einst_SilenceTimer_13": (1106, TimeOfDay2),
+            "ID_Einst_SilenceTimer_14": (1107, TimeOfDay2),
+            "ID_Einst_SilenceTimer_15": (1108, TimeOfDay2),
+            "ID_Einst_SilenceTimer_16": (1109, TimeOfDay2),
+            "ID_Einst_SilenceTimer_17": (1110, TimeOfDay2),
+            "ID_Einst_SilenceTimer_18": (1111, TimeOfDay2),
+            "ID_Einst_SilenceTimer_19": (1112, TimeOfDay2),
+            "ID_Einst_SilenceTimer_20": (1113, TimeOfDay2),
+            "LAST_DEFROST_TIMESTAMP": (1119, Timestamp),
+            "Unknown_Parameter_1126": (1126, Unknown),
+            "Unknown_Parameter_1127": (1127, Unknown),
+            "Unknown_Parameter_1128": (1128, Unknown),
+            "Unknown_Parameter_1129": (1129, Unknown),
+            "Unknown_Parameter_1130": (1130, Unknown),
+            "Unknown_Parameter_1131": (1131, Unknown),
+            "Unknown_Parameter_1132": (1132, Unknown),
+            "Unknown_Parameter_1133": (1133, Unknown),
+            "Unknown_Parameter_1134": (1134, Unknown),
+            "Unknown_Parameter_1135": (1135, Unknown),
+            "HEAT_ENERGY_INPUT": (1136, Energy),
+            "DHW_ENERGY_INPUT": (1137, Energy),
+            "Unknown_Parameter_1138": (1138, Unknown),
+            "COOLING_ENERGY_INPUT": (1139, Energy),
+            "SECOND_HEAT_GENERATOR_AMOUNT_COUNTER": (1140, Unknown),
+            "Unknown_Parameter_1141": (1141, Unknown),
+            "Unknown_Parameter_1142": (1142, Unknown),
+            "Unknown_Parameter_1143": (1143, Unknown),
+            "Unknown_Parameter_1144": (1144, Unknown),
+            "Unknown_Parameter_1145": (1145, Unknown),
+            "Unknown_Parameter_1146": (1146, Unknown),
+            "Unknown_Parameter_1147": (1147, Unknown),
+            "HEATING_TARGET_TEMP_ROOM_THERMOSTAT": (1148, Celsius),
+            "Unknown_Parameter_1149": (1149, Unknown),
+            "Unknown_Parameter_1150": (1150, Unknown),
+            "Unknown_Parameter_1151": (1151, Unknown),
+            "Unknown_Parameter_1152": (1152, Unknown),
+            "Unknown_Parameter_1153": (1153, Unknown),
+            "Unknown_Parameter_1154": (1154, Unknown),
+            "Unknown_Parameter_1155": (1155, Unknown),
+            "Unknown_Parameter_1156": (1156, Unknown),
+            "Unknown_Parameter_1157": (1157, Unknown),
+            "POWER_LIMIT_SWITCH": (1158, Unknown),
+            "POWER_LIMIT_VALUE": (1159, Unknown),
         }
 
         calcs = {
@@ -1462,38 +1467,37 @@ class TestCompatibility:
             "Unknown_Calculation_258": (258, Unknown),
             "Unknown_Calculation_259": (259, Unknown),
             # New in 'main' branch:
-            "ID_WEB_SoftStand_0": 81,
-            "ID_WEB_SoftStand_1": 82,
-            "ID_WEB_SoftStand_2": 83,
-            "ID_WEB_SoftStand_3": 84,
-            "ID_WEB_SoftStand_4": 85,
-            "ID_WEB_SoftStand_5": 86,
-            "ID_WEB_SoftStand_6": 87,
-            "ID_WEB_SoftStand_7": 88,
-            "ID_WEB_SoftStand_8": 89,
-            "ID_WEB_SoftStand_9": 90,
-            "Vapourisation_Temperature": 232,
-            "Liquefaction_Temperature": 233,
-            "ID_WEB_Freq_VD_Soll": 236,
-            "ID_WEB_Freq_VD_Min": 237,
-            "ID_WEB_Freq_VD_Max": 238,
-            "VBO_Temp_Spread_Soll": 239,
-            "VBO_Temp_Spread_Ist": 240,
-            "HUP_PWM": 241,
-            "HUP_Temp_Spread_Soll": 242,
-            "HUP_Temp_Spread_Ist": 243,
-            "RBE_Version": 258,
-            "Unknown_Calculation_260": 260,
-            "Unknown_Calculation_261": 261,
-            "Unknown_Calculation_262": 262,
-            "Unknown_Calculation_263": 263,
-            "Unknown_Calculation_264": 264,
-            "Unknown_Calculation_265": 265,
-            "Unknown_Calculation_266": 266,
-            "Desired_Room_Temperature": 267,
-            "AC_Power_Input": 268,
+            "ID_WEB_SoftStand_0": (81, Character),
+            "ID_WEB_SoftStand_1": (82, Character),
+            "ID_WEB_SoftStand_2": (83, Character),
+            "ID_WEB_SoftStand_3": (84, Character),
+            "ID_WEB_SoftStand_4": (85, Character),
+            "ID_WEB_SoftStand_5": (86, Character),
+            "ID_WEB_SoftStand_6": (87, Character),
+            "ID_WEB_SoftStand_7": (88, Character),
+            "ID_WEB_SoftStand_8": (89, Character),
+            "ID_WEB_SoftStand_9": (90, Character),
+            "Vapourisation_Temperature": (232, Celsius),
+            "Liquefaction_Temperature": (233, Celsius),
+            "ID_WEB_Freq_VD_Soll": (236, Frequency),
+            "ID_WEB_Freq_VD_Min": (237, Frequency),
+            "ID_WEB_Freq_VD_Max": (238, Frequency),
+            "VBO_Temp_Spread_Soll": (239, Kelvin),
+            "VBO_Temp_Spread_Ist": (240, Kelvin),
+            "HUP_PWM": (241, Percent2),
+            "HUP_Temp_Spread_Soll": (242, Kelvin),
+            "HUP_Temp_Spread_Ist": (243, Kelvin),
+            "RBE_Version": (258, MajorMinorVersion),
+            "Unknown_Calculation_260": (260, Unknown),
+            "Unknown_Calculation_261": (261, Unknown),
+            "Unknown_Calculation_262": (262, Unknown),
+            "Unknown_Calculation_263": (263, Unknown),
+            "Unknown_Calculation_264": (264, Unknown),
+            "Unknown_Calculation_265": (265, Unknown),
+            "Unknown_Calculation_266": (266, Unknown),
+            "Desired_Room_Temperature": (267, Celsius),
+            "AC_Power_Input": (268, Power),
         }
-        # Note: "ID_WEB_SoftStand" tested in "test_get_firmware_version()"
 
         visis = {
             # Status of 0.3.14:
@@ -1852,95 +1856,299 @@ class TestCompatibility:
             "Unknown_Visibility_352": (352, Unknown),
             "Unknown_Visibility_353": (353, Unknown),
             "Unknown_Visibility_354": (354, Unknown),
-            # New in 'main' branch:
-            "ID_Visi_Heizung_Zeitschaltprogramm": 182,
-            "Unknown_Visibility_355": 355,
-            "Unknown_Visibility_356": 356,
-            "Unknown_Visibility_357": 357,
-            "ELECTRICAL_POWER_LIMITATION_SWITCH": 357,
-            "Unknown_Visibility_358": 358,
-            "Unknown_Visibility_359": 359,
-            "Unknown_Visibility_360": 360,
-            "Unknown_Visibility_361": 361,
-            "Unknown_Visibility_362": 362,
-            "Unknown_Visibility_363": 363,
-            "Unknown_Visibility_364": 364,
-            "Unknown_Visibility_365": 365,
-            "Unknown_Visibility_366": 366,
-            "Unknown_Visibility_367": 367,
-            "Unknown_Visibility_368": 368,
-            "Unknown_Visibility_369": 369,
-            "Unknown_Visibility_370": 370,
-            "Unknown_Visibility_371": 371,
-            "Unknown_Visibility_372": 372,
-            "Unknown_Visibility_373": 373,
-            "Unknown_Visibility_374": 374,
-            "Unknown_Visibility_375": 375,
-            "Unknown_Visibility_376": 376,
-            "Unknown_Visibility_377": 377,
-            "Unknown_Visibility_378": 378,
-            "Unknown_Visibility_379": 379,
             # Bug in v0.3.14 visibilities parse method
-            "Unknown_Parameter_355": 355,
-            "Unknown_Parameter_356": 356,
-            "Unknown_Parameter_357": 357,
-            "Unknown_Parameter_358": 358,
-            "Unknown_Parameter_359": 359,
-            "Unknown_Parameter_360": 360,
-            "Unknown_Parameter_361": 361,
-            "Unknown_Parameter_362": 362,
-            "Unknown_Parameter_363": 363,
-            "Unknown_Parameter_364": 364,
-            "Unknown_Parameter_365": 365,
-            "Unknown_Parameter_366": 366,
-            "Unknown_Parameter_367": 367,
-            "Unknown_Parameter_368": 368,
-            "Unknown_Parameter_369": 369,
-            "Unknown_Parameter_370": 370,
-            "Unknown_Parameter_371": 371,
-            "Unknown_Parameter_372": 372,
-            "Unknown_Parameter_373": 373,
-            "Unknown_Parameter_374": 374,
-            "Unknown_Parameter_375": 375,
-            "Unknown_Parameter_376": 376,
-            "Unknown_Parameter_377": 377,
-            "Unknown_Parameter_378": 378,
-            "Unknown_Parameter_379": 379,
+            "Unknown_Parameter_355": (355, Unknown),
+            "Unknown_Parameter_356": (356, Unknown),
+            "Unknown_Parameter_357": (357, Unknown),
+            "Unknown_Parameter_358": (358, Unknown),
+            "Unknown_Parameter_359": (359, Unknown),
+            "Unknown_Parameter_360": (360, Unknown),
+            "Unknown_Parameter_361": (361, Unknown),
+            "Unknown_Parameter_362": (362, Unknown),
+            "Unknown_Parameter_363": (363, Unknown),
+            "Unknown_Parameter_364": (364, Unknown),
+            "Unknown_Parameter_365": (365, Unknown),
+            "Unknown_Parameter_366": (366, Unknown),
+            "Unknown_Parameter_367": (367, Unknown),
+            "Unknown_Parameter_368": (368, Unknown),
+            "Unknown_Parameter_369": (369, Unknown),
+            "Unknown_Parameter_370": (370, Unknown),
+            "Unknown_Parameter_371": (371, Unknown),
+            "Unknown_Parameter_372": (372, Unknown),
+            "Unknown_Parameter_373": (373, Unknown),
+            "Unknown_Parameter_374": (374, Unknown),
+            "Unknown_Parameter_375": (375, Unknown),
+            "Unknown_Parameter_376": (376, Unknown),
+            "Unknown_Parameter_377": (377, Unknown),
+            "Unknown_Parameter_378": (378, Unknown),
+            "Unknown_Parameter_379": (379, Unknown),
+            # New in 'main' branch:
+            "ID_Visi_Heizung_Zeitschaltprogramm": (182, Unknown),
+            "Unknown_Visibility_355": (355, Unknown),
+            "Unknown_Visibility_356": (356, Unknown),
+            "ELECTRICAL_POWER_LIMITATION_SWITCH": (357, Unknown),
+            "Unknown_Visibility_358": (358, Unknown),
+            "Unknown_Visibility_359": (359, Unknown),
+            "Unknown_Visibility_360": (360, Unknown),
+            "Unknown_Visibility_361": (361, Unknown),
+            "Unknown_Visibility_362": (362, Unknown),
+            "Unknown_Visibility_363": (363, Unknown),
+            "Unknown_Visibility_364": (364, Unknown),
+            "Unknown_Visibility_365": (365, Unknown),
+            "Unknown_Visibility_366": (366, Unknown),
+            "Unknown_Visibility_367": (367, Unknown),
+            "Unknown_Visibility_368": (368, Unknown),
+            "Unknown_Visibility_369": (369, Unknown),
+            "Unknown_Visibility_370": (370, Unknown),
+            "Unknown_Visibility_371": (371, Unknown),
+            "Unknown_Visibility_372": (372, Unknown),
+            "Unknown_Visibility_373": (373, Unknown),
+            "Unknown_Visibility_374": (374, Unknown),
+            "Unknown_Visibility_375": (375, Unknown),
+            "Unknown_Visibility_376": (376, Unknown),
+            "Unknown_Visibility_377": (377, Unknown),
+            "Unknown_Visibility_378": (378, Unknown),
+            "Unknown_Visibility_379": (379, Unknown),
         }
 
-        values = [[paras, Parameters(), "paras"], [calcs, Calculations(), "calcs"], [visis, Visibilities(), "visis"]]
+        inputs = {
+            "heatpump_status": (0, HeatPumpStatus),
+            "operation_mode": (2, OperationMode),
+            "heating_status": (3, ModeStatus),
+            "hot_water_status": (4, ModeStatus),
+            "dhw_status": (4, ModeStatus),
+            "cooling_status": (6, ModeStatus),
+            "pool_heating_status": (7, ModeStatus),
+            "return_line_temp": (100, CelsiusUInt16),
+            "return_line_target": (101, CelsiusUInt16),
+            "return_line_ext": (102, CelsiusUInt16),
+            "return_line_limit": (103, CelsiusInt16),
+            "return_line_min_target": (104, CelsiusInt16),
+            "flow_line_temp": (105, CelsiusUInt16),
+            "room_temperature": (106, CelsiusInt16),
+            "heating_limit": (107, CelsiusInt16),
+            "outside_temp": (108, CelsiusInt16),
+            "outside_temp_average": (109, CelsiusInt16),
+            "heat_source_input": (110, CelsiusInt16),
+            "heat_source_output": (111, CelsiusInt16),
+            "max_flow_temp": (112, CelsiusUInt16),
+            "unknown_input_113": (113, Unknown),
+            "hot_water_temp": (120, CelsiusInt16),
+            "dhw_temp": (120, CelsiusInt16),
+            "hot_water_target": (121, CelsiusUInt16),
+            "dhw_target": (121, CelsiusUInt16),
+            "hot_water_min": (122, CelsiusInt16),
+            "dhw_min": (122, CelsiusInt16),
+            "hot_water_max": (123, CelsiusInt16),
+            "dhw_max": (123, CelsiusInt16),
+            "hot_water_limit": (124, CelsiusInt16),
+            "dhw_limit": (124, CelsiusInt16),
+            "mc1_temp": (140, CelsiusInt16),
+            "mc1_target": (141, CelsiusInt16),
+            "mc1_min": (142, CelsiusInt16),
+            "mc1_max": (143, CelsiusInt16),
+            "mc2_temp": (150, CelsiusInt16),
+            "mc2_target": (151, CelsiusInt16),
+            "mc2_min": (152, CelsiusInt16),
+            "mc2_max": (153, CelsiusInt16),
+            "mc3_temp": (160, CelsiusInt16),
+            "mc3_target": (161, CelsiusInt16),
+            "mc3_min": (162, CelsiusInt16),
+            "mc3_max": (163, CelsiusInt16),
+            "error_number": (201, Errorcode),
+            "buffer_type": (202, BufferType),
+            "min_off_time": (203, Minutes),
+            "min_run_time": (204, Minutes),
+            "cooling_configured": (205, OnOffMode),
+            "pool_heating_configured": (206, OnOffMode),
+            "cooling_release": (207, OnOffMode),
+            "heating_power_actual": (300, PowerKW),
+            "electric_power_actual": (301, PowerKW),
+            "electric_power_min_predicted": (302, PowerKW),
+            "electric_energy_total": (310, Energy),
+            "electric_energy_heating": (312, Energy),
+            "electric_energy_dhw": (314, Energy),
+            "electric_energy_cooling": (316, Energy),
+            "electric_energy_pool": (318, Energy),
+            "thermal_energy_total": (320, Energy),
+            "thermal_energy_heating": (322, Energy),
+            "thermal_energy_dhw": (324, Energy),
+            "thermal_energy_cooling": (326, Energy),
+            "thermal_energy_pool": (328, Energy),
+            "unknown_input_350": (350, Unknown),
+            "unknown_input_351": (351, Unknown),
+            "unknown_input_352": (352, Unknown),
+            "unknown_input_353": (353, Unknown),
+            "unknown_input_354": (354, Unknown),
+            "unknown_input_355": (355, Unknown),
+            "unknown_input_356": (356, Unknown),
+            "unknown_input_360": (360, Unknown),
+            "unknown_input_361": (361, Unknown),
+            "version": (400, FullVersion),
+            "unknown_input_404": (404, Unknown),
+            "unknown_input_405": (405, Unknown),
+            "unknown_input_406": (406, Unknown),
+            "unknown_input_407": (407, Unknown),
+            "unknown_input_408": (408, Unknown),
+            "unknown_input_409": (409, Unknown),
+            "unknown_input_410": (410, Unknown),
+            "unknown_input_411": (411, Unknown),
+            "unknown_input_412": (412, Unknown),
+            "unknown_input_413": (413, Unknown),
+            "unknown_input_416": (416, Unknown),
+            "unknown_input_417": (417, Unknown),
+            "unknown_input_500": (500, Unknown),
+            "unknown_input_501": (501, Unknown),
+            "unknown_input_502": (502, Unknown),
+        }
+
+        holdings = {
+            # New in 'main' branch:
+            "heating_mode": (0, ControlMode),
+            "heating_setpoint": (1, CelsiusUInt16),
+            "heating_offset": (2, KelvinInt16),
+            "heating_level": (3, LevelMode),
+            "hot_water_mode": (5, ControlMode),
+            "dhw_mode": (5, ControlMode),
+            "hot_water_setpoint": (6, CelsiusUInt16),
+            "dhw_setpoint": (6, CelsiusUInt16),
+            "hot_water_offset": (7, KelvinInt16),
+            "dhw_offset": (7, KelvinInt16),
+            "hot_water_level": (8, LevelMode),
+            "dhw_level": (8, LevelMode),
+            "mc1_heat_mode": (10, ControlMode),
+            "mc1_heat_setpoint": (11, CelsiusUInt16),
+            "mc1_heat_offset": (12, KelvinInt16),
+            "mc1_heat_level": (13, LevelMode),
+            "mc1_cool_mode": (15, ControlMode),
+            "mc1_cool_setpoint": (16, CelsiusUInt16),
+            "mc1_cool_offset": (17, KelvinInt16),
+            "mc2_heat_mode": (20, ControlMode),
+            "mc2_heat_setpoint": (21, CelsiusUInt16),
+            "mc2_heat_offset": (22, KelvinInt16),
+            "mc2_heat_level": (23, LevelMode),
+            "mc2_cool_mode": (25, ControlMode),
+            "mc2_cool_setpoint": (26, CelsiusUInt16),
+            "mc2_cool_offset": (27, KelvinInt16),
+            "mc3_heat_mode": (30, ControlMode),
+            "mc3_heat_setpoint": (31, CelsiusUInt16),
+            "mc3_heat_offset": (32, KelvinInt16),
+            "mc3_heat_level": (33, LevelMode),
+            "mc3_cool_mode": (35, ControlMode),
+            "mc3_cool_setpoint": (36, CelsiusUInt16),
+            "mc3_cool_offset": (37, KelvinInt16),
+            "lpc_mode": (40, LpcMode),
+            "pc_limit": (41, PowerKW),
+            "lock_heating": (50, LockMode),
+            "lock_hot_water": (51, LockMode),
+            "lock_cooling": (52, LockMode),
+            "lock_swimming_pool": (53, LockMode),
+            "unknown_holding_60": (60, Unknown),
+            "heat_overall_mode": (65, ControlMode),
+            "heat_overall_offset": (66, KelvinInt16),
+            "heat_overall_mode": (65, ControlMode),
+            "heat_overall_offset": (66, KelvinInt16),
+            "heat_overall_level": (67, LevelMode),
+            "circulation": (70, OnOffMode),
+            "hot_water_extra": (71, OnOffMode),
+        }
+
+        values = [
+            [paras, Parameters(), "paras"],
+            [calcs, Calculations(), "calcs"],
+            [visis, Visibilities(), "visis"],
+            [inputs, Inputs(), "inputs"],
+            [holdings, Holdings(), "holdings"],
+        ]
 
         # First, we check if we can find all entries of the above dicts.
-        ok = True
-        for mapping, obj, caption in values:
-            print_caption = True
-            for old_name, old_idx in mapping.items():
-                def_by_name = obj.definitions.get(old_name)
-                field_by_name = obj.get(old_name)
-                if (def_by_name is None) \
-                        or (field_by_name is None) \
-                        or (def_by_name.index != old_idx) \
-                        or (def_by_name.name != field_by_name.name) \
-                        or (old_name not in def_by_name.names):
-                    # We do not use assert here, in order to catch all incompatibilities at once.
-                    if print_caption:
-                        print(f"### Incompatibilities - {caption}:")
-                        print_caption = False
-                    print(f'"{old_name}" is not registered for {old_idx}: "{def_by_name.name}",')
-                    ok = False
+        all_ok = True
+        for mapping, data_vector, caption in values:
+            obsolete_found = []
+            old_not_found = []
+            old_idx_wrong = []
+            old_type_changed = []
+
+            for old_name, (old_idx, old_type) in mapping.items():
+
+                # Try to get the definition of the "old name"
+                try:
+                    def_by_name = data_vector.definitions.get(old_name)
+                except Exception as e:
+                    def_by_name = None
+                old_found = def_by_name is not None
+                old_is_obsolete = old_name in data_vector._obsolete
+
+                # Check names
+                # We do not use assert here, in order to catch all incompatibilities at once.
+                if old_found and old_is_obsolete:
+                    obsolete_found.append(f"{old_name} marked as obsolete, but a definition was found!")
+                    continue
+
+                if not old_found and not old_is_obsolete:
+                    old_not_found.append(f"No definition found for {old_name} with index {old_idx} and type {old_type.__name__}")
+                    continue
+
+                if old_found:
+                    if old_idx != def_by_name.index:
+                        old_idx_wrong.append(f"Index of {old_name} changed from {old_idx} to {def_by_name.index}")
+                        continue
+
+                    #if old_name != def_by_name.name:
+                    # new name available -> no error
+
+                    if old_type != def_by_name.field_type:
+                        old_type_changed.append(f"Type of {old_name} changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
+
+            # Currently we allow type changes
+            ok = not obsolete_found and not old_not_found \
+                and not old_idx_wrong # and not old_type_changed
+            do_print = not ok or len(old_type_changed) > 0
+
+            if do_print:
+                print(f"############################## Incompatibilities - {caption}:")
+                if obsolete_found:
+                    print(f"############################## obsolete")
+                    for err in obsolete_found:
+                        print(err)
+                if old_not_found:
+                    print(f"############################## not found")
+                    for err in old_not_found:
+                        print(err)
+                if old_idx_wrong:
+                    print(f"############################## idx wrong")
+                    for err in old_idx_wrong:
+                        print(err)
+                if old_type_changed:
+                    print(f"############################## type changed")
+                    for err in old_type_changed:
+                        print(err)
+
+            all_ok &= ok
         assert ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
 
         # Second, we check if all names are present in the above dicts.
-        ok = True
-        for mapping, obj, caption in values:
-            print_caption = True
-            for definition, field in obj.items():
-                if field.name not in mapping:
+        all_ok = True
+        for mapping, data_vector, caption in values:
+            missing = []
+
+            for definition, field in data_vector.items():
+                for name in definition.names:
+
+                    # Check existing entries
                     # We do not use assert here, in order to catch all incompatibilities at once.
                     # The output can be copied to the dicts above
-                    if print_caption:
-                        print(f"### Missing - {caption}:")
-                        print_caption = False
-                    print(f'"{field.name}": {definition.index},')
-                    ok = False
-        assert ok, f"Found missing {obj.name}. Please consider to add them to the test suite."
+                    if name not in mapping:
+                        missing.append(f'"{name}": ({definition.index}, {definition.field_type.__name__}),')
+
+            ok = not missing
+            do_print = not ok
+
+            if do_print:
+                print(f"############################## Missing - {caption}:")
+                if missing:
+                    for err in missing:
+                        print(err)
+
+            all_ok &= ok
+        assert all_ok, f"Found missing entries. Please consider to add them to the test suite."
