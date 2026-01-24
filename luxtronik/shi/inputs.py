@@ -8,6 +8,7 @@ from luxtronik.definitions.inputs import (
     INPUTS_DEFINITIONS_LIST,
     INPUTS_OFFSET,
     INPUTS_DEFAULT_DATA_TYPE,
+    INPUTS_OUTDATED,
 )
 
 from luxtronik.shi.constants import INPUTS_FIELD_NAME
@@ -28,3 +29,4 @@ class Inputs(DataVectorSmartHome):
 
     name = INPUTS_FIELD_NAME
     definitions = INPUTS_DEFINITIONS
+    _outdated = INPUTS_OUTDATED

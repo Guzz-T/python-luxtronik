@@ -35,6 +35,8 @@ from luxtronik.datatypes import (
 # to obtain the correct address of the data fields
 INPUTS_OFFSET: Final = 10000
 INPUTS_DEFAULT_DATA_TYPE: Final = 'INT16'
+INPUTS_OUTDATED = {
+}
 
 INPUTS_OUTDATED = {
 }

@@ -30,6 +30,8 @@ from luxtronik.datatypes import (
 # to obtain the correct address of the data fields
 HOLDINGS_OFFSET: Final = 10000
 HOLDINGS_DEFAULT_DATA_TYPE: Final = 'INT16'
+HOLDINGS_OUTDATED = {
+}
 
 HOLDINGS_OUTDATED = {
 }
