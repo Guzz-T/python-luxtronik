@@ -598,6 +598,8 @@ class Version(Base):
     concatenate_multiple_data_chunks = False
 
     def from_heatpump(self, value):
+        if not isinstance(value, list):
+            return None
         return "".join([chr(c) for c in value]).strip("\x00")
 
 
