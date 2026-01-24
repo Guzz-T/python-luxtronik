@@ -1,7 +1,6 @@
 """datatype conversions."""
 
 import datetime
-import ipaddress
 import socket
 import struct
 
@@ -326,31 +325,6 @@ class Seconds(Base):
 
     datatype_class = "timespan"
     datatype_unit = "s"
-
-
-class Pulses(Base):
-    """Pulses datatype, converts from and to Pulses."""
-
-    datatype_class = "pulses"
-
-
-class IPAddress(Base):
-    """IP Address datatype, converts from and to an IP Address."""
-
-    datatype_class = "ipaddress"
-
-    def from_heatpump(self, value):
-        if value < 0:
-            return str(ipaddress.IPv4Address(value + 2**32))
-        if value > 2**32:
-            return str(ipaddress.IPv4Address(value - 2**32))
-        return str(ipaddress.IPv4Address(value))
-
-    def to_heatpump(self, value):
-        result = int(ipaddress.IPv4Address(value))
-        if result > 2**32:
-            return result - 2**32
-        return result
 
 
 class IPv4Address(Base):
