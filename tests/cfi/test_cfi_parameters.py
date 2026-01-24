@@ -5,7 +5,6 @@
 from luxtronik import Parameters
 from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinition
-from luxtronik.cfi.constants import LUXTRONIK_CFI_REGISTER_BIT_SIZE
 
 
 class TestParameters:
