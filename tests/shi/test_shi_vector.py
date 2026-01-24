@@ -1,7 +1,6 @@
 from luxtronik.common import parse_version
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinitionsList
-from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.vector import DataVectorSmartHome
 from luxtronik.shi.holdings import Holdings
 from luxtronik.shi.inputs import Inputs
