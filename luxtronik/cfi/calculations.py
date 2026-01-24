@@ -8,7 +8,6 @@ from luxtronik.definitions.calculations import (
     CALCULATIONS_DEFINITIONS_LIST,
     CALCULATIONS_OFFSET,
     CALCULATIONS_DEFAULT_DATA_TYPE,
-    CALCULATIONS_OUTDATED,
 )
 
 from luxtronik.cfi.constants import CALCULATIONS_FIELD_NAME
@@ -30,11 +29,10 @@ class Calculations(DataVectorConfig):
 
     name = CALCULATIONS_FIELD_NAME
     definitions = CALCULATIONS_DEFINITIONS
-    _outdated = CALCULATIONS_OUTDATED
 
     def get_firmware_version(self):
         """Get the firmware version as string."""
-        return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])
+        return "".join([str(super(Calculations, self).get(i).value) for i in range(81, 91)])
 
     def _get_firmware_version(self):
         """Get the firmware version as string like in previous versions."""

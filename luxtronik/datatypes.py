@@ -621,6 +621,8 @@ class Version(Base):
 
     datatype_class = "version"
 
+    concatenate_multiple_data_chunks = False
+
     def from_heatpump(self, value):
         return "".join([chr(c) for c in value]).strip("\x00")
 
