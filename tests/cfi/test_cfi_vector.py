@@ -72,8 +72,8 @@ class DataVectorTest(DataVectorConfig):
 class TestDataVector:
 
     def test_add(self):
-        data_vector = DataVectorTest()
-        assert len(data_vector) == 5
+        data_vector = DataVectorTest.empty()
+        assert len(data_vector) == 0
 
         # In case the definitions are added after the creation
         data_vector.definitions.add(FIELD_11_DICT)
@@ -81,7 +81,7 @@ class TestDataVector:
 
         # Add available index
         field = data_vector.add(11)
-        assert len(data_vector) == 6
+        assert len(data_vector) == 1
         assert 11 in data_vector
         assert field.name == 'field_11'
 
@@ -89,22 +89,22 @@ class TestDataVector:
         field = data_vector.add(13)
         assert 'field_6' not in data_vector
         assert field is None
-        assert len(data_vector) == 6
+        assert len(data_vector) == 1
 
         # Re-add available index
         field = data_vector.add(5)
-        assert len(data_vector) == 6
+        assert len(data_vector) == 1
         assert field.name == 'field_5_all'
 
         # Add available field
         field_12 = Base('field_12', False)
         field = data_vector.add(field_12)
         assert 12 in data_vector
-        assert len(data_vector) == 7
+        assert len(data_vector) == 2
         assert field == field_12
 
         # Re-add available field
         field = data_vector.add(field_12)
         assert field_12 in data_vector
-        assert len(data_vector) == 7
+        assert len(data_vector) == 2
         assert field == field_12
