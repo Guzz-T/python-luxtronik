@@ -94,7 +94,7 @@ class TestDataVector:
         # Re-add available index
         field = data_vector.add(11)
         assert len(data_vector) == 1
-        assert field.name == 'field_5_all'
+        assert field.name == 'field_11'
 
         # Add available field
         field_12 = Base('field_12', False)
