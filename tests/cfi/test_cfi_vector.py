@@ -92,7 +92,7 @@ class TestDataVector:
         assert len(data_vector) == 1
 
         # Re-add available index
-        field = data_vector.add(5)
+        field = data_vector.add(11)
         assert len(data_vector) == 1
         assert field.name == 'field_5_all'
 
