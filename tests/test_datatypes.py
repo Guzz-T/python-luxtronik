@@ -540,7 +540,7 @@ class TestBool:
 
         assert Bool.to_heatpump(False) == 0
         assert Bool.to_heatpump(True) == 1
-        assert Bool.to_heatpump(None) is None
+        assert Bool.to_heatpump(None) == 0
         assert Bool.to_heatpump("1") == 1
 
 
@@ -681,6 +681,7 @@ class TestKelvin:
         assert Kelvin.to_heatpump(1) == 10
         assert Kelvin.to_heatpump(1.1) == 11
         assert Kelvin.to_heatpump(None) is None
+        assert Kelvin.to_heatpump("0") == 0
         assert Kelvin.to_heatpump("b") is None
 
 
@@ -709,7 +710,8 @@ class TestPressure:
         assert Pressure.to_heatpump(1) == 100
         assert Pressure.to_heatpump(1.01) == 101
         assert Pressure.to_heatpump(None) is None
-        assert Pressure.to_heatpump("1") is None
+        assert Pressure.to_heatpump("1") == 100
+        assert Pressure.to_heatpump("c") is None
 
 
 class TestPercent:
@@ -738,7 +740,8 @@ class TestPercent:
         assert Percent.to_heatpump(1.1) == 11
 
         assert Percent.to_heatpump(None) is None
-        assert Percent.to_heatpump("2") is None
+        assert Percent.to_heatpump("2") == 20
+        assert Percent.to_heatpump("d") is None
 
 
 class TestPercent2:
@@ -766,6 +769,7 @@ class TestPercent2:
 
         assert Percent2.to_heatpump(None) is None
         assert Percent2.to_heatpump("3") is None
+        assert Percent2.to_heatpump("e") is None
 
 
 class TestSpeed:
@@ -818,7 +822,8 @@ class TestPowerKW:
         assert a.to_heatpump(5.6) == 56
 
         assert a.to_heatpump(None) is None
-        assert a.to_heatpump("4") is None
+        assert a.to_heatpump("4") == 40
+        assert a.to_heatpump("f") is None
 
 
 class TestEnergy:
@@ -847,7 +852,8 @@ class TestEnergy:
         assert Energy.to_heatpump(1.1) == 11
 
         assert Energy.to_heatpump(None) is None
-        assert Energy.to_heatpump("5") is None
+        assert Energy.to_heatpump("5") == 50
+        assert Energy.to_heatpump("g") is None
 
 
 class TestVoltage:
@@ -876,7 +882,8 @@ class TestVoltage:
         assert Voltage.to_heatpump(1.1) == 11
 
         assert Voltage.to_heatpump(None) is None
-        assert Voltage.to_heatpump("6") is None
+        assert Voltage.to_heatpump("6") == 60
+        assert Voltage.to_heatpump("h") is None
 
 
 class TestHours:
@@ -905,7 +912,8 @@ class TestHours:
         assert Hours.to_heatpump(1.1) == 11
 
         assert Hours.to_heatpump(None) is None
-        assert Hours.to_heatpump("7") is None
+        assert Hours.to_heatpump("7") == 70
+        assert Hours.to_heatpump("i") is None
 
 
 class TestHours2:
@@ -935,6 +943,7 @@ class TestHours2:
 
         assert Hours2.to_heatpump(None) is None
         assert Hours2.to_heatpump("8") is None
+        assert Hours2.to_heatpump("i") is None
 
 
 class TestMinutes:
