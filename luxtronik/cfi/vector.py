@@ -3,6 +3,7 @@ import logging
 
 from luxtronik.data_vector import DataVector
 
+
 LOGGER = logging.getLogger(__name__)
 
 ###############################################################################
@@ -12,17 +13,43 @@ LOGGER = logging.getLogger(__name__)
 class DataVectorConfig(DataVector):
     """Specialized DataVector for Luxtronik configuration fields."""
 
-    def __init__(self, safe=True):
-        """Initialize config interface data-vector class."""
+    def _init_instance(self, version, safe):
+        """Re-usable method to initialize all instance variables."""
         super()._init_instance(safe)
+
+    def __init__(self, safe=True):
+        """
+        Initialize the data-vector instance.
+        Creates field objects for definitions and stores them in the data vector.
+
+        Args:
+            safe (bool): If true, prevent fields marked as
+                not secure from being written to.
+        """
+        self._init_instance(version, safe)
 
         # Add all available fields
         for d in self.definitions:
             self._data.add(d, d.create_field())
 
+    @classmethod
+    def empty(cls, safe=True):
+        """
+        Initialize the data-vector instance without any fields.
+
+        Args:
+            safe (bool): If true, prevent fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls) # this don't call __init__()
+        obj._init_instance(version, safe)
+        return obj
+
     def add(self, def_field_name_or_idx, alias=None):
         """
         Adds an additional field to this data vector.
+        Mainly used for data vectors created via `empty()`
+        to read/write individual fields. Existing fields will not be overwritten.
 
         Args:
             def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
