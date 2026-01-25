@@ -599,6 +599,7 @@ class Version(Base):
 
     concatenate_multiple_data_chunks = False
 
+    @classmethod
     def from_heatpump(self, value):
         if not isinstance(value, list):
             return None
