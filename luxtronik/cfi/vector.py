@@ -26,7 +26,7 @@ class DataVectorConfig(DataVector):
             safe (bool): If true, prevent fields marked as
                 not secure from being written to.
         """
-        self._init_instance(version, safe)
+        self._init_instance(safe)
 
         # Add all available fields
         for d in self.definitions:
@@ -42,7 +42,7 @@ class DataVectorConfig(DataVector):
                 not secure from being written to.
         """
         obj = cls.__new__(cls) # this don't call __init__()
-        obj._init_instance(version, safe)
+        obj._init_instance(safe)
         return obj
 
     def add(self, def_field_name_or_idx, alias=None):
