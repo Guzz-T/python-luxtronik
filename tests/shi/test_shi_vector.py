@@ -5,23 +5,35 @@ from luxtronik.shi.vector import DataVectorSmartHome
 from luxtronik.shi.holdings import Holdings
 from luxtronik.shi.inputs import Inputs
 
-"""
-The test was originally written for "False".
-Since "True" is already checked in "test_definitions.py",
-we continue to use "False" consistently here.
-"""
-Base.concatenate_multiple_data_chunks = False
 
 ###############################################################################
 # Tests
 ###############################################################################
+
+
+class TestType(Base):
+    """
+    The test was originally written for "False".
+    Since "True" is already checked in "test_definitions.py",
+    we continue to use "False" consistently here.
+    """
+    Base.concatenate_multiple_data_chunks = False
+
+    @classmethod
+    def to_heatpump(cls, value):
+        return value
+
+    @classmethod
+    def from_heatpump(cls, value):
+        return value
+
 
 def_list = [
     {
         "index": 5,
         "count": 1,
         "names": ["field_5"],
-        "type": Base,
+        "type": TestType,
         "writeable": False,
         "since": "1.1",
         "until": "1.2",
@@ -30,7 +42,7 @@ def_list = [
         "index": 7,
         "count": 2,
         "names": ["field_7"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "since": "3.1",
     },
@@ -38,7 +50,7 @@ def_list = [
         "index": 9,
         "count": 1,
         "names": ["field_9a"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "until": "1.3",
     },
@@ -46,7 +58,7 @@ def_list = [
         "index": 9,
         "count": 2,
         "names": ["field_9"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "until": "3.3",
     },
@@ -54,7 +66,7 @@ def_list = [
         "index": -1,
         "count": 1,
         "names": ["field_invalid"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "until": "3.3",
     },
@@ -82,7 +94,7 @@ class TestDataVector:
         field = DataVectorTest.create_any_field(7)
         assert field.name == 'field_7'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create not available field
         field = DataVectorTest.create_any_field('BAR')
@@ -92,7 +104,7 @@ class TestDataVector:
         field = DataVectorTest.create_any_field(TEST_DEFINITIONS._definitions[2])
         assert field.name == 'field_9a'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create versioned data vector
         data_vector = DataVectorTest(parse_version("1.2"))
@@ -106,7 +118,7 @@ class TestDataVector:
         field = data_vector.create_field(5)
         assert field.name == 'field_5'
         assert not field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create not available field (not available)
         field = data_vector.create_field(6)
@@ -120,13 +132,13 @@ class TestDataVector:
         field = data_vector.create_field(9)
         assert field.name == 'field_9'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create index-overloaded version-dependent field
         field = data_vector.create_field('field_9a')
         assert field.name == 'field_9a'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create versioned data vector
         data_vector = DataVectorTest(parse_version("3.0"))
@@ -151,7 +163,7 @@ class TestDataVector:
         field = data_vector.create_field(9)
         assert field.name == 'field_9'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create invalid field (not available)
         field = data_vector.create_field('field_invalid')
@@ -198,7 +210,7 @@ class TestDataVector:
         assert field.name == 'field_5'
 
         # Add available field
-        field_9 = Base('field_9', False)
+        field_9 = TestType('field_9', False)
         field = data_vector.add(field_9)
         assert 9 in data_vector
         assert len(data_vector) == 2
@@ -211,7 +223,7 @@ class TestDataVector:
         assert field == field_9
 
         # Add available field with same name
-        field_9_2 = Base('field_9', False)
+        field_9_2 = TestType('field_9', False)
         field = data_vector.add(field_9_2)
         assert field_9_2 not in data_vector
         assert len(data_vector) == 2
