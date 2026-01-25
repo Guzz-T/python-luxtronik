@@ -1,4 +1,4 @@
-from luxtronik.datatypes import Base, Unknown
+from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinitionsList
 from luxtronik.cfi.vector import DataVectorConfig
 

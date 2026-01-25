@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 class DataVectorConfig(DataVector):
     """Specialized DataVector for Luxtronik configuration fields."""
 
-    def _init_instance(self, version, safe):
+    def _init_instance(self, safe):
         """Re-usable method to initialize all instance variables."""
         super()._init_instance(safe)
 
