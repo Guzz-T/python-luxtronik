@@ -54,6 +54,7 @@ from luxtronik.datatypes import (
     TimerProgram,
     TimeOfDay,
     TimeOfDay2,
+    Version,
 )
 
 
@@ -174,6 +175,8 @@ class TestBase:
         c = Base("base")
         d = Bool("bool")
         assert c != d
+
+        assert a != "b"
 
     def test_lt(self):
         """Test cases for __lt__ function"""
@@ -542,6 +545,7 @@ class TestBool:
         assert Bool.to_heatpump(True) == 1
         assert Bool.to_heatpump(None) == 0
         assert Bool.to_heatpump("1") == 1
+        assert Bool.to_heatpump("abc") is None
 
 
 class TestFrequency:
@@ -994,6 +998,24 @@ class TestCount:
         assert a.datatype_unit is None
 
 
+class TestVersion:
+    """Test suite for Version datatype"""
+
+    def test_init(self):
+        """Test cases for initialization"""
+
+        a = Version("ver")
+        assert a.name == "ver"
+        assert a.datatype_class == "ver"
+        assert a.datatype_unit is None
+
+    def test_from_heatpump(self):
+
+        assert Version.from_heatpump([3, 1, 4]) == "3.1.4"
+        assert Version.from_heatpump(None) is None
+        assert Version.from_heatpump("a") is None
+
+
 class TestCharacter:
     """Test suite for Character datatype"""
 
@@ -1421,6 +1443,7 @@ class TestTimeOfDay:
         """Test cases for from_heatpump function"""
 
         assert TimeOfDay.from_heatpump(None) is None
+        assert TimeOfDay.from_heatpump(1) is None
 
         check_pair(TimeOfDay, 7 * 3600 + 30 * 60, "7:30")
         check_pair(TimeOfDay, 7 * 3600 + 30 * 60 + 50, "7:30:50")
@@ -1445,6 +1468,7 @@ class TestTimeOfDay2:
         """Test cases for from_heatpump function"""
 
         assert TimeOfDay2.from_heatpump(None) is None
+        assert TimeOfDay2.from_heatpump(1) is None
 
         check_pair(TimeOfDay2, ((19 * 60) << 16) + 7 * 60 + 30, "7:30-19:00")
         check_pair(TimeOfDay2, ((19 * 60 + 30) << 16) + 5 * 60 + 23, "5:23-19:30")
