@@ -168,6 +168,10 @@ class LuxtronikDefinition:
         return self._writeable
 
     @property
+    def data_type(self):
+        return self._data_type
+
+    @property
     def bit_offset(self):
         return self._bit_offset
 
