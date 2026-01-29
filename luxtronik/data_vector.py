@@ -8,7 +8,6 @@ from luxtronik.constants import (
 )
 
 from luxtronik.collections import LuxtronikFieldsDictionary
-from luxtronik.definitions import LuxtronikDefinition
 
 
 LOGGER = logging.getLogger(__name__)

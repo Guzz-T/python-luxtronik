@@ -2,12 +2,12 @@
 import logging
 
 from luxtronik.common import version_in_range
-from luxtronik.collections import integrate_data, LuxtronikFieldsDictionary
+from luxtronik.collections import LuxtronikFieldsDictionary
 from luxtronik.data_vector import DataVector
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinition
 
-from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION, LUXTRONIK_SHI_REGISTER_BIT_SIZE
+from luxtronik.shi.constants import LUXTRONIK_LATEST_SHI_VERSION
 from luxtronik.shi.contiguous import ContiguousDataBlockList
 
 
