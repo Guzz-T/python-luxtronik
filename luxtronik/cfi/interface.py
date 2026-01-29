@@ -266,9 +266,10 @@ class LuxtronikSocketInterface:
         Parse raw data into the corresponding fields.
 
         Args:
+            data_vector (DataVector): Data vector in which
+                the raw data is to be integrated.
             raw_data (list[int]): List of raw register values.
                 The raw data must start at register index 0.
-            num_bits (int): Number of bits per register.
         """
         raw_len = len(raw_data)
         # Prepare a list of undefined indices
@@ -281,6 +282,7 @@ class LuxtronikSocketInterface:
             next_idx = definition.index + definition.count
             if next_idx > raw_len:
                 # not enough registers
+                field.raw = None
                 continue
             # remove all used indices from the list of undefined indices
             for index in range(definition.index, next_idx):
