@@ -38,19 +38,6 @@ class DataVector:
     def data(self):
         return self._data
 
-    def parse(self, raw_data):
-        """Parse raw data."""
-        for index, data in enumerate(raw_data):
-            entry = self._data.get(index, None)
-            if entry is not None:
-                entry.raw = data
-            else:
-                # self.logger.warning(f"Entry '%d' not in list of {self.name}", index)
-                definition = LuxtronikDefinition.unknown(index, self.name, 0)
-                field = definition.create_field()
-                field.raw = data
-                self._data.add_sorted(definition, field)
-
     def _name_lookup(self, name):
         """
         Try to find the index using the given field name.
