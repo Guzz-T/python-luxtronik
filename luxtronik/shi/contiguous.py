@@ -6,6 +6,7 @@ or a non-existent register within a read/write operation will result in a transm
 
 import logging
 
+from luxtronik.common import LuxtronikSettings
 from luxtronik.collections import LuxtronikDefFieldPair
 from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 
@@ -161,11 +162,18 @@ class ContiguousDataBlock:
         data_len = len(data_arr) if valid else 0
         valid &= data_len == self.overall_count
 
+        print('test1')
+
         if not valid:
+            print('test2')
             LOGGER.debug(
                 f"Data to integrate not valid! Expected length {self.overall_count} " \
                 + f"but got {data_len}: data = {data_arr}, block = {self}"
             )
+            if not LuxtronikSettings.preserve_last_read_value_on_fail:
+                print('test3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
+                for definition, field in self._parts:
+                    field.raw = None
             return False
 
         first = self.first_index
