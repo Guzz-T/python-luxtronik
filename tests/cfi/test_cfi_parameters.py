@@ -80,7 +80,7 @@ class TestParameters:
         parameters.set("BarFoo", 0)
         assert parameters["BarFoo"] is None
 
-        # Set something which was previously not allowed to be set
+        # Set something which was previously (v0.3.14) not allowed to be set
         parameters.set("ID_Transfert_LuxNet", 1)
         assert parameters["ID_Transfert_LuxNet"].raw == 1
         assert parameters["ID_Transfert_LuxNet"].write_pending
@@ -92,7 +92,7 @@ class TestParameters:
 
         parameters = Parameters(safe=False)
 
-        # Set something which was previously not allowed to be set, but we are brave.
+        # Set something which was previously (v0.3.14) not allowed to be set, but we are brave.
         parameters.set("ID_Transfert_LuxNet", 4)
         assert parameters["ID_Transfert_LuxNet"].raw == 4
         assert parameters["ID_Transfert_LuxNet"].write_pending
