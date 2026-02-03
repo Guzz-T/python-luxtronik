@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 
-from luxtronik.common import LuxtronikSettings, get_host_lock
+from luxtronik.common import LuxtronikSettings, get_host_lock  # noqa: F401
 from luxtronik.discover import discover  # noqa: F401
 
 from luxtronik.cfi import (
