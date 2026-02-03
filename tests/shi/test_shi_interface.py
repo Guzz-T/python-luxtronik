@@ -325,6 +325,7 @@ class TestLuxtronikSmartHomeInterface:
 
     def test_integrate_data(self):
         block_list = self.create_contiguous_block_list()
+        field3 = block_list[1][1][0].field
 
         telegram_data = self.interface._create_telegrams(block_list)
 
