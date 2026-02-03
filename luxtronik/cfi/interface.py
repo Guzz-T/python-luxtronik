@@ -164,6 +164,7 @@ class LuxtronikSocketInterface:
     def _write(self, parameters):
         for definition, field in parameters.items():
             if field.write_pending:
+                field.write_pending = False
                 value = field.raw
                 if not isinstance(definition.index, int) or not isinstance(value, int):
                     LOGGER.warning(
@@ -172,7 +173,6 @@ class LuxtronikSocketInterface:
                         definition.index,
                         value,
                     )
-                    field.write_pending = False
                     continue
                 LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, definition.index, value)
                 self._send_ints(LUXTRONIK_PARAMETERS_WRITE, definition.index, value)
@@ -180,7 +180,6 @@ class LuxtronikSocketInterface:
                 LOGGER.debug("%s: Command %s", self._host, cmd)
                 val = self._read_int()
                 LOGGER.debug("%s: Value %s", self._host, val)
-            field.write_pending = False
         # Give the heatpump a short time to handle the value changes/calculations:
         time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
 
@@ -287,6 +286,8 @@ class LuxtronikSocketInterface:
             # remove all used indices from the list of undefined indices
             for index in range(definition.index, next_idx):
                 undefined.discard(index)
+            # integrate_data() also resets the write_pending flag,
+            # intentionally only for read fields
             pair.integrate_data(raw_data, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
 
         # create an unknown field for additional data
