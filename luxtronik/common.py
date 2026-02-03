@@ -2,6 +2,16 @@
 from threading import RLock
 
 ###############################################################################
+# User adjust-able settings class
+###############################################################################
+
+class LuxtronikSettings:
+
+    # If False, overwrite existing values with None in case of a transmission error.
+    # Otherwise, leave the previous value unchanged.
+    preserve_last_read_value_on_fail = True
+
+###############################################################################
 # Multi-threading lock mechanism
 ###############################################################################
 
