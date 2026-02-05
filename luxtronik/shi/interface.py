@@ -5,6 +5,7 @@ import logging
 from luxtronik.common import classproperty, version_in_range
 from luxtronik.collections import get_data_arr
 from luxtronik.datatypes import Base
+from luxtronik.data_vector import check_write_data
 from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
@@ -381,15 +382,13 @@ class LuxtronikSmartHomeInterface:
         if not field.write_pending and data is None:
             return False
 
-        # Abort if field is not writeable
-        if safe and not (definition.writeable and field.writeable):
-            LOGGER.warning("Field marked as non-writeable: " \
-                + f"name={definition.name}, data={field.raw}")
-            return False
-
         # Override the field's data with the provided data
         if data is not None:
             field.value = data
+
+        # Abort if field is not writeable or the value is invalid
+        if check_write_data(field):
+            return False
 
         # Abort if insufficient data is provided
         if not get_data_arr(definition, field, LUXTRONIK_SHI_REGISTER_BIT_SIZE):
