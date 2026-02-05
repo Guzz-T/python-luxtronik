@@ -1946,6 +1946,7 @@ class TestCompatibility:
             "ID_Visi_Heizung_Zeitschaltprogramm": (182, Unknown),
             "Unknown_Visibility_355": (355, Unknown),
             "Unknown_Visibility_356": (356, Unknown),
+            "Unknown_Visibility_357": (357, Unknown),
             "ELECTRICAL_POWER_LIMITATION_SWITCH": (357, Unknown),
             "Unknown_Visibility_358": (358, Unknown),
             "Unknown_Visibility_359": (359, Unknown),
