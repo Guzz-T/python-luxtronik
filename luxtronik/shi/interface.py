@@ -386,7 +386,7 @@ class LuxtronikSmartHomeInterface:
             field.value = data
 
         # Abort if field is not writeable or the value is invalid
-        if field.check_for_write(safe):
+        if not field.check_for_write(safe):
             return False
 
         # Abort if insufficient data is provided
