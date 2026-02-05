@@ -9,30 +9,6 @@ from luxtronik.definitions import LuxtronikDefinition
 
 LOGGER = logging.getLogger(__name__)
 
-###############################################################################
-# Common functions
-###############################################################################
-
-def check_write_data(data_vector, field):
-    """
-    Returns true if the field is writable and the field data is valid.
-
-    Args:
-        data_vector (DataVector): Data vector to which the field belongs
-        field (Base): The field object with the data to be written
-
-    Returns:
-        bool: True if the data is writable, otherwise False.
-    """
-    if field.writeable or not data_vector.safe:
-        if isinstance(field.raw, int):
-            return True
-        else:
-            LOGGER.error(f"Value of {data_vector.name} '{field.name}' invalid!")
-    else:
-        LOGGER.warning(f"{data_vector.name} '{field.name}' not safe for writing!")
-    return False
-
 
 ###############################################################################
 # Base class for all luxtronik data vectors
