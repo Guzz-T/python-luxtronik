@@ -6,7 +6,6 @@ import struct
 import time
 
 from luxtronik.common import LuxtronikSettings, get_host_lock
-from luxtronik.data_vector import check_write_data
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
@@ -167,7 +166,7 @@ class LuxtronikSocketInterface:
             if field.write_pending:
                 field.write_pending = False
                 value = field.raw
-                if not isinstance(definition.index, int) or not check_write_data(parameters, field):
+                if not isinstance(definition.index, int) or not field.check_for_write(parameters.safe):
                     LOGGER.warning(
                         "%s: Parameter id '%s' or value '%s' invalid!",
                         self._host,
