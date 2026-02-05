@@ -11531,8 +11531,13 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     },
     {
         "index": 1136,
+        "names": ['Unknown_Parameter_1136'],
+        "type": Unknown,
+    },
+    {
+        "index": 1136,
         "count": 1,
-        "names": ['HEAT_ENERGY_INPUT', 'Unknown_Parameter_1136'],
+        "names": ['HEAT_ENERGY_INPUT'],
         "type": Energy,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11541,8 +11546,13 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     },
     {
         "index": 1137,
+        "names": ['Unknown_Parameter_1137'],
+        "type": Unknown,
+    },
+    {
+        "index": 1137,
         "count": 1,
-        "names": ['DHW_ENERGY_INPUT', 'Unknown_Parameter_1137'],
+        "names": ['DHW_ENERGY_INPUT'],
         "type": Energy,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11561,8 +11571,13 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     },
     {
         "index": 1139,
+        "names": ['Unknown_Parameter_1139'],
+        "type": Unknown,
+    },
+    {
+        "index": 1139,
         "count": 1,
-        "names": ['COOLING_ENERGY_INPUT', 'Unknown_Parameter_1139'],
+        "names": ['COOLING_ENERGY_INPUT'],
         "type": Energy,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11651,8 +11666,13 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     },
     {
         "index": 1148,
+        "names": ['Unknown_Parameter_1148'],
+        "type": Unknown,
+    },
+    {
+        "index": 1148,
         "count": 1,
-        "names": ['HEATING_TARGET_TEMP_ROOM_THERMOSTAT', 'Unknown_Parameter_1148'],
+        "names": ['HEATING_TARGET_TEMP_ROOM_THERMOSTAT'],
         "type": Celsius,
         "writeable": True,
         "datatype": 'INT32',

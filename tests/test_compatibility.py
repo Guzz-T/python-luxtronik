@@ -84,6 +84,14 @@ class TestCompatibility:
     def test_compatibilities(self):
         """Test cases for compatibilities"""
 
+        # Structure of entries:
+        # old_name: (old_index, old_type[, type_intentionally_changed])
+        #
+        # old_name: Previously used but still supported name
+        # old_index: Index assigned to this name
+        # type_intentionally_changed: We also check type changes.
+        #   If this optional flag is set to True, you can skip the type check
+
         paras = {
             # Status of 0.3.14:
             "ID_Transfert_LuxNet": (0, Unknown),
@@ -1247,10 +1255,14 @@ class TestCompatibility:
             "Unknown_Parameter_1133": (1133, Unknown),
             "Unknown_Parameter_1134": (1134, Unknown),
             "Unknown_Parameter_1135": (1135, Unknown),
+            "Unknown_Parameter_1136": (1136, Unknown),
             "HEAT_ENERGY_INPUT": (1136, Energy),
+            "Unknown_Parameter_1137": (1137, Unknown),
             "DHW_ENERGY_INPUT": (1137, Energy),
             "Unknown_Parameter_1138": (1138, Unknown),
+            "Unknown_Parameter_1139": (1139, Unknown),
             "COOLING_ENERGY_INPUT": (1139, Energy),
+            "Unknown_Parameter_1140": (1140, Unknown),
             "SECOND_HEAT_GENERATOR_AMOUNT_COUNTER": (1140, Unknown),
             "Unknown_Parameter_1141": (1141, Unknown),
             "Unknown_Parameter_1142": (1142, Unknown),
@@ -1259,6 +1271,7 @@ class TestCompatibility:
             "Unknown_Parameter_1145": (1145, Unknown),
             "Unknown_Parameter_1146": (1146, Unknown),
             "Unknown_Parameter_1147": (1147, Unknown),
+            "Unknown_Parameter_1148": (1148, Unknown),
             "HEATING_TARGET_TEMP_ROOM_THERMOSTAT": (1148, Celsius),
             "Unknown_Parameter_1149": (1149, Unknown),
             "Unknown_Parameter_1150": (1150, Unknown),
@@ -1269,7 +1282,9 @@ class TestCompatibility:
             "Unknown_Parameter_1155": (1155, Unknown),
             "Unknown_Parameter_1156": (1156, Unknown),
             "Unknown_Parameter_1157": (1157, Unknown),
+            "Unknown_Parameter_1158": (1158, Unknown),
             "POWER_LIMIT_SWITCH": (1158, Unknown),
+            "Unknown_Parameter_1159": (1159, Unknown),
             "POWER_LIMIT_VALUE": (1159, Unknown),
         }
 
@@ -1332,9 +1347,9 @@ class TestCompatibility:
             "ID_WEB_MZ2out": (54, Bool),
             "ID_WEB_MA2out": (55, Bool),
             "ID_WEB_Zaehler_BetrZeitVD1": (56, Seconds),
-            "ID_WEB_Zaehler_BetrZeitImpVD1": (57, Pulses),
+            "ID_WEB_Zaehler_BetrZeitImpVD1": (57, Pulses, True), # obsolete type -> type change allowed
             "ID_WEB_Zaehler_BetrZeitVD2": (58, Seconds),
-            "ID_WEB_Zaehler_BetrZeitImpVD2": (59, Pulses),
+            "ID_WEB_Zaehler_BetrZeitImpVD2": (59, Pulses, True), # obsolete type -> type change allowed
             "ID_WEB_Zaehler_BetrZeitZWE1": (60, Seconds),
             "ID_WEB_Zaehler_BetrZeitZWE2": (61, Seconds),
             "ID_WEB_Zaehler_BetrZeitZWE3": (62, Seconds),
@@ -1357,10 +1372,10 @@ class TestCompatibility:
             "ID_WEB_BIV_Stufe_akt": (79, BivalenceLevel),
             "ID_WEB_WP_BZ_akt": (80, OperationMode),
             "ID_WEB_SoftStand": (81, Version),
-            "ID_WEB_AdresseIP_akt": (91, IPAddress),
-            "ID_WEB_SubNetMask_akt": (92, IPAddress),
-            "ID_WEB_Add_Broadcast": (93, IPAddress),
-            "ID_WEB_Add_StdGateway": (94, IPAddress),
+            "ID_WEB_AdresseIP_akt": (91, IPAddress, True), # obsolete type -> type change allowed
+            "ID_WEB_SubNetMask_akt": (92, IPAddress, True), # obsolete type -> type change allowed
+            "ID_WEB_Add_Broadcast": (93, IPAddress, True), # obsolete type -> type change allowed
+            "ID_WEB_Add_StdGateway": (94, IPAddress, True), # obsolete type -> type change allowed
             "ID_WEB_ERROR_Time0": (95, Timestamp),
             "ID_WEB_ERROR_Time1": (96, Timestamp),
             "ID_WEB_ERROR_Time2": (97, Timestamp),
@@ -2131,9 +2146,12 @@ class TestCompatibility:
             obsolete_found = []
             old_not_found = []
             old_idx_wrong = []
-            old_type_changed = []
+            old_type_changed_info = []
+            old_type_changed_err = []
 
-            for old_name, (old_idx, old_type) in mapping.items():
+            for old_name, (old_idx, old_type, *old_type_changed) in mapping.items():
+                # using * old_type_changed is a list with all residual elements
+                old_type_changed = True if len(old_type_changed) > 0 and old_type_changed[0] else False
 
                 # Try to get the definition of the "old name"
                 try:
@@ -2161,13 +2179,17 @@ class TestCompatibility:
                     #if old_name != def_by_name.name:
                     # new name available -> no error
 
+                    # we allow type changes if we already use a name, but the type is still unknown
+                    type_change_allowed = old_type_changed or (not old_name.lower().startswith("unknown_") and old_type == Unknown)
                     if old_type != def_by_name.field_type:
-                        old_type_changed.append(f"Type of {old_name} changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
+                        if type_change_allowed:
+                            old_type_changed_info.append(f"Type of {old_name} changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
+                        else:
+                            old_type_changed_err.append(f"Type of {old_name} changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
 
-            # Currently we allow type changes
             ok = not obsolete_found and not old_not_found \
-                and not old_idx_wrong # and not old_type_changed
-            do_print = not ok or len(old_type_changed) > 0
+                and not old_idx_wrong and not old_type_changed_err
+            do_print = not ok or len(old_type_changed_info) > 0
 
             if do_print:
                 print(f"############################## Incompatibilities - {caption}:")
@@ -2183,9 +2205,13 @@ class TestCompatibility:
                     print("############################## idx wrong")
                     for err in old_idx_wrong:
                         print(err)
-                if old_type_changed:
-                    print("############################## type changed")
-                    for err in old_type_changed:
+                if old_type_changed_err:
+                    print("############################## type change error")
+                    for err in old_type_changed_err:
+                        print(err)
+                if old_type_changed_info:
+                    print("############################## type change info")
+                    for err in old_type_changed_info:
                         print(err)
 
             all_ok &= ok
