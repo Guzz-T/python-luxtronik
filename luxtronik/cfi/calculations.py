@@ -8,10 +8,11 @@ from luxtronik.definitions.calculations import (
     CALCULATIONS_DEFINITIONS_LIST,
     CALCULATIONS_OFFSET,
     CALCULATIONS_DEFAULT_DATA_TYPE,
+    CALCULATIONS_OUTDATED,
 )
 
 from luxtronik.cfi.constants import CALCULATIONS_FIELD_NAME
-from luxtronik.data_vector import DataVector
+from luxtronik.cfi.vector import DataVectorConfig
 from luxtronik.datatypes import Base
 
 
@@ -24,28 +25,16 @@ CALCULATIONS_DEFINITIONS: Final = LuxtronikDefinitionsList(
     CALCULATIONS_DEFAULT_DATA_TYPE
 )
 
-class Calculations(DataVector):
+class Calculations(DataVectorConfig):
     """Class that holds all calculations."""
 
     name = CALCULATIONS_FIELD_NAME
     definitions = CALCULATIONS_DEFINITIONS
-
-    _obsolete = {
-        "ID_WEB_SoftStand": "get_firmware_version()"
-    }
-
-    def __init__(self):
-        super().__init__()
-        for d in CALCULATIONS_DEFINITIONS:
-            self._data.add(d, d.create_field())
-
-    @property
-    def calculations(self):
-        return self._data
+    _outdated = CALCULATIONS_OUTDATED
 
     def get_firmware_version(self):
         """Get the firmware version as string."""
-        return "".join([super(Calculations, self).get(i).value for i in range(81, 91)])
+        return "".join([str(super(Calculations, self).get(i).value) for i in range(81, 91)])
 
     def _get_firmware_version(self):
         """Get the firmware version as string like in previous versions."""

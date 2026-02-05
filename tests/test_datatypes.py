@@ -4,12 +4,6 @@
 
 import datetime
 
-from luxtronik.constants import (
-    LUXTRONIK_NAME_CHECK_NONE,
-    LUXTRONIK_NAME_CHECK_PREFERRED,
-    LUXTRONIK_NAME_CHECK_OBSOLETE,
-)
-
 from luxtronik.datatypes import (
     Base,
     BitMaskBase,
@@ -60,6 +54,7 @@ from luxtronik.datatypes import (
     TimerProgram,
     TimeOfDay,
     TimeOfDay2,
+    Version,
 )
 
 
@@ -83,6 +78,7 @@ class TestBase:
         a = Base("base")
         assert a.name == "base"
         assert a.writeable is False
+        assert a.unit is None
 
         b = Base("base", writeable=True)
         assert b.name == "base"
@@ -120,14 +116,6 @@ class TestBase:
             assert False
         except Exception:
             pass
-
-    def test_check_name(self):
-        """Test cases for check_name() function"""
-        base = Base(["foo", "bar"])
-
-        assert base.check_name("foo") == LUXTRONIK_NAME_CHECK_PREFERRED
-        assert base.check_name("bar") == LUXTRONIK_NAME_CHECK_OBSOLETE
-        assert base.check_name("baz") == LUXTRONIK_NAME_CHECK_NONE
 
     def test_value_property(self):
         """Test case for value property"""
@@ -188,6 +176,8 @@ class TestBase:
         d = Bool("bool")
         assert c != d
 
+        assert a != "b"
+
     def test_lt(self):
         """Test cases for __lt__ function"""
 
@@ -212,6 +202,7 @@ class TestSelectionBase:
         assert a.name == "selection_base"
         assert not a.codes
         assert len(a.codes) == 0
+        assert a.unit is None
 
     def test_options(self):
         """Test cases for options property"""
@@ -231,6 +222,7 @@ class TestSelectionBase:
         """Test cases for to_heatpump function"""
 
         a = SelectionBase("")
+        assert a.to_heatpump("") is None
         assert a.to_heatpump("a") is None
         assert a.to_heatpump("Unknown_214") == 214
         assert a.to_heatpump("unknown_215") == 215
@@ -260,6 +252,7 @@ class TestSelectionBaseChild:
         assert a.name == "selection_base_child"
         assert a.codes
         assert len(a.codes) == 3
+        assert a.unit is None
 
     def test_options(self):
         """Test cases for options property"""
@@ -301,6 +294,7 @@ class TestBitMaskBase:
         assert a.name == "bitmask_base"
         assert not a.bit_values
         assert len(a.bit_values) == 0
+        assert a.unit is None
 
     def test_bits(self):
         """Test cases for bits property"""
@@ -323,6 +317,7 @@ class TestBitMaskBase:
         """Test cases for to_heatpump function"""
 
         a = BitMaskBase("")
+        assert a.to_heatpump("") is None
         assert a.to_heatpump("a") is None
         assert a.to_heatpump(1) is None
         assert a.to_heatpump(None) is None
@@ -418,6 +413,7 @@ class TestScalingBase:
         a = ScalingBaseTest("")
         assert a.to_heatpump(1) == 1
         assert a.to_heatpump(42) == 42
+        assert a.to_heatpump(12.0) == 12
 
 
 class ScalingBaseChild(ScalingBase):
@@ -444,6 +440,7 @@ class TestScalingBaseChild:
         assert a.from_heatpump(1) == 13
         assert a.from_heatpump(2) == 26
         assert a.from_heatpump(-4) == -52
+        assert a.from_heatpump(None) is None
 
     def test_to_heatpump(self):
         """Test cases for to_heatpump function"""
@@ -497,6 +494,7 @@ class TestCelsius:
         assert a.name == "celsius"
         assert a.datatype_class == "temperature"
         assert a.datatype_unit == "°C"
+        assert a.unit == "°C"
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
@@ -518,6 +516,8 @@ class TestCelsius:
         assert Celsius.to_heatpump(-1) == -10
         assert Celsius.to_heatpump(-1.1) == -11
 
+        assert Celsius.to_heatpump(None) is None
+
 
 class TestBool:
     """Test suite for Bool datatype"""
@@ -529,18 +529,28 @@ class TestBool:
         assert a.name == "bool"
         assert a.datatype_class == "boolean"
         assert a.datatype_unit is None
+        assert a.unit is None
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
 
         assert Bool.from_heatpump(0) is False
         assert Bool.from_heatpump(1) is True
+        assert Bool.from_heatpump(None) is None
 
     def test_to_heatpump(self):
         """Test cases for to_heatpump function"""
 
+        class BoolExcept:
+            def __bool__(self):
+                return "x"
+
         assert Bool.to_heatpump(False) == 0
         assert Bool.to_heatpump(True) == 1
+        assert Bool.to_heatpump(None) == 0
+        assert Bool.to_heatpump("1") == 1
+        assert Bool.to_heatpump("abc") == 1
+        assert Bool.to_heatpump(BoolExcept()) is None
 
 
 class TestFrequency:
@@ -553,6 +563,7 @@ class TestFrequency:
         assert a.name == "frequency"
         assert a.datatype_class == "frequency"
         assert a.datatype_unit == "Hz"
+        assert a.unit == "Hz"
 
 
 class TestSeconds:
@@ -565,6 +576,7 @@ class TestSeconds:
         assert a.name == "seconds"
         assert a.datatype_class == "timespan"
         assert a.datatype_unit == "s"
+        assert a.unit == "s"
 
 
 class TestIPv4Address:
@@ -577,6 +589,7 @@ class TestIPv4Address:
         assert a.name == "ipv4_address"
         assert a.datatype_class == "ipv4_address"
         assert a.datatype_unit is None
+        assert a.unit is None
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
@@ -586,6 +599,7 @@ class TestIPv4Address:
         assert IPv4Address.from_heatpump(-1062731775) == "192.168.0.1"
         assert IPv4Address.from_heatpump(-256) == "255.255.255.0"
         assert IPv4Address.from_heatpump(-1) == "255.255.255.255"
+        assert IPv4Address.from_heatpump(None) is None
 
     def test_to_heatpump(self):
         """Test cases for to_heatpump function"""
@@ -595,6 +609,8 @@ class TestIPv4Address:
         assert IPv4Address.to_heatpump("192.168.0.1") == -1062731775
         assert IPv4Address.to_heatpump("255.255.255.0") == -256
         assert IPv4Address.to_heatpump("255.255.255.255") == -1
+        assert IPv4Address.to_heatpump(1) is None
+        assert IPv4Address.to_heatpump(None) is None
 
 
 class TestTimestamp:
@@ -607,6 +623,7 @@ class TestTimestamp:
         assert a.name == "timestamp"
         assert a.datatype_class == "timestamp"
         assert a.datatype_unit is None
+        assert a.unit is None
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
@@ -620,12 +637,14 @@ class TestTimestamp:
         # pylint: disable=fixme
         # TODO Consider to drop microseconds when dealing with this datatype?
         b = datetime.datetime.now()
-        assert a.from_heatpump(datetime.datetime.timestamp(b)) == b
+        assert a.from_heatpump(datetime.datetime.timestamp(b)) is None
 
     def test_to_heatpump(self):
         """Test cases for to_heatpump function"""
 
         a = Timestamp("")
+        assert a.to_heatpump(None) is None
+        assert a.to_heatpump("a") is None
         assert a.to_heatpump(datetime.datetime.fromtimestamp(0)) == 0
         assert a.to_heatpump(datetime.datetime.fromtimestamp(1)) == 1
         # pylint: disable=fixme
@@ -670,6 +689,9 @@ class TestKelvin:
 
         assert Kelvin.to_heatpump(1) == 10
         assert Kelvin.to_heatpump(1.1) == 11
+        assert Kelvin.to_heatpump(None) is None
+        assert Kelvin.to_heatpump("0") == 0
+        assert Kelvin.to_heatpump("b") is None
 
 
 class TestPressure:
@@ -696,6 +718,9 @@ class TestPressure:
 
         assert Pressure.to_heatpump(1) == 100
         assert Pressure.to_heatpump(1.01) == 101
+        assert Pressure.to_heatpump(None) is None
+        assert Pressure.to_heatpump("1") == 100
+        assert Pressure.to_heatpump("c") is None
 
 
 class TestPercent:
@@ -723,6 +748,10 @@ class TestPercent:
         assert Percent.to_heatpump(1) == 10
         assert Percent.to_heatpump(1.1) == 11
 
+        assert Percent.to_heatpump(None) is None
+        assert Percent.to_heatpump("2") == 20
+        assert Percent.to_heatpump("d") is None
+
 
 class TestPercent2:
     """Test suite for Percent2 datatype"""
@@ -746,6 +775,10 @@ class TestPercent2:
 
         assert Percent2.to_heatpump(10) == 10
         assert Percent2.to_heatpump(11) == 11
+
+        assert Percent2.to_heatpump(None) is None
+        assert Percent2.to_heatpump("3") is None
+        assert Percent2.to_heatpump("e") is None
 
 
 class TestSpeed:
@@ -797,6 +830,10 @@ class TestPowerKW:
         assert a.to_heatpump(1.5) == 15
         assert a.to_heatpump(5.6) == 56
 
+        assert a.to_heatpump(None) is None
+        assert a.to_heatpump("4") == 40
+        assert a.to_heatpump("f") is None
+
 
 class TestEnergy:
     """Test suite for Energy datatype"""
@@ -822,6 +859,10 @@ class TestEnergy:
 
         assert Energy.to_heatpump(1) == 10
         assert Energy.to_heatpump(1.1) == 11
+
+        assert Energy.to_heatpump(None) is None
+        assert Energy.to_heatpump("5") == 50
+        assert Energy.to_heatpump("g") is None
 
 
 class TestVoltage:
@@ -849,6 +890,10 @@ class TestVoltage:
         assert Voltage.to_heatpump(1) == 10
         assert Voltage.to_heatpump(1.1) == 11
 
+        assert Voltage.to_heatpump(None) is None
+        assert Voltage.to_heatpump("6") == 60
+        assert Voltage.to_heatpump("h") is None
+
 
 class TestHours:
     """Test suite for Hours datatype"""
@@ -875,6 +920,10 @@ class TestHours:
         assert Hours.to_heatpump(1) == 10
         assert Hours.to_heatpump(1.1) == 11
 
+        assert Hours.to_heatpump(None) is None
+        assert Hours.to_heatpump("7") == 70
+        assert Hours.to_heatpump("i") is None
+
 
 class TestHours2:
     """Test suite for Hours2 datatype"""
@@ -900,6 +949,10 @@ class TestHours2:
 
         assert Hours2.to_heatpump(2) == 2
         assert Hours2.to_heatpump(5) == 8
+
+        assert Hours2.to_heatpump(None) is None
+        assert Hours2.to_heatpump("8") is None
+        assert Hours2.to_heatpump("i") is None
 
 
 class TestMinutes:
@@ -950,6 +1003,24 @@ class TestCount:
         assert a.datatype_unit is None
 
 
+class TestVersion:
+    """Test suite for Version datatype"""
+
+    def test_init(self):
+        """Test cases for initialization"""
+
+        a = Version("ver")
+        assert a.name == "ver"
+        assert a.datatype_class == "version"
+        assert a.datatype_unit is None
+
+    def test_from_heatpump(self):
+
+        assert Version.from_heatpump([3, 1, 4]) == '\x03\x01\x04'
+        assert Version.from_heatpump(None) is None
+        assert Version.from_heatpump("a") is None
+
+
 class TestCharacter:
     """Test suite for Character datatype"""
 
@@ -969,6 +1040,8 @@ class TestCharacter:
         assert Character.from_heatpump(46) == "."
         assert Character.from_heatpump(56) == "8"
         assert Character.from_heatpump(48) == "0"
+
+        assert Character.from_heatpump(None) is None
 
 
 class TestMajorMinorVersion:
@@ -995,6 +1068,8 @@ class TestMajorMinorVersion:
         assert MajorMinorVersion.from_heatpump(12) == "0.12"
         assert MajorMinorVersion.from_heatpump(-1) == "0"
 
+        assert MajorMinorVersion.from_heatpump(None) is None
+
 class TestFullVersion:
     """Test suite for FullVersion datatype"""
 
@@ -1009,9 +1084,10 @@ class TestFullVersion:
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
 
-        assert FullVersion.from_heatpump(112) == "0"
-        assert FullVersion.from_heatpump(0) == "0"
-        assert FullVersion.from_heatpump([0, 12]) == "0"
+        assert FullVersion.from_heatpump(None) is None
+        assert FullVersion.from_heatpump(112) is None
+        assert FullVersion.from_heatpump(0) is None
+        assert FullVersion.from_heatpump([0, 12]) is None
         assert FullVersion.from_heatpump([0, 12, 3]) == "0.12.3"
 
 class TestIcon:
@@ -1372,6 +1448,8 @@ class TestTimeOfDay:
         """Test cases for from_heatpump function"""
 
         assert TimeOfDay.from_heatpump(None) is None
+        assert TimeOfDay.to_heatpump(None) is None
+        assert TimeOfDay.to_heatpump(1) is None
 
         check_pair(TimeOfDay, 7 * 3600 + 30 * 60, "7:30")
         check_pair(TimeOfDay, 7 * 3600 + 30 * 60 + 50, "7:30:50")
@@ -1396,6 +1474,8 @@ class TestTimeOfDay2:
         """Test cases for from_heatpump function"""
 
         assert TimeOfDay2.from_heatpump(None) is None
+        assert TimeOfDay2.to_heatpump(None) is None
+        assert TimeOfDay2.to_heatpump(1) is None
 
         check_pair(TimeOfDay2, ((19 * 60) << 16) + 7 * 60 + 30, "7:30-19:00")
         check_pair(TimeOfDay2, ((19 * 60 + 30) << 16) + 5 * 60 + 23, "5:23-19:30")

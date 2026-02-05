@@ -4,6 +4,7 @@
 
 from luxtronik import Visibilities
 from luxtronik.datatypes import Base
+from luxtronik.definitions import LuxtronikDefinition
 
 
 class TestVisibilities:
@@ -13,20 +14,19 @@ class TestVisibilities:
         """Test cases for initialization"""
         visibilities = Visibilities()
         assert visibilities.name == "visibility"
-        assert visibilities.visibilities == visibilities._data
 
     def test_data(self):
         """Test cases for the data dictionary"""
         visibilities = Visibilities()
-        data = visibilities.visibilities
+        data = visibilities.data
 
         # The Value must be a fields
         # The key can be an index
         assert isinstance(data[0], Base)
-        for k in data:
-            assert isinstance(k, int)
+        for d in data:
+            assert isinstance(d, LuxtronikDefinition)
         for v in data.values():
             assert isinstance(v, Base)
-        for k, v in data.items():
-            assert isinstance(k, int)
+        for d, v in data.items():
+            assert isinstance(d, LuxtronikDefinition)
             assert isinstance(v, Base)
