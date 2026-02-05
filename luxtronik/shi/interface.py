@@ -5,6 +5,7 @@ import logging
 from luxtronik.common import classproperty, version_in_range
 from luxtronik.collections import get_data_arr
 from luxtronik.datatypes import Base
+from luxtronik.data_vector import check_write_data
 from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
@@ -386,7 +387,7 @@ class LuxtronikSmartHomeInterface:
             field.value = data
 
         # Abort if field is not writeable or the value is invalid
-        if not field.check_for_write(safe):
+        if check_write_data(field):
             return False
 
         # Abort if insufficient data is provided

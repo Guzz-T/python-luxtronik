@@ -3599,7 +3599,7 @@ VISIBILITIES_DEFINITIONS_LIST: Final = [
     {
         "index": 357,
         "count": 1,
-        "names": ['ELECTRICAL_POWER_LIMITATION_SWITCH', 'Unknown_Parameter_357'],
+        "names": ['ELECTRICAL_POWER_LIMITATION_SWITCH', 'Unknown_Visibility_357', 'Unknown_Parameter_357'],
         "type": Unknown,
         "writeable": False,
         "datatype": 'UINT32',

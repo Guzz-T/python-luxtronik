@@ -11532,7 +11532,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1136,
         "count": 1,
-        "names": ['HEAT_ENERGY_INPUT'],
+        "names": ['HEAT_ENERGY_INPUT', 'Unknown_Parameter_1136'],
         "type": Energy,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11542,7 +11542,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1137,
         "count": 1,
-        "names": ['DHW_ENERGY_INPUT'],
+        "names": ['DHW_ENERGY_INPUT', 'Unknown_Parameter_1137'],
         "type": Energy,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11562,7 +11562,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1139,
         "count": 1,
-        "names": ['COOLING_ENERGY_INPUT'],
+        "names": ['COOLING_ENERGY_INPUT', 'Unknown_Parameter_1139'],
         "type": Energy,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11572,7 +11572,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1140,
         "count": 1,
-        "names": ['SECOND_HEAT_GENERATOR_AMOUNT_COUNTER'],
+        "names": ['SECOND_HEAT_GENERATOR_AMOUNT_COUNTER', 'Unknown_Parameter_1140'],
         "type": Unknown,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11652,7 +11652,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1148,
         "count": 1,
-        "names": ['HEATING_TARGET_TEMP_ROOM_THERMOSTAT'],
+        "names": ['HEATING_TARGET_TEMP_ROOM_THERMOSTAT', 'Unknown_Parameter_1148'],
         "type": Celsius,
         "writeable": True,
         "datatype": 'INT32',
@@ -11752,7 +11752,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1158,
         "count": 1,
-        "names": ['POWER_LIMIT_SWITCH'],
+        "names": ['POWER_LIMIT_SWITCH', 'Unknown_Parameter_1158'],
         "type": Unknown,
         "writeable": False,
         "datatype": 'UINT32',
@@ -11762,7 +11762,7 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
     {
         "index": 1159,
         "count": 1,
-        "names": ['POWER_LIMIT_VALUE'],
+        "names": ['POWER_LIMIT_VALUE', 'Unknown_Parameter_1159'],
         "type": Unknown,
         "writeable": False,
         "datatype": 'UINT32',

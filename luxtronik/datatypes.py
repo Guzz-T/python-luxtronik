@@ -1,12 +1,16 @@
 """datatype conversions."""
 
 import datetime
+import logging
 import socket
 import struct
 
 from luxtronik.common import classproperty
 
 from functools import total_ordering
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 @total_ordering
@@ -67,6 +71,8 @@ class Base:
     def value(self, value):
         """Converts the value into heatpump units and store it."""
         self._raw = self.to_heatpump(value)
+        if self._raw is None:
+            LOGGER.warning(f"Value '{value}' not valid for field '{self.name}'")
         self.write_pending = True
 
     @property
@@ -76,7 +82,7 @@ class Base:
 
     @raw.setter
     def raw(self, raw):
-        """Store the raw data."""
+        """Store the raw data. For internal use only"""
         self._raw = raw
         self.write_pending = False
 
@@ -89,7 +95,7 @@ class Base:
             f"name: {self.name}, "
             f"writeable: {self.writeable}, "
             f"value: {self.value}, "
-            f"raw: {self._raw}, "
+            f"raw: {self.raw}, "
             f"write_pending: {self.write_pending}, "
             f"class: {self.datatype_class}, "
             f"unit: {self.datatype_unit}"
@@ -111,7 +117,7 @@ class Base:
             return False
 
         return (
-            self.value == other.value
+            self._raw == other._raw
             and self.datatype_class == other.datatype_class
             and self.datatype_unit == other.datatype_unit
         )
@@ -120,7 +126,7 @@ class Base:
         """Compares two datatype objects and returns which one contains the lower value"""
 
         return (
-            self.value < other.value
+            self._raw < other._raw
             and self.datatype_class == other.datatype_class
             and self.datatype_unit == other.datatype_unit
         )
