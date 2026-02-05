@@ -131,6 +131,26 @@ class Base:
             and self.datatype_unit == other.datatype_unit
         )
 
+    def check_for_write(self, safe=True):
+        """
+        Returns true if the field is writable and the field data is valid.
+
+        Args:
+            safe (bool, Default: True): Flag for blocking write operations
+                if the field is not marked as writable
+
+        Returns:
+            bool: True if the data is writable, otherwise False.
+        """
+        if self.writeable or not safe:
+            if isinstance(self._raw, int):
+                return True
+            else:
+                LOGGER.error(f"Value of '{self.name}' invalid!")
+        else:
+            LOGGER.warning(f"'{self.name}' not safe for writing!")
+        return False
+
 
 class SelectionBase(Base):
     """Selection base datatype, converts from and to list of codes."""
