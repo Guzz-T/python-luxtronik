@@ -5,23 +5,35 @@ from luxtronik.shi.vector import DataVectorSmartHome
 from luxtronik.shi.holdings import Holdings
 from luxtronik.shi.inputs import Inputs
 
-"""
-The test was originally written for "False".
-Since "True" is already checked in "test_definitions.py",
-we continue to use "False" consistently here.
-"""
-Base.concatenate_multiple_data_chunks = False
 
 ###############################################################################
 # Tests
 ###############################################################################
+
+
+class TestType(Base):
+    """
+    The test was originally written for "False".
+    Since "True" is already checked in "test_definitions.py",
+    we continue to use "False" consistently here.
+    """
+    Base.concatenate_multiple_data_chunks = False
+
+    @classmethod
+    def to_heatpump(cls, value):
+        return value
+
+    @classmethod
+    def from_heatpump(cls, value):
+        return value
+
 
 def_list = [
     {
         "index": 5,
         "count": 1,
         "names": ["field_5"],
-        "type": Base,
+        "type": TestType,
         "writeable": False,
         "since": "1.1",
         "until": "1.2",
@@ -30,7 +42,7 @@ def_list = [
         "index": 7,
         "count": 2,
         "names": ["field_7"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "since": "3.1",
     },
@@ -38,7 +50,7 @@ def_list = [
         "index": 9,
         "count": 1,
         "names": ["field_9a"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "until": "1.3",
     },
@@ -46,7 +58,7 @@ def_list = [
         "index": 9,
         "count": 2,
         "names": ["field_9"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "until": "3.3",
     },
@@ -54,7 +66,7 @@ def_list = [
         "index": -1,
         "count": 1,
         "names": ["field_invalid"],
-        "type": Base,
+        "type": TestType,
         "writeable": True,
         "until": "3.3",
     },
@@ -82,17 +94,23 @@ class TestDataVector:
         field = DataVectorTest.create_any_field(7)
         assert field.name == 'field_7'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create not available field
         field = DataVectorTest.create_any_field('BAR')
         assert field is None
 
+        # create field by def
+        field = DataVectorTest.create_any_field(TEST_DEFINITIONS._definitions[2])
+        assert field.name == 'field_9a'
+        assert field.writeable
+        assert type(field) is TestType
+
         # create versioned data vector
         data_vector = DataVectorTest(parse_version("1.2"))
         assert data_vector.version == (1, 2, 0, 0)
         assert len(data_vector) == 3
-        assert len(data_vector._data.pairs()) == 3
+        assert len(data_vector._data.pairs) == 3
         assert not data_vector._read_blocks_up_to_date
         assert len(data_vector._read_blocks) == 0
 
@@ -100,7 +118,7 @@ class TestDataVector:
         field = data_vector.create_field(5)
         assert field.name == 'field_5'
         assert not field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create not available field (not available)
         field = data_vector.create_field(6)
@@ -114,13 +132,13 @@ class TestDataVector:
         field = data_vector.create_field(9)
         assert field.name == 'field_9'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create index-overloaded version-dependent field
         field = data_vector.create_field('field_9a')
         assert field.name == 'field_9a'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create versioned data vector
         data_vector = DataVectorTest(parse_version("3.0"))
@@ -145,7 +163,7 @@ class TestDataVector:
         field = data_vector.create_field(9)
         assert field.name == 'field_9'
         assert field.writeable
-        assert type(field) is Base
+        assert type(field) is TestType
 
         # create invalid field (not available)
         field = data_vector.create_field('field_invalid')
@@ -192,7 +210,7 @@ class TestDataVector:
         assert field.name == 'field_5'
 
         # Add available field
-        field_9 = Base('field_9', False)
+        field_9 = TestType('field_9', False)
         field = data_vector.add(field_9)
         assert 9 in data_vector
         assert len(data_vector) == 2
@@ -205,7 +223,7 @@ class TestDataVector:
         assert field == field_9
 
         # Add available field with same name
-        field_9_2 = Base('field_9', False)
+        field_9_2 = TestType('field_9', False)
         field = data_vector.add(field_9_2)
         assert field_9_2 not in data_vector
         assert len(data_vector) == 2
@@ -216,7 +234,7 @@ class TestDataVector:
         field = data_vector.add(def_9a)
         assert def_9a in data_vector
         assert len(data_vector) == 3
-        assert len(data_vector.data._pairs) == 3
+        assert len(data_vector.data.pairs) == 3
         assert field.name == 'field_9a'
 
         # Get via index (last added)
@@ -252,13 +270,15 @@ class TestDataVector:
         for index, definition in enumerate(data_vector):
             if index == 0:
                 assert definition.index == 5
-                assert definition.name == 'field_5'
+                assert definition.name == "field_5"
             if index == 1:
                 assert definition.index == 9
-                assert definition.name == 'field_9a'
+                assert definition.name == "field_9a"
             if index == 2:
                 assert definition.index == 9
-                assert definition.name == 'field_9'
+                assert definition.name == "field_9"
+            if index == 3:
+                assert False
 
         for index, field in enumerate(data_vector.values()):
             if index == 0:
@@ -267,20 +287,21 @@ class TestDataVector:
                 assert field.name == 'field_9a'
             if index == 2:
                 assert field.name == 'field_9'
+            if index == 3:
+                assert False
 
         for index, (definition, field) in enumerate(data_vector.items()):
             if index == 0:
                 assert definition.index == 5
-                assert definition.name == 'field_5'
                 assert field.name == 'field_5'
             if index == 1:
                 assert definition.index == 9
-                assert definition.name == 'field_9a'
                 assert field.name == 'field_9a'
             if index == 2:
                 assert definition.index == 9
-                assert definition.name == 'field_9'
                 assert field.name == 'field_9'
+            if index == 3:
+                assert False
 
     def test_set(self):
         data_vector = DataVectorTest(parse_version("1.1.2"))
@@ -406,7 +427,7 @@ class TestDataVector:
         assert len(data_vector) == 3
         data_vector.add(10) # field_9a alias
         assert len(data_vector) == 4
-        assert len(data_vector._data._pairs) == 4
+        assert len(data_vector.data.pairs) == 4
 
 
 class TestHoldings:
@@ -416,7 +437,6 @@ class TestHoldings:
         """Test cases for initialization"""
         holdings = Holdings()
         assert holdings.name == "holding"
-        assert holdings.holdings == holdings._data
 
 
 class TestInputs:
@@ -426,4 +446,3 @@ class TestInputs:
         """Test cases for initialization"""
         inputs = Inputs()
         assert inputs.name == "input"
-        assert inputs.inputs == inputs._data
