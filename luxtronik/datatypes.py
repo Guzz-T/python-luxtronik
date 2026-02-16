@@ -143,7 +143,11 @@ class Base:
             bool: True if the data is writable, otherwise False.
         """
         if self.writeable or not safe:
+            # We support integers
             if isinstance(self._raw, int):
+                return True
+            # and list of integers
+            elif isinstance(self._raw, list) and all(isinstance(value, int) for value in self._raw):
                 return True
             else:
                 LOGGER.error(f"Value of '{self.name}' invalid!")
