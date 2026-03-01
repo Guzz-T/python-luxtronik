@@ -19,6 +19,7 @@ from luxtronik.datatypes import (
 # to obtain the correct address of the data fields
 VISIBILITIES_OFFSET: Final = 0
 VISIBILITIES_DEFAULT_DATA_TYPE: Final = 'INT32'
+
 VISIBILITIES_OUTDATED = {
 }
 

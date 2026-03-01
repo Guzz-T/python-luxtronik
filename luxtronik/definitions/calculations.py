@@ -49,6 +49,7 @@ from luxtronik.datatypes import (
 # to obtain the correct address of the data fields
 CALCULATIONS_OFFSET: Final = 0
 CALCULATIONS_DEFAULT_DATA_TYPE: Final = 'INT32'
+
 CALCULATIONS_OUTDATED = {
 }
 
