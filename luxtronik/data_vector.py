@@ -78,12 +78,12 @@ class DataVector:
         obsolete_entry = self._obsolete.get(name, None)
         if obsolete_entry:
             return None, obsolete_entry
-        for index, entry in self._data.items():
-            check_result = entry.check_name(name)
+        for definition, field in self._data.items():
+            check_result = field.check_name(name)
             if check_result == LUXTRONIK_NAME_CHECK_PREFERRED:
-                return index, None
+                return definition.index, None
             elif check_result == LUXTRONIK_NAME_CHECK_OBSOLETE:
-                return index, entry.name
+                return definition.index, field.name
         return None, None
 
     def _lookup(self, target, with_index=False):
