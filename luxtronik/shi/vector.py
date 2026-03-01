@@ -143,24 +143,12 @@ class DataVectorSmartHome(DataVector):
         obj._init_instance(version, safe)
         return obj
 
-    def __len__(self):
-        return len(self._data.pairs())
-
-    def __iter__(self):
-        return iter([definition for definition, _ in self._data.pairs()])
-
 
 # properties and access methods ###############################################
 
     @property
     def version(self):
         return self._version
-
-    def values(self):
-        return iter([field for _, field in self._data.pairs()])
-
-    def items(self):
-        return iter(self._data.pairs())
 
 
 # Find, add and alias methods #################################################
