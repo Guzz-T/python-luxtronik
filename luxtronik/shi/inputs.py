@@ -30,7 +30,3 @@ class Inputs(DataVectorSmartHome):
     name = INPUTS_FIELD_NAME
     definitions = INPUTS_DEFINITIONS
     _outdated = INPUTS_OUTDATED
-
-    @property
-    def inputs(self):
-        return self._data

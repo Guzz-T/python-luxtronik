@@ -13,12 +13,12 @@ class TestVisibilities:
         """Test cases for initialization"""
         visibilities = Visibilities()
         assert visibilities.name == "visibility"
-        assert visibilities.visibilities == visibilities._data
+        assert visibilities.data == visibilities._data
 
     def test_data(self):
         """Test cases for the data dictionary"""
         visibilities = Visibilities()
-        data = visibilities.visibilities
+        data = visibilities.data
 
         # The Value must be a fields
         # The key can be an index
