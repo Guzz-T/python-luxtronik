@@ -3,31 +3,6 @@
 All notable changes to this project are documented here.
 This changelog follows the "Keep a Changelog" format and Semantic Versioning.
 
-<!--
-Chapters:
-
-## [Unreleased]
-Changes that have not yet been published.
-
-### Added
-New features or APIs.
-
-### Changed
-Non‑trivial modifications to existing behavior (mark breaking changes here).
-
-### Deprecated
-Features that will be removed in the future; include migration guidance.
-
-### Removed
-Removed features or APIs (breaking changes).
-
-### Fixed
-Bug fixes.
-
-### Security
-Security‑related fixes (CVEs, patches).
--->
-
 ## [Unreleased]
 
 ### Added
