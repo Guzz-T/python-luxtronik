@@ -5,7 +5,7 @@ import socket
 import struct
 import time
 
-from luxtronik.common import get_host_lock
+from luxtronik.common import LuxtronikSettings, get_host_lock
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
@@ -162,20 +162,23 @@ class LuxtronikSocketInterface:
         return self._read(data)
 
     def _write(self, parameters):
-        for index, field in parameters.data.items():
+        if not isinstance(parameters, Parameters):
+            LOGGER.error(f"Only parameters are writable!")
+            return
+        for definition, field in parameters.items():
             if field.write_pending:
                 field.write_pending = False
                 value = field.raw
-                if not isinstance(index, int) or not field.check_for_write(parameters.safe):
+                if not isinstance(definition.index, int) or not field.check_for_write(parameters.safe):
                     LOGGER.warning(
                         "%s: Parameter id '%s' or value '%s' invalid!",
                         self._host,
-                        index,
+                        definition.index,
                         value,
                     )
                     continue
-                LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, index, value)
-                self._send_ints(LUXTRONIK_PARAMETERS_WRITE, index, value)
+                LOGGER.info("%s: Parameter '%d' set to '%s'", self._host, definition.index, value)
+                self._send_ints(LUXTRONIK_PARAMETERS_WRITE, definition.index, value)
                 cmd = self._read_int()
                 LOGGER.debug("%s: Command %s", self._host, cmd)
                 val = self._read_int()
@@ -275,13 +278,14 @@ class LuxtronikSocketInterface:
         undefined = {i for i in range(0, raw_len)}
 
         # integrate the data into the fields
-        for pair in data_vector.data.pairs():
+        for pair in data_vector.data.items():
             definition, field = pair
             # skip this field if there are not enough data
             next_idx = definition.index + definition.count
             if next_idx > raw_len:
                 # not enough registers
-                field.raw = None
+                if not LuxtronikSettings.preserve_last_read_value_on_fail:
+                    field.raw = None
                 continue
             # remove all used indices from the list of undefined indices
             for index in range(definition.index, next_idx):

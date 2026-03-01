@@ -4,6 +4,7 @@
 
 from luxtronik import Calculations
 from luxtronik.datatypes import Base
+from luxtronik.definitions import LuxtronikDefinition
 
 
 class TestCalculations:
@@ -13,20 +14,19 @@ class TestCalculations:
         """Test cases for initialization"""
         calculations = Calculations()
         assert calculations.name == "calculation"
-        assert calculations.calculations == calculations._data
 
     def test_data(self):
         """Test cases for the data dictionary"""
         calculations = Calculations()
-        data = calculations.calculations
+        data = calculations.data
 
         # The Value must be a fields
         # The key can be an index
         assert isinstance(data[0], Base)
-        for k in data:
-            assert isinstance(k, int)
+        for d in data:
+            assert isinstance(d, LuxtronikDefinition)
         for v in data.values():
             assert isinstance(v, Base)
-        for k, v in data.items():
-            assert isinstance(k, int)
+        for d, v in data.items():
+            assert isinstance(d, LuxtronikDefinition)
             assert isinstance(v, Base)

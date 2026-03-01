@@ -39,6 +39,9 @@ INPUTS_DEFAULT_DATA_TYPE: Final = 'INT16'
 INPUTS_OUTDATED = {
 }
 
+INPUTS_OUTDATED = {
+}
+
 INPUTS_DEFINITIONS_LIST: Final = [
     {
         "index": 0,

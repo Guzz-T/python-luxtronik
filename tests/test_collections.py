@@ -1,4 +1,5 @@
 
+
 from luxtronik.collections import (
     get_data_arr,
     integrate_data,
@@ -226,39 +227,42 @@ class TestLuxtronikFieldsDictionary:
         d = LuxtronikFieldsDictionary()
 
         assert type(d._def_lookup) is LuxtronikDefinitionsDictionary
+        assert d.def_dict is d._def_lookup
         assert type(d._field_lookup) is dict
-        assert len(d._field_lookup.values()) == 0
+        assert d.field_dict is d._field_lookup
         assert type(d._pairs) is list
-        assert len(d._pairs) == 0
+        assert d.pairs is d._pairs
+        assert len(d.field_dict) == 0
+        assert len(d.pairs) == 0
 
     def test_add(self):
         d = LuxtronikFieldsDictionary()
         assert len(d) == 0
-        assert len(d.pairs()) == 0
+        assert len(d.pairs) == 0
 
         u = LuxtronikDefinition.unknown(1, "test", 0)
         f = u.create_field()
         d.add(u, f)
         assert len(d) == 1
-        assert len(d._pairs) == 1
-        assert d._pairs[0].definition is u
-        assert d._pairs[0].field is f
+        assert len(d.pairs) == 1
+        assert d.pairs[0].definition is u
+        assert d.pairs[0].field is f
 
         u = LuxtronikDefinition.unknown(2, "test", 0)
         f = u.create_field()
         d.add(u, f)
         assert len(d) == 2
-        assert len(d._pairs) == 2
-        assert d._pairs[1].definition is u
-        assert d._pairs[1].field is f
+        assert len(d.pairs) == 2
+        assert d.pairs[1].definition is u
+        assert d.pairs[1].field is f
 
         u = LuxtronikDefinition.unknown(0, "test", 0)
         f = u.create_field()
         d.add_sorted(u, f)
         assert len(d) == 3
         assert len(d._pairs) == 3
-        assert d._pairs[0].definition is u
-        assert d._pairs[0].field is f
+        assert d.pairs[0].definition is u
+        assert d.pairs[0].field is f
 
     def create_instance(self):
         d = LuxtronikFieldsDictionary()
@@ -284,8 +288,8 @@ class TestLuxtronikFieldsDictionary:
     def test_len(self):
         d, _, _ = self.create_instance()
         # 3 different indices
-        assert len(d) == 3
-        assert len(d.pairs()) == 4
+        assert len(d) == 4
+        assert len(d.pairs) == 4
 
     def test_get_contains(self):
         d, u, f = self.create_instance()
@@ -311,42 +315,55 @@ class TestLuxtronikFieldsDictionary:
 
     def test_iter(self):
         d, _, _ = self.create_instance()
-        for idx, key in enumerate(d):
+        for idx, d in enumerate(d):
             if idx == 0:
-                assert key == 1
+                assert d.name == "unknown_test_1"
+                assert d.index == 1
             if idx == 1:
-                assert key == 2
+                assert d.name == "unknown_test_2"
+                assert d.index == 2
             if idx == 2:
-                assert key == 3
+                assert d.name == "base2"
+                assert d.index == 2
+            if idx == 3:
+                assert d.name == "base3"
+                assert d.index == 3
 
     def test_values(self):
         d, _, _ = self.create_instance()
-        for idx, value in enumerate(d.values()):
+        for idx, f in enumerate(d.values()):
             if idx == 0:
-                assert type(value) is Unknown
-                assert value.name == "unknown_test_1"
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_1"
             if idx == 1:
-                assert type(value) is Base
-                assert value.name == "base2"
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_2"
             if idx == 2:
-                assert type(value) is Base
-                assert value.name == "base3"
+                assert type(f) is Base
+                assert f.name == "base2"
+            if idx == 3:
+                assert type(f) is Base
+                assert f.name == "base3"
 
     def test_items(self):
         d, _, _ = self.create_instance()
-        for idx, (key, value) in enumerate(d.items()):
+        for idx, (d, f) in enumerate(d.items()):
             if idx == 0:
-                assert key == 1
-                assert type(value) is Unknown
-                assert value.name == "unknown_test_1"
+                assert d.index == 1
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_1"
             if idx == 1:
-                assert key == 2
-                assert type(value) is Base
-                assert value.name == "base2"
+                assert d.index == 2
+                assert type(f) is Unknown
+                assert f.name == "unknown_test_2"
             if idx == 2:
-                assert key == 3
-                assert type(value) is Base
-                assert value.name == "base3"
+                assert d.index == 2
+                assert type(f) is Base
+                assert f.name == "base2"
+            if idx == 3:
+                assert d.index == 3
+                assert type(f) is Base
+                assert f.name == "base3"
 
     class MyTestClass:
         pass

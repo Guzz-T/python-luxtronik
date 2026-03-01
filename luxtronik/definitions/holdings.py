@@ -34,6 +34,9 @@ HOLDINGS_DEFAULT_DATA_TYPE: Final = 'INT16'
 HOLDINGS_OUTDATED = {
 }
 
+HOLDINGS_OUTDATED = {
+}
+
 HOLDINGS_DEFINITIONS_LIST: Final = [
     {
         "index": 0,

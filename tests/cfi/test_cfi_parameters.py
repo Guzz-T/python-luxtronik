@@ -4,6 +4,7 @@
 
 from luxtronik import Parameters
 from luxtronik.datatypes import Base
+from luxtronik.definitions import LuxtronikDefinition
 
 
 class TestParameters:
@@ -13,7 +14,6 @@ class TestParameters:
         """Test cases for initialization"""
         parameters = Parameters()
         assert parameters.name == "parameter"
-        assert parameters.parameters == parameters._data
         assert parameters.safe
 
         parameters = Parameters(False)
@@ -22,17 +22,17 @@ class TestParameters:
     def test_data(self):
         """Test cases for the data dictionary"""
         parameters = Parameters()
-        data = parameters.parameters
+        data = parameters.data
 
         # The Value must be a fields
         # The key can be an index
         assert isinstance(data[0], Base)
-        for k in data:
-            assert isinstance(k, int)
+        for d in data:
+            assert isinstance(d, LuxtronikDefinition)
         for v in data.values():
             assert isinstance(v, Base)
-        for k, v in data.items():
-            assert isinstance(k, int)
+        for d, v in data.items():
+            assert isinstance(d, LuxtronikDefinition)
             assert isinstance(v, Base)
 
     def test_get(self):
@@ -43,36 +43,32 @@ class TestParameters:
         assert parameters.get("0").name == s
         assert parameters.get(s).name == s
 
-    def test__lookup(self):
-        """Test cases for _lookup"""
-        parameters = Parameters()
-        s = "ID_Transfert_LuxNet"
-        assert parameters._lookup(0).name == s
-        assert parameters._lookup("0").name == s
-        assert parameters._lookup(s).name == s
-
-        p0 = parameters._lookup(0)
-        assert parameters._lookup(0, True) == (0, p0)
-        assert parameters._lookup("0", True) == (0, p0)
-        assert parameters._lookup(s, True) == (0, p0)
+        p0 = parameters.get(0)
+        assert parameters[0] is p0
+        assert parameters["0"] is p0
+        assert parameters[s] is p0
 
         # Look for a name which does not exist
         s = "ID_BarFoo"
-        assert parameters._lookup(s, True)[0] is None
+        assert parameters.get(s) is None
 
         # Look for something which is not an int and not a string
         j = 0.0
-        assert parameters._lookup(j) is None
+        assert parameters.get(j) is None
 
     def test___iter__(self):
         """Test cases for __iter__"""
         parameters = Parameters()
 
-        for i, p in parameters:
-            if i == 0:
+        for d, p in parameters.items():
+            if d.index == 0:
                 assert p.name == "ID_Transfert_LuxNet"
-            elif i == 1:
+                assert d is parameters.data.def_dict.get(0)
+                assert p is parameters.get(0)
+            elif d.index == 1:
                 assert p.name == "ID_Einst_WK_akt"
+                assert d is parameters.data.def_dict.get(1)
+                assert p is parameters.get(1)
             else:
                 break
 

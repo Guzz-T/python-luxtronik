@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 
+from luxtronik.common import LuxtronikSettings
 from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinition
@@ -369,6 +370,9 @@ class TestLuxtronikSmartHomeInterface:
         assert telegram_data[3][IDX_BLK][0].field.raw == 17 # no update
         assert not telegram_data[3][IDX_BLK][0].field.write_pending
 
+        orig_preserve = LuxtronikSettings.preserve_last_read_value_on_fail
+        LuxtronikSettings.preserve_last_read_value_on_fail = True
+
         # integrate too less -> error
         telegram_data[0][IDX_TLG].data = [18]
         telegram_data[0][IDX_BLK][0].field.write_pending = True
@@ -379,14 +383,37 @@ class TestLuxtronikSmartHomeInterface:
         valid = self.interface._integrate_data(telegram_data)
         assert not valid
         # [index data, index for blocks, index for part]
-        assert telegram_data[0][IDX_BLK][0].field.raw == 19 # no update
-        assert telegram_data[0][IDX_BLK][0].field.write_pending # no update
-        assert telegram_data[0][IDX_BLK][1].field.raw == 5 # no update
-        assert telegram_data[0][IDX_BLK][1].field.write_pending # no update
+        assert telegram_data[0][IDX_BLK][0].field.raw == 19 # preserve -> no update
+        assert telegram_data[0][IDX_BLK][0].field.write_pending # preserve -> no update
+        assert telegram_data[0][IDX_BLK][1].field.raw == 5 # preserve -> no update
+        assert telegram_data[0][IDX_BLK][1].field.write_pending # preserve -> no update
         assert telegram_data[1][IDX_BLK][0].field.raw == 2
         assert not telegram_data[1][IDX_BLK][0].field.write_pending
         assert telegram_data[2][IDX_BLK][0].field.raw is None
         assert telegram_data[3][IDX_BLK][0].field.raw == 17 # no update
+
+        LuxtronikSettings.preserve_last_read_value_on_fail = False
+
+        # integrate too less -> error
+        telegram_data[0][IDX_TLG].data = [18]
+        telegram_data[0][IDX_BLK][0].field.write_pending = True
+        telegram_data[0][IDX_BLK][1].field.write_pending = True
+        telegram_data[1][IDX_TLG].data = [2]
+        telegram_data[1][IDX_BLK][0].field.write_pending = True
+        telegram_data[2][IDX_TLG].data = [None]
+        valid = self.interface._integrate_data(telegram_data)
+        assert not valid
+        # [index data, index for blocks, index for part]
+        assert telegram_data[0][IDX_BLK][0].field.raw is None # no preserve -> update
+        assert not telegram_data[0][IDX_BLK][0].field.write_pending # no preserve -> update
+        assert telegram_data[0][IDX_BLK][1].field.raw is None # no preserve -> update
+        assert not telegram_data[0][IDX_BLK][1].field.write_pending # no preserve -> update
+        assert telegram_data[1][IDX_BLK][0].field.raw == 2
+        assert not telegram_data[1][IDX_BLK][0].field.write_pending
+        assert telegram_data[2][IDX_BLK][0].field.raw is None
+        assert telegram_data[3][IDX_BLK][0].field.raw == 17 # no update
+
+        LuxtronikSettings.preserve_last_read_value_on_fail = orig_preserve
 
     def test_prepare(self):
         definition = HOLDINGS_DEFINITIONS[2]
@@ -1291,7 +1318,7 @@ class TestLuxtronikSmartHomeInterface:
         for d in definitions:
             assert d.name in vector
             assert d in interface.holdings
-        for f in vector:
+        for f in vector.values():
             assert f.name in definitions
             assert f.name in interface.holdings
 
@@ -1302,7 +1329,7 @@ class TestLuxtronikSmartHomeInterface:
         for d in definitions:
             assert d.name in vector
             assert d in interface.inputs
-        for f in vector:
+        for f in vector.values():
             assert f.name in definitions
             assert f.name in interface.inputs
 

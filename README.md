@@ -257,8 +257,8 @@ print(parameters.get("ID_Ba_Hz_akt").options()) # returns a list of possible val
 
 # Now we increase the heating controller target temperature by 2 Kelvin
 heating_offset = l.holdings.get(2)    # Get an object for the offset
-heating_offset.value = 2.0            # Set the desired value
-l.holdings["heating_mode"] = "Offset" # Set the value to activate the offset mode
+heating_offset.value = 2.0            # Queue the desired value by setting the field's value
+l.holdings["heating_mode"] = "Offset" # Queue the value to activate the offset mode
 l.write()                             # Write down the values to the heatpump
 ```
 

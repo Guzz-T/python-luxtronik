@@ -5,11 +5,6 @@ import logging
 import socket
 import struct
 
-from luxtronik.constants import (
-    LUXTRONIK_NAME_CHECK_NONE,
-    LUXTRONIK_NAME_CHECK_PREFERRED,
-    LUXTRONIK_NAME_CHECK_OBSOLETE,
-)
 from luxtronik.common import classproperty
 
 from functools import total_ordering
@@ -48,6 +43,8 @@ class Base:
     @classmethod
     def to_heatpump(cls, value):
         """Converts value into heatpump units."""
+        if not isinstance(value, int):
+            return None
         return value
 
     @classmethod
@@ -64,19 +61,6 @@ class Base:
     def name(self):
         """Return the (most common) name of the entry."""
         return self._names[0]
-
-    def check_name(self, name):
-        """
-        Check whether a name matches one of the supported entry names.
-        The result string can be used to trigger a exception for obsolete names.
-        """
-        name_lower = name.lower()
-        if name_lower == self.name.lower():
-            return LUXTRONIK_NAME_CHECK_PREFERRED
-        elif name_lower in (n.lower() for n in self._names):
-            return LUXTRONIK_NAME_CHECK_OBSOLETE
-        else:
-            return LUXTRONIK_NAME_CHECK_NONE
 
     @property
     def value(self):
@@ -111,7 +95,7 @@ class Base:
             f"name: {self.name}, "
             f"writeable: {self.writeable}, "
             f"value: {self.value}, "
-            f"raw: {self._raw}, "
+            f"raw: {self.raw}, "
             f"write_pending: {self.write_pending}, "
             f"class: {self.datatype_class}, "
             f"unit: {self.datatype_unit}"
@@ -133,7 +117,7 @@ class Base:
             return False
 
         return (
-            self.value == other.value
+            self._raw == other._raw
             and self.datatype_class == other.datatype_class
             and self.datatype_unit == other.datatype_unit
         )
@@ -142,7 +126,7 @@ class Base:
         """Compares two datatype objects and returns which one contains the lower value"""
 
         return (
-            self.value < other.value
+            self._raw < other._raw
             and self.datatype_class == other.datatype_class
             and self.datatype_unit == other.datatype_unit
         )
@@ -195,7 +179,7 @@ class SelectionBase(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         if value in cls.codes:
             return cls.codes.get(value)
@@ -349,11 +333,16 @@ class Bool(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         return bool(value)
 
     @classmethod
     def to_heatpump(cls, value):
-        return int(value)
+        try:
+            return int(bool(value))
+        except Exception:
+            return None
 
 
 class Frequency(Base):
@@ -377,10 +366,14 @@ class IPv4Address(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         return socket.inet_ntoa(struct.pack(">i", value))
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, str):
+            return None
         return struct.unpack(">i", socket.inet_aton(value))[0]
 
 
@@ -391,7 +384,7 @@ class Timestamp(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         if value <= 0:
             return datetime.datetime.fromtimestamp(0)
@@ -399,6 +392,8 @@ class Timestamp(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, (int, float, datetime.datetime)):
+            return None
         return datetime.datetime.timestamp(value)
 
 
@@ -590,12 +585,14 @@ class Hours2(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         return 1 + value / 2
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         return round((value - 1) * 2)
 
 
@@ -625,6 +622,20 @@ class Count(Base):
     datatype_class = "count"
 
 
+class Version(Base):
+    """Version datatype, converts from and to a Heatpump Version."""
+
+    datatype_class = "version"
+
+    concatenate_multiple_data_chunks = False
+
+    @classmethod
+    def from_heatpump(self, value):
+        if not isinstance(value, list):
+            return None
+        return "".join([chr(c) for c in value]).strip("\x00")
+
+
 class Character(Base):
     """Character datatype, converts from and to a Character."""
 
@@ -632,6 +643,8 @@ class Character(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         if value == 0:
             return ""
         return chr(value)
@@ -644,6 +657,8 @@ class MajorMinorVersion(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         if value > 0:
             major = value // 100
             minor = value % 100
@@ -962,7 +977,7 @@ class TimeOfDay(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         hours = value // 3600
         minutes = (value // 60) % 60
@@ -972,6 +987,8 @@ class TimeOfDay(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, str):
+            return None
         d = [int(v) for v in value.split(":")]
 
         val = d[0] * 3600 + d[1] * 60
@@ -988,7 +1005,7 @@ class TimeOfDay2(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
 
         value_low = value & 0xFFFF
@@ -1002,6 +1019,8 @@ class TimeOfDay2(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, str):
+            return None
         d = value.split("-")
         low = [int(v) for v in d[0].split(":")]
         high = [int(v) for v in d[1].split(":")]
@@ -1117,10 +1136,10 @@ class FullVersion(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if isinstance(value, list) and len(value) >= 3:
+        if not isinstance(value, list) or len(value) <= 2:
+            return None
+        if len(value) >= 3:
             return f"{value[0]}.{value[1]}.{value[2]}"
-        else:
-            return "0"
 
 
 class Unknown(Base):

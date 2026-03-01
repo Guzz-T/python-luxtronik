@@ -1,9 +1,10 @@
 
 from luxtronik import (
-  Parameters,
-  Calculations,
-  Visibilities,
-  LuxtronikSocketInterface,
+    LuxtronikSettings,
+    Parameters,
+    Calculations,
+    Visibilities,
+    LuxtronikSocketInterface,
 )
 
 
@@ -42,29 +43,39 @@ class TestLuxtronikSocketInterface:
         n = 10
         t = list(range(0, n + 1))
 
-        parameters[0].write_pending = True
-        parameters[20].write_pending = True
-        parameters[40].write_pending = True
+        orig_preserve = LuxtronikSettings.preserve_last_read_value_on_fail
+
+        LuxtronikSettings.preserve_last_read_value_on_fail = True
+        preserve = LuxtronikSettings.preserve_last_read_value_on_fail
+        for definition, field in parameters.data.items():
+            field.write_pending = True
         lux._parse(parameters, t)
-        for definition, field in parameters.data.pairs():
-            if definition.index > n:
+        for definition, field in parameters.data.items():
+            value_available = definition.index > n
+            if value_available and not preserve:
                 assert field.raw is None
-            assert not field.write_pending
+            assert field.write_pending == (value_available and preserve)
 
-        calculations[0].write_pending = True
-        calculations[20].write_pending = True
-        calculations[40].write_pending = True
+        LuxtronikSettings.preserve_last_read_value_on_fail = False
+        preserve = LuxtronikSettings.preserve_last_read_value_on_fail
+        for definition, field in calculations.data.items():
+            field.write_pending = True
         lux._parse(calculations, t)
-        for definition, field in calculations.data.pairs():
-            if definition.index > n:
+        for definition, field in calculations.data.items():
+            value_available = definition.index > n
+            if value_available and not preserve:
                 assert field.raw is None
-            assert not field.write_pending
+            assert field.write_pending == (value_available and preserve)
 
-        visibilities[0].write_pending = True
-        visibilities[20].write_pending = True
-        visibilities[40].write_pending = True
+        LuxtronikSettings.preserve_last_read_value_on_fail = False
+        preserve = LuxtronikSettings.preserve_last_read_value_on_fail
+        for definition, field in visibilities.data.items():
+            field.write_pending = True
         lux._parse(visibilities, t)
-        for definition, field in visibilities.data.pairs():
-            if definition.index > n:
+        for definition, field in visibilities.data.items():
+            value_available = definition.index > n
+            if value_available and not preserve:
                 assert field.raw is None
-            assert not field.write_pending
+            assert field.write_pending == (value_available and preserve)
+
+        LuxtronikSettings.preserve_last_read_value_on_fail = orig_preserve
