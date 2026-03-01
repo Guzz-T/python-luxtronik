@@ -30,7 +30,3 @@ class Holdings(DataVectorSmartHome):
     name = HOLDINGS_FIELD_NAME
     definitions = HOLDINGS_DEFINITIONS
     _outdated = HOLDINGS_OUTDATED
-
-    @property
-    def holdings(self):
-        return self._data

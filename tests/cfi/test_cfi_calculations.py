@@ -13,12 +13,12 @@ class TestCalculations:
         """Test cases for initialization"""
         calculations = Calculations()
         assert calculations.name == "calculation"
-        assert calculations.calculations == calculations._data
+        assert calculations.data == calculations._data
 
     def test_data(self):
         """Test cases for the data dictionary"""
         calculations = Calculations()
-        data = calculations.calculations
+        data = calculations.data
 
         # The Value must be a fields
         # The key can be an index

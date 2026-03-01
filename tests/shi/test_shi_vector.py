@@ -416,7 +416,7 @@ class TestHoldings:
         """Test cases for initialization"""
         holdings = Holdings()
         assert holdings.name == "holding"
-        assert holdings.holdings == holdings._data
+        assert holdings.data == holdings._data
 
 
 class TestInputs:
@@ -426,4 +426,4 @@ class TestInputs:
         """Test cases for initialization"""
         inputs = Inputs()
         assert inputs.name == "input"
-        assert inputs.inputs == inputs._data
+        assert inputs.data == inputs._data
