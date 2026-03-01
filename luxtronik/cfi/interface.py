@@ -163,7 +163,7 @@ class LuxtronikSocketInterface:
 
     def _write(self, parameters):
         if not isinstance(parameters, Parameters):
-            LOGGER.error(f"Only parameters are writable!"):
+            LOGGER.error(f"Only parameters are writable!")
             return
         for definition, field in parameters.items():
             if field.write_pending:

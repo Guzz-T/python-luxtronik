@@ -2183,9 +2183,9 @@ class TestCompatibility:
                     type_change_allowed = old_type_changed or (not old_name.lower().startswith("unknown_") and old_type == Unknown)
                     if old_type != def_by_name.field_type:
                         if type_change_allowed:
-                            old_type_changed_info.append(f"Type of {old_name} changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
+                            old_type_changed_info.append(f"Type of {old_name} (index {old_idx}) changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
                         else:
-                            old_type_changed_err.append(f"Type of {old_name} changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
+                            old_type_changed_err.append(f"Type of {old_name} (index {old_idx}) changed from {old_type.__name__} to {def_by_name.field_type.__name__}")
 
             ok = not obsolete_found and not old_not_found \
                 and not old_idx_wrong and not old_type_changed_err
