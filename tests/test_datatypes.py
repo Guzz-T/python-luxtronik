@@ -77,6 +77,7 @@ class TestBase:
         a = Base("base")
         assert a.name == "base"
         assert a.writeable is False
+        assert a.unit is None
 
         b = Base("base", writeable=True)
         assert b.name == "base"
@@ -174,6 +175,8 @@ class TestBase:
         d = Bool("bool")
         assert c != d
 
+        assert a != "b"
+
     def test_lt(self):
         """Test cases for __lt__ function"""
 
@@ -198,6 +201,7 @@ class TestSelectionBase:
         assert a.name == "selection_base"
         assert not a.codes
         assert len(a.codes) == 0
+        assert a.unit is None
 
     def test_options(self):
         """Test cases for options property"""
@@ -246,6 +250,7 @@ class TestSelectionBaseChild:
         assert a.name == "selection_base_child"
         assert a.codes
         assert len(a.codes) == 3
+        assert a.unit is None
 
     def test_options(self):
         """Test cases for options property"""
@@ -287,6 +292,7 @@ class TestBitMaskBase:
         assert a.name == "bitmask_base"
         assert not a.bit_values
         assert len(a.bit_values) == 0
+        assert a.unit is None
 
     def test_bits(self):
         """Test cases for bits property"""
@@ -483,6 +489,7 @@ class TestCelsius:
         assert a.name == "celsius"
         assert a.datatype_class == "temperature"
         assert a.datatype_unit == "°C"
+        assert a.unit == "°C"
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
@@ -515,6 +522,7 @@ class TestBool:
         assert a.name == "bool"
         assert a.datatype_class == "boolean"
         assert a.datatype_unit is None
+        assert a.unit is None
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
@@ -539,6 +547,7 @@ class TestFrequency:
         assert a.name == "frequency"
         assert a.datatype_class == "frequency"
         assert a.datatype_unit == "Hz"
+        assert a.unit == "Hz"
 
 
 class TestSeconds:
@@ -551,6 +560,7 @@ class TestSeconds:
         assert a.name == "seconds"
         assert a.datatype_class == "timespan"
         assert a.datatype_unit == "s"
+        assert a.unit == "s"
 
 
 class TestIPv4Address:
@@ -563,6 +573,7 @@ class TestIPv4Address:
         assert a.name == "ipv4_address"
         assert a.datatype_class == "ipv4_address"
         assert a.datatype_unit is None
+        assert a.unit is None
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
@@ -593,6 +604,7 @@ class TestTimestamp:
         assert a.name == "timestamp"
         assert a.datatype_class == "timestamp"
         assert a.datatype_unit is None
+        assert a.unit is None
 
     def test_from_heatpump(self):
         """Test cases for from_heatpump function"""
