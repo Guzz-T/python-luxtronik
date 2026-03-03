@@ -5,7 +5,7 @@ import socket
 import struct
 import time
 
-from luxtronik.common import get_host_lock
+from luxtronik.common import LuxtronikSettings, get_host_lock
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
@@ -162,6 +162,9 @@ class LuxtronikSocketInterface:
         return self._read(data)
 
     def _write(self, parameters):
+        if not isinstance(parameters, Parameters):
+            LOGGER.error(f"Only parameters are writable!")
+            return
         for definition, field in parameters.items():
             if field.write_pending:
                 field.write_pending = False
@@ -281,7 +284,8 @@ class LuxtronikSocketInterface:
             next_idx = definition.index + definition.count
             if next_idx > raw_len:
                 # not enough registers
-                field.raw = None
+                if not LuxtronikSettings.preserve_last_read_value_on_fail:
+                    field.raw = None
                 continue
             # remove all used indices from the list of undefined indices
             for index in range(definition.index, next_idx):
