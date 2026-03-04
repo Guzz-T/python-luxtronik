@@ -47,8 +47,8 @@ class TestLuxtronikSocketInterface:
         parameters[40].write_pending = True
         lux._parse(parameters, t)
         for definition, field in parameters.data.items():
-            if definition.index > n:
-                assert field.raw is None
+            #if definition.index > n:
+            #    assert field.raw is None # no update
             assert not field.write_pending
 
         calculations[0].write_pending = True
@@ -56,8 +56,8 @@ class TestLuxtronikSocketInterface:
         calculations[40].write_pending = True
         lux._parse(calculations, t)
         for definition, field in calculations.data.items():
-            if definition.index > n:
-                assert field.raw is None
+            #if definition.index > n:
+            #    assert field.raw is None # no update
             assert not field.write_pending
 
         visibilities[0].write_pending = True
@@ -65,6 +65,6 @@ class TestLuxtronikSocketInterface:
         visibilities[40].write_pending = True
         lux._parse(visibilities, t)
         for definition, field in visibilities.data.items():
-            if definition.index > n:
-                assert field.raw is None
+            #if definition.index > n:
+            #    assert field.raw is None # no update
             assert not field.write_pending

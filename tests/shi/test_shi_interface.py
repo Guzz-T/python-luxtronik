@@ -362,10 +362,10 @@ class TestLuxtronikSmartHomeInterface:
         assert not telegram_data[0][IDX_BLK][0].field.write_pending
         assert telegram_data[0][IDX_BLK][1].field.raw == 5
         assert not telegram_data[0][IDX_BLK][1].field.write_pending
-        assert telegram_data[1][IDX_BLK][0].field.raw is None
-        assert not telegram_data[1][IDX_BLK][0].field.write_pending # update with none -> reset flag
-        assert telegram_data[2][IDX_BLK][0].field.raw is None
-        assert not telegram_data[2][IDX_BLK][0].field.write_pending # update with none -> reset flag
+        assert telegram_data[1][IDX_BLK][0].field.raw == 9 # function not available -> no update
+        assert not telegram_data[1][IDX_BLK][0].field.write_pending # clear() -> reset flag
+        assert telegram_data[2][IDX_BLK][0].field.raw == 27 # invalid data -> no update
+        assert not telegram_data[2][IDX_BLK][0].field.write_pending # clear() -> reset flag
         assert telegram_data[3][IDX_BLK][0].field.raw == 17 # no update
         assert not telegram_data[3][IDX_BLK][0].field.write_pending
 
@@ -379,14 +379,14 @@ class TestLuxtronikSmartHomeInterface:
         valid = self.interface._integrate_data(telegram_data)
         assert not valid
         # [index data, index for blocks, index for part]
-        assert telegram_data[0][IDX_BLK][0].field.raw == 19 # no update
+        assert telegram_data[0][IDX_BLK][0].field.raw == 19 # to less data -> no update
         assert telegram_data[0][IDX_BLK][0].field.write_pending # no update
-        assert telegram_data[0][IDX_BLK][1].field.raw == 5 # no update
+        assert telegram_data[0][IDX_BLK][1].field.raw == 5 # to less data -> no update
         assert telegram_data[0][IDX_BLK][1].field.write_pending # no update
         assert telegram_data[1][IDX_BLK][0].field.raw == 2
         assert not telegram_data[1][IDX_BLK][0].field.write_pending
-        assert telegram_data[2][IDX_BLK][0].field.raw is None
-        assert telegram_data[3][IDX_BLK][0].field.raw == 17 # no update
+        assert telegram_data[2][IDX_BLK][0].field.raw == 27 # invalid data -> no update
+        assert telegram_data[3][IDX_BLK][0].field.raw == 17 # to less data -> no update
 
     def test_prepare(self):
         definition = HOLDINGS_DEFINITIONS[2]
@@ -442,7 +442,7 @@ class TestLuxtronikSmartHomeInterface:
         # not supported read
         valid = self.interface._prepare_read_field(definition, field)
         assert not valid
-        assert field.raw is None
+        assert field.raw == 1 # not supported -> no update
 
         # not supported write
         field.raw = 1
@@ -653,7 +653,7 @@ class TestLuxtronikSmartHomeInterface:
         field = self.interface.collect_holding_for_read(h3)
         assert len(self.interface._blocks_list) == 5
         assert field is None
-        assert h3.raw is None
+        assert h3.raw == 3 # not supported -> no update
 
         h3.raw = 3
         h3.write_pending = True
@@ -675,7 +675,7 @@ class TestLuxtronikSmartHomeInterface:
         field = self.interface.collect_input(i109)
         assert len(self.interface._blocks_list) == 5
         assert field is None
-        assert i109.raw is None
+        assert i109.raw == 109 # not read -> no update
 
         # not collect not existing
         field = self.interface.collect_holding_for_read(4)

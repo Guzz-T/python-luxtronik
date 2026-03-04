@@ -284,7 +284,7 @@ class LuxtronikSocketInterface:
             next_idx = definition.index + definition.count
             if next_idx > raw_len:
                 # not enough registers
-                field.raw = None
+                field.clear()
                 continue
             # remove all used indices from the list of undefined indices
             for index in range(definition.index, next_idx):

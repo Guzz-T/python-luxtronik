@@ -6,6 +6,7 @@ import socket
 import struct
 
 from luxtronik.common import classproperty
+from luxtronik.constants import LUXTRONIK_PRESERVE_LAST_VALUE
 
 from functools import total_ordering
 
@@ -80,9 +81,13 @@ class Base:
 
     @raw.setter
     def raw(self, raw):
-        """Store the raw data. For internal use only"""
-        self._raw = raw
-        self.write_pending = False
+        """
+        Store the raw data. For internal use only.
+        Also clear the write-pending flag.
+        """
+        self.clear(True)
+        if not (LUXTRONIK_PRESERVE_LAST_VALUE and raw is None):
+            self._raw = raw
 
     def __repr__(self):
         """Returns a printable representation of the datatype object"""
@@ -128,6 +133,15 @@ class Base:
             and self.datatype_class == other.datatype_class
             and self.datatype_unit == other.datatype_unit
         )
+
+    def clear(self, preserve_raw_value=LUXTRONIK_PRESERVE_LAST_VALUE):
+        """
+        Clear the write_pending flag and set optionally the raw value to `None`.
+        """
+        self.write_pending = False
+        if not preserve_raw_value:
+            self._raw = None
+
 
     def check_for_write(self, safe=True):
         """
