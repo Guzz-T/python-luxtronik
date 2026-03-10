@@ -44,6 +44,10 @@ class Base:
     @classmethod
     def to_heatpump(cls, value):
         """Converts value into heatpump units."""
+        if not isinstance(value, int) and (
+                not isinstance(value, list)
+                or any(not isinstance(v, int) for v in value)):
+            return None
         return value
 
     @classmethod
@@ -191,7 +195,7 @@ class SelectionBase(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         if value in cls.codes:
             return cls.codes.get(value)
@@ -356,11 +360,16 @@ class Bool(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         return bool(value)
 
     @classmethod
     def to_heatpump(cls, value):
-        return int(value)
+        try:
+            return int(bool(value))
+        except Exception:
+            return None
 
 
 class Frequency(Base):
@@ -384,10 +393,14 @@ class IPv4Address(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         return socket.inet_ntoa(struct.pack(">i", value))
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, str):
+            return None
         return struct.unpack(">i", socket.inet_aton(value))[0]
 
 
@@ -398,7 +411,7 @@ class Timestamp(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         if value <= 0:
             return datetime.datetime.fromtimestamp(0)
@@ -406,6 +419,8 @@ class Timestamp(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, (int, float, datetime.datetime)):
+            return None
         return datetime.datetime.timestamp(value)
 
 
@@ -597,12 +612,14 @@ class Hours2(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         return 1 + value / 2
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         return round((value - 1) * 2)
 
 
@@ -653,6 +670,8 @@ class Character(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         if value == 0:
             return ""
         return chr(value)
@@ -665,6 +684,8 @@ class MajorMinorVersion(Base):
 
     @classmethod
     def from_heatpump(cls, value):
+        if not isinstance(value, int):
+            return None
         if value > 0:
             major = value // 100
             minor = value % 100
@@ -983,7 +1004,7 @@ class TimeOfDay(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
         hours = value // 3600
         minutes = (value // 60) % 60
@@ -993,6 +1014,8 @@ class TimeOfDay(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, str):
+            return None
         d = [int(v) for v in value.split(":")]
 
         val = d[0] * 3600 + d[1] * 60
@@ -1009,7 +1032,7 @@ class TimeOfDay2(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if value is None:
+        if not isinstance(value, int):
             return None
 
         value_low = value & 0xFFFF
@@ -1023,6 +1046,8 @@ class TimeOfDay2(Base):
 
     @classmethod
     def to_heatpump(cls, value):
+        if not isinstance(value, str):
+            return None
         d = value.split("-")
         low = [int(v) for v in d[0].split(":")]
         high = [int(v) for v in d[1].split(":")]
@@ -1123,7 +1148,7 @@ class BufferType(SelectionBase):
 
 
 class PowerKW(ScalingBase):
-    """PowerLimit datatype, converts from and to PowerLimit."""
+    """PowerKW datatype, converts from and to PowerKW."""
 
     datatype_class = "power"
     datatype_unit = "kW"
@@ -1138,10 +1163,10 @@ class FullVersion(Base):
 
     @classmethod
     def from_heatpump(cls, value):
-        if isinstance(value, list) and len(value) >= 3:
+        if not isinstance(value, list) or len(value) <= 2:
+            return None
+        if len(value) >= 3:
             return f"{value[0]}.{value[1]}.{value[2]}"
-        else:
-            return "0"
 
 
 class Unknown(Base):
