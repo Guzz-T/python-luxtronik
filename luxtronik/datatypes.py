@@ -275,12 +275,23 @@ class ScalingBase(Base):
     data_type = "signed"
 
     scaling_factor = 1
+    precision = 1
 
     def __init_subclass__(cls):
         super().__init_subclass__()
         cls.num_values = (1 << cls.data_width)
         num_unsigned_bits = cls.data_width - 1 if cls.data_type == "signed" else cls.data_width
         cls.max_value = (1 << num_unsigned_bits) - 1
+        # Use a precision of used decimals + 1
+        cls.precision = cls.count_decimals(cls.scaling_factor) + 1
+
+    @classmethod
+    def count_decimals(cls, x):
+        """Returns the number of decimal places used."""
+        s = str(x)
+        if "." in s:
+            return len(s.split(".")[1])
+        return 0
 
     @classmethod
     def from_heatpump(cls, value):
@@ -289,7 +300,7 @@ class ScalingBase(Base):
         while cls.data_type == "signed" and value > cls.max_value:
             # correction for negative numbers
             value -= cls.num_values
-        value = value * cls.scaling_factor
+        value = round(value * cls.scaling_factor, cls.precision)
         return value
 
     @classmethod
