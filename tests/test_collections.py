@@ -125,7 +125,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 32, 4)
         assert field.raw == [5, 6]
         integrate_data(definition, field, data, 32, 7)
-        assert field.raw is None
+        assert field.raw == [5, 6] # insufficient data -> no update
         pair.integrate_data(data, 32, 0)
         assert field.raw == [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
 
@@ -137,7 +137,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 16, 4)
         assert field.raw == [5, 6]
         integrate_data(definition, field, data, 16, 7)
-        assert field.raw is None
+        assert field.raw == [5, 6] # insufficient data -> no update
         pair.integrate_data(data, 16, 0)
         assert field.raw == [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
 
@@ -149,7 +149,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 32, 5)
         assert field.raw == 6
         integrate_data(definition, field, data, 32, 9)
-        assert field.raw is None
+        assert field.raw == 6 # insufficient data -> no update
         pair.integrate_data(data, 32, 1)
         # Currently there is no magic "not available" value for 32 bit values -> not None
         # This applies also to similar lines below
@@ -163,9 +163,9 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 16, 5)
         assert field.raw == 6
         integrate_data(definition, field, data, 16, 9)
-        assert field.raw is None
+        assert field.raw == 6 # insufficient data -> no update
         pair.integrate_data(data, 16, 1)
-        assert field.raw is None
+        assert field.raw == 6 # function not available -> no update
 
         field.concatenate_multiple_data_chunks = True
 
@@ -177,7 +177,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 32, 4)
         assert field.raw == 0x00000005_00000006
         integrate_data(definition, field, data, 32, 7)
-        assert field.raw is None
+        assert field.raw == 0x00000005_00000006 # insufficient data -> no update
         pair.integrate_data(data, 32, 0)
         assert field.raw == 0x00000001_00007FFF
 
@@ -189,7 +189,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 16, 4)
         assert field.raw == 0x0005_0006
         integrate_data(definition, field, data, 16, 7)
-        assert field.raw is None
+        assert field.raw == 0x0005_0006 # insufficient data -> no update
         pair.integrate_data(data, 16, 0)
         assert field.raw == 0x0001_7FFF
 
@@ -201,7 +201,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 32, 5)
         assert field.raw == 0x00000006
         integrate_data(definition, field, data, 32, 9)
-        assert field.raw is None
+        assert field.raw == 0x00000006 # insufficient data -> no update
         pair.integrate_data(data, 32, 1)
         assert field.raw == 0x00007FFF
 
@@ -213,9 +213,9 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 16, 5)
         assert field.raw == 0x0006
         integrate_data(definition, field, data, 16, 9)
-        assert field.raw is None
+        assert field.raw == 0x0006 # insufficient data -> no update
         pair.integrate_data(data, 16, 1)
-        assert field.raw is None
+        assert field.raw == 0x0006 # function not available -> no update
 
         field.concatenate_multiple_data_chunks = False
 

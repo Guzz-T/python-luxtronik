@@ -103,7 +103,7 @@ class TestContiguousDataPart:
         assert part.field.raw == [7, 9]
 
         part.integrate_data([1, 5, 7, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 3)
-        assert part.field.raw is None
+        assert part.field.raw == [7, 9] # insufficient data -> no update
 
         part.integrate_data([1, 5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 9], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 1)
         assert part.field.raw == [5, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
@@ -114,10 +114,10 @@ class TestContiguousDataPart:
         assert part.field.raw == 4
 
         part.integrate_data([2, 4, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 2)
-        assert part.field.raw is None
+        assert part.field.raw == 4 # function not available -> no update
 
         part.integrate_data([2, 4, 6], LUXTRONIK_SHI_REGISTER_BIT_SIZE, 5)
-        assert part.field.raw is None
+        assert part.field.raw == 4 # no data -> no update
 
 
 class TestContiguousDataBlock:
