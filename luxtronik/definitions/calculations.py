@@ -2814,4 +2814,34 @@ CALCULATIONS_DEFINITIONS_LIST: Final = [
         "unit": 'W',
         "description": '',
     },
+    {
+        "index": 269,
+        "names": ['Unknown_Calculation_269'],
+        "type": Unknown,
+    },
+    {
+        "index": 270,
+        "names": ['Unknown_Calculation_270'],
+        "type": Unknown,
+    },
+    {
+        "index": 271,
+        "names": ['Unknown_Calculation_271'],
+        "type": Unknown,
+    },
+    {
+        "index": 272,
+        "names": ['Unknown_Calculation_272'],
+        "type": Unknown,
+    },
+    {
+        "index": 273,
+        "names": ['Unknown_Calculation_273'],
+        "type": Unknown,
+    },
+    {
+        "index": 274,
+        "names": ['Unknown_Calculation_274'],
+        "type": Unknown,
+    },
 ]

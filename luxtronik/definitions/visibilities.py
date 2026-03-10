@@ -3824,4 +3824,109 @@ VISIBILITIES_DEFINITIONS_LIST: Final = [
         "unit": '',
         "description": '',
     },
+    {
+        "index": 380,
+        "names": ['Unknown_Visibility_380'],
+        "type": Unknown,
+    },
+    {
+        "index": 381,
+        "names": ['Unknown_Visibility_381'],
+        "type": Unknown,
+    },
+    {
+        "index": 382,
+        "names": ['Unknown_Visibility_382'],
+        "type": Unknown,
+    },
+    {
+        "index": 383,
+        "names": ['Unknown_Visibility_383'],
+        "type": Unknown,
+    },
+    {
+        "index": 384,
+        "names": ['Unknown_Visibility_384'],
+        "type": Unknown,
+    },
+    {
+        "index": 385,
+        "names": ['Unknown_Visibility_385'],
+        "type": Unknown,
+    },
+    {
+        "index": 386,
+        "names": ['Unknown_Visibility_386'],
+        "type": Unknown,
+    },
+    {
+        "index": 387,
+        "names": ['Unknown_Visibility_387'],
+        "type": Unknown,
+    },
+    {
+        "index": 388,
+        "names": ['Unknown_Visibility_388'],
+        "type": Unknown,
+    },
+    {
+        "index": 389,
+        "names": ['Unknown_Visibility_389'],
+        "type": Unknown,
+    },
+    {
+        "index": 390,
+        "names": ['Unknown_Visibility_390'],
+        "type": Unknown,
+    },
+    {
+        "index": 391,
+        "names": ['Unknown_Visibility_391'],
+        "type": Unknown,
+    },
+    {
+        "index": 392,
+        "names": ['Unknown_Visibility_392'],
+        "type": Unknown,
+    },
+    {
+        "index": 393,
+        "names": ['Unknown_Visibility_393'],
+        "type": Unknown,
+    },
+    {
+        "index": 394,
+        "names": ['Unknown_Visibility_394'],
+        "type": Unknown,
+    },
+    {
+        "index": 395,
+        "names": ['Unknown_Visibility_395'],
+        "type": Unknown,
+    },
+    {
+        "index": 396,
+        "names": ['Unknown_Visibility_396'],
+        "type": Unknown,
+    },
+    {
+        "index": 397,
+        "names": ['Unknown_Visibility_397'],
+        "type": Unknown,
+    },
+    {
+        "index": 398,
+        "names": ['Unknown_Visibility_398'],
+        "type": Unknown,
+    },
+    {
+        "index": 399,
+        "names": ['Unknown_Visibility_399'],
+        "type": Unknown,
+    },
+    {
+        "index": 400,
+        "names": ['Unknown_Visibility_400'],
+        "type": Unknown,
+    },
 ]
