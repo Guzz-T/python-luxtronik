@@ -12,7 +12,8 @@ by several manufactures. Essentially it is the part of the heat pump system
 that the user can interact with locally via display and setting dial.
 
 The (permanent) configuration of the heat pump is addressed via a TCP socket
-that is exposed via network (typically on port 8889). Values can be read from
+that is exposed via network (typically on port 8889)
+and is referred to here as config interface (cfi). Values can be read from
 and written to the heat pump, essentially making it
 controllable from within a Python program.
 
@@ -128,7 +129,7 @@ luxtronik discover
 ```
 
 ```sh
-1 heatpump(s) reported back                                                                                                                                                                                      │
+1 heatpump(s) reported back
 Heat pump #0 -> IP address: 192.168.178.123 port: 8889
 ```
 
@@ -137,7 +138,7 @@ Heat pump #0 -> IP address: 192.168.178.123 port: 8889
 To get all data available you can either use the CLI:
 
 ```sh
-luxtronik dump 192.168.178.123 8889
+luxtronik dump-cfi 192.168.178.123 8889
 
 # or analog for Modbus TCP register
 luxtronik dump-shi 192.168.178.123 502
@@ -185,8 +186,8 @@ Number: 16    Name: ID_Einst_HzMK1ABS_akt                                       
 
 ### SHOW CHANGED VALUES ONLY
 
-There is another sub-command (`changes`, `watch-shi`) and/or script
-(`dump-changes.py`, `watch_shi.py`) that will only show values that have
+There is another sub-command (`watch-cfi`, `watch-shi`) and/or script
+(`watch_cfi.py`, `watch_shi.py`) that will only show values that have
 recently changed. This is meant to be used interactively, i.e. the current
 value of specific settings will be shown.
 This is especially useful to identify yet unknown parameters.
@@ -196,7 +197,7 @@ controller itself.
 This can be invoked in the following ways:
 
 ```sh
-luxtronik changes 192.168.178.123 8889
+luxtronik watch-cfi 192.168.178.123 8889
 
 # or
 luxtronik watch-shi 192.168.178.123
