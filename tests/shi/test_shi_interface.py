@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 
-from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+from luxtronik.constants import LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinition
 
@@ -350,7 +350,7 @@ class TestLuxtronikSmartHomeInterface:
         # integrate not available / None -> no error
         telegram_data[0][IDX_TLG].data = [19, 5]
         telegram_data[0][IDX_BLK][0].field.write_pending = True
-        telegram_data[1][IDX_TLG].data = [LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
+        telegram_data[1][IDX_TLG].data = [LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE]
         telegram_data[1][IDX_BLK][0].field.write_pending = True
         telegram_data[2][IDX_TLG].data = [None]
         telegram_data[2][IDX_BLK][0].field.write_pending = True

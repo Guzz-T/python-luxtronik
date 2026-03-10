@@ -9,7 +9,10 @@ but can be expanded by the user.
 
 import logging
 
-from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+from luxtronik.constants import (
+    LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
+    LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE,
+)
 from luxtronik.common import (
     parse_version,
     version_in_range
@@ -222,8 +225,11 @@ class LuxtronikDefinition:
             raw (int): Raw-value to check.
         """
         # TODO: Check if there are other magic values
-        if isinstance(raw, int) and self._data_type in ['INT16']:
-            return raw != LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+        if isinstance(raw, int):
+            if self._data_type in ['INT16', 'UINT16']:
+                return raw != LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
+            if self._data_type in ['INT32', 'UINT32']:
+                return raw != LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE
         return True
 
 

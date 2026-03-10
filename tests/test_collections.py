@@ -10,7 +10,7 @@ from luxtronik.datatypes import (
     Base,
     Unknown,
 )
-from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+from luxtronik.constants import LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
 
 
 ###############################################################################
@@ -113,7 +113,7 @@ class TestDefinitionFieldPair:
         definition = LuxtronikDefinition.unknown(2, 'Foo', 30)
         field = definition.create_field()
         pair = LuxtronikDefFieldPair(definition, field)
-        data = [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE, 3, 4, 5, 6, 7]
+        data = [1, LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE, 3, 4, 5, 6, 7]
 
         field.concatenate_multiple_data_chunks = False
 
@@ -127,7 +127,7 @@ class TestDefinitionFieldPair:
         integrate_data(definition, field, data, 32, 7)
         assert field.raw is None
         pair.integrate_data(data, 32, 0)
-        assert field.raw == [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
+        assert field.raw == [1, LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE]
 
         # set array
         definition._count = 2
@@ -139,7 +139,7 @@ class TestDefinitionFieldPair:
         integrate_data(definition, field, data, 16, 7)
         assert field.raw is None
         pair.integrate_data(data, 16, 0)
-        assert field.raw == [1, LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE]
+        assert field.raw == [1, LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE]
 
         # set value
         definition._count = 1
@@ -153,7 +153,7 @@ class TestDefinitionFieldPair:
         pair.integrate_data(data, 32, 1)
         # Currently there is no magic "not available" value for 32 bit values -> not None
         # This applies also to similar lines below
-        assert field.raw == LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+        assert field.raw == LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
 
         # set value
         definition._count = 1
