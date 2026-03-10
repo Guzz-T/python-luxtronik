@@ -11815,4 +11815,199 @@ PARAMETERS_DEFINITIONS_LIST: Final = [
         "unit": '',
         "description": '',
     },
+    {
+        "index": 1160,
+        "names": ['Unknown_Parameter_1160'],
+        "type": Unknown,
+    },
+    {
+        "index": 1161,
+        "names": ['Unknown_Parameter_1161'],
+        "type": Unknown,
+    },
+    {
+        "index": 1162,
+        "names": ['Unknown_Parameter_1162'],
+        "type": Unknown,
+    },
+    {
+        "index": 1163,
+        "names": ['Unknown_Parameter_1163'],
+        "type": Unknown,
+    },
+    {
+        "index": 1164,
+        "names": ['Unknown_Parameter_1164'],
+        "type": Unknown,
+    },
+    {
+        "index": 1165,
+        "names": ['Unknown_Parameter_1165'],
+        "type": Unknown,
+    },
+    {
+        "index": 1166,
+        "names": ['Unknown_Parameter_1166'],
+        "type": Unknown,
+    },
+    {
+        "index": 1167,
+        "names": ['Unknown_Parameter_1167'],
+        "type": Unknown,
+    },
+    {
+        "index": 1168,
+        "names": ['Unknown_Parameter_1168'],
+        "type": Unknown,
+    },
+    {
+        "index": 1169,
+        "names": ['Unknown_Parameter_1169'],
+        "type": Unknown,
+    },
+    {
+        "index": 1170,
+        "names": ['Unknown_Parameter_1170'],
+        "type": Unknown,
+    },
+    {
+        "index": 1171,
+        "names": ['Unknown_Parameter_1171'],
+        "type": Unknown,
+    },
+    {
+        "index": 1172,
+        "names": ['Unknown_Parameter_1172'],
+        "type": Unknown,
+    },
+    {
+        "index": 1173,
+        "names": ['Unknown_Parameter_1173'],
+        "type": Unknown,
+    },
+    {
+        "index": 1174,
+        "names": ['Unknown_Parameter_1174'],
+        "type": Unknown,
+    },
+    {
+        "index": 1175,
+        "names": ['Unknown_Parameter_1175'],
+        "type": Unknown,
+    },
+    {
+        "index": 1176,
+        "names": ['Unknown_Parameter_1176'],
+        "type": Unknown,
+    },
+    {
+        "index": 1177,
+        "names": ['Unknown_Parameter_1177'],
+        "type": Unknown,
+    },
+    {
+        "index": 1178,
+        "names": ['Unknown_Parameter_1178'],
+        "type": Unknown,
+    },
+    {
+        "index": 1179,
+        "names": ['Unknown_Parameter_1179'],
+        "type": Unknown,
+    },
+    {
+        "index": 1180,
+        "names": ['Unknown_Parameter_1180'],
+        "type": Unknown,
+    },
+    {
+        "index": 1181,
+        "names": ['Unknown_Parameter_1181'],
+        "type": Unknown,
+    },
+    {
+        "index": 1182,
+        "names": ['Unknown_Parameter_1182'],
+        "type": Unknown,
+    },
+    {
+        "index": 1183,
+        "names": ['Unknown_Parameter_1183'],
+        "type": Unknown,
+    },
+    {
+        "index": 1184,
+        "names": ['Unknown_Parameter_1184'],
+        "type": Unknown,
+    },
+    {
+        "index": 1185,
+        "names": ['Unknown_Parameter_1185'],
+        "type": Unknown,
+    },
+    {
+        "index": 1186,
+        "names": ['Unknown_Parameter_1186'],
+        "type": Unknown,
+    },
+    {
+        "index": 1187,
+        "names": ['Unknown_Parameter_1187'],
+        "type": Unknown,
+    },
+    {
+        "index": 1188,
+        "names": ['Unknown_Parameter_1188'],
+        "type": Unknown,
+    },
+    {
+        "index": 1189,
+        "names": ['Unknown_Parameter_1189'],
+        "type": Unknown,
+    },
+    {
+        "index": 1190,
+        "names": ['Unknown_Parameter_1190'],
+        "type": Unknown,
+    },
+    {
+        "index": 1191,
+        "names": ['Unknown_Parameter_1191'],
+        "type": Unknown,
+    },
+    {
+        "index": 1192,
+        "names": ['Unknown_Parameter_1192'],
+        "type": Unknown,
+    },
+    {
+        "index": 1193,
+        "names": ['Unknown_Parameter_1193'],
+        "type": Unknown,
+    },
+    {
+        "index": 1194,
+        "names": ['Unknown_Parameter_1194'],
+        "type": Unknown,
+    },
+    {
+        "index": 1195,
+        "names": ['Unknown_Parameter_1195'],
+        "type": Unknown,
+    },
+    {
+        "index": 1196,
+        "names": ['Unknown_Parameter_1196'],
+        "type": Unknown,
+    },
+    {
+        "index": 1197,
+        "names": ['Unknown_Parameter_1197'],
+        "type": Unknown,
+    },
+    {
+        "index": 1198,
+        "names": ['Unknown_Parameter_1198'],
+        "type": Unknown,
+    },
 ]
