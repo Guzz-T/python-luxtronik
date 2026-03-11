@@ -9,7 +9,10 @@ but can be expanded by the user.
 
 import logging
 
-from luxtronik.constants import LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+from luxtronik.constants import (
+    LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
+    LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE,
+)
 from luxtronik.common import (
     parse_version,
     version_in_range
@@ -50,7 +53,7 @@ class LuxtronikDefinition:
     VALID_DATA_TYPES = ("", "UINT16", "UINT32", "UINT64", "INT16", "INT32", "INT64")
 
 
-    def __init__(self, data_dict, type_name, offset):
+    def __init__(self, data_dict, type_name, offset, data_type=""):
         """
         Initialize a definition from a data-dictionary.
 
@@ -58,6 +61,7 @@ class LuxtronikDefinition:
             data_dict (dict): Definition values. Missing keys are filled with defaults.
             type_name (str): The type name e.g. 'parameter', 'holding', 'input', ... .
             offset (str): Offset of the address from the specified index.
+            data_type (str): Data type of the field (see VALID_DATA_TYPES).
 
         Notes:
             - Only 'index' is strictly required within the `data_dict`.
@@ -90,17 +94,21 @@ class LuxtronikDefinition:
             self._valid &= len(self._type_name) > 0
             self._offset = int(offset)
             self._addr = self._offset + self._index
+
+            # Determine the data type. Use default one if none is provided.
             self._data_type = data_dict["datatype"]
-            data_type_valid = self._data_type in self.VALID_DATA_TYPES
-            self._valid &= data_type_valid
-            data_type_valid &= self._data_type != ""
+            if self._data_type not in self.VALID_DATA_TYPES or self._data_type == "":
+                self._data_type = data_type
+
             self._bit_offset = data_dict["bit_offset"]
+
+            # Determine the bit count. Extract from the data type if not given.
             bit_count = data_dict["bit_count"]
             if bit_count:
                 self._num_bits = bit_count
             else:
                 self._num_bits = int(self._data_type.replace('U', '').replace('INT', '')) \
-                    if data_type_valid else 0
+                    if self._data_type != "" else 0
         except Exception as e:
             self._valid = False
             self._index = 0
@@ -222,8 +230,11 @@ class LuxtronikDefinition:
             raw (int): Raw-value to check.
         """
         # TODO: Check if there are other magic values
-        if isinstance(raw, int) and self._data_type in ['INT16']:
-            return raw != LUXTRONIK_VALUE_FUNCTION_NOT_AVAILABLE
+        if isinstance(raw, int):
+            if self._data_type in ['INT16', 'UINT16']:
+                return raw != LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
+            if self._data_type in ['INT32', 'UINT32']:
+                return raw != LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE
         return True
 
 
@@ -395,7 +406,7 @@ class LuxtronikDefinitionsList:
         # Add definition objects only for valid items.
         # The correct sorting has already been ensured by the pytest
         for item in definitions_list:
-            d = LuxtronikDefinition(item, name, offset)
+            d = LuxtronikDefinition(item, name, offset, default_data_type)
             if d.valid:
                 self._add(d)
 

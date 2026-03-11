@@ -5,6 +5,7 @@ import socket
 import struct
 import time
 
+from luxtronik.collections import integrate_data
 from luxtronik.common import get_host_lock
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_PORT,
@@ -298,5 +299,5 @@ class LuxtronikSocketInterface:
             # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)
             definition = data_vector.definitions.create_unknown_definition(index)
             field = definition.create_field()
-            field.raw = raw_data[index]
+            integrate_data(definition, field, raw_data, LUXTRONIK_CFI_REGISTER_BIT_SIZE, index)
             data_vector.data.add_sorted(definition, field)
