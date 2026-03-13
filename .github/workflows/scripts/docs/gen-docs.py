@@ -46,19 +46,20 @@ def get_items(definitions):
         desc = d.description
         if issubclass(d.field_type, SelectionBase) and d.writeable:
             desc += ("\n" if desc else "") + "\nUser-Options:\n" + "\n".join(d.field_type.options())
-        items.append({
-            "category": get_string(definitions.name),
-            "index": d.index,
-            "name": get_string(d.name),
-            "lsb": 0 if d.bit_offset is None else d.bit_offset,
-            "width": d.num_bits,
-            "class": get_string(d.field_type.datatype_class),
-            "writeable": get_writeable(d.writeable),
-            "unit": get_unit(d.field_type.unit),
-            "since": get_version(d.since),
-            "until": get_version(d.until),
-            "description": get_desc(desc),
-        })
+        for n in d.names:
+            items.append({
+                "category": get_string(definitions.name),
+                "index": d.index,
+                "name": get_string(n),
+                "lsb": 0 if d.bit_offset is None else d.bit_offset,
+                "width": d.num_bits,
+                "class": get_string(d.field_type.datatype_class),
+                "writeable": get_writeable(d.writeable),
+                "unit": get_unit(d.field_type.unit),
+                "since": get_version(d.since),
+                "until": get_version(d.until),
+                "description": get_desc(desc),
+            })
     return items
 
 def gather_data():
