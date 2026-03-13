@@ -46,16 +46,17 @@
       white-space: pre-wrap;
   }
 
-  th:nth-child(1), td:nth-child(1) { width: 10%; }  /* Category */
-  th:nth-child(2), td:nth-child(2) { width: 8%; }   /* Index */
-  th:nth-child(3), td:nth-child(3) { width: 12%; }  /* Name */
-  th:nth-child(4), td:nth-child(4) { width: 6%; }   /* LSB */
-  th:nth-child(5), td:nth-child(5) { width: 6%; }   /* Width */
-  th:nth-child(6), td:nth-child(6) { width: 8%; }   /* Field Type */
-  th:nth-child(7), td:nth-child(7) { width: 8%; }   /* Writeable */
-  th:nth-child(8), td:nth-child(8) { width: 8%; }   /* Since */
-  th:nth-child(9), td:nth-child(9) { width: 9%; } /* Until */
-  th:nth-child(10), td:nth-child(10) { width: 25%; }  /* Description */
+  th:nth-child(1), td:nth-child(1) { width: 10%; }    /* Category */
+  th:nth-child(2), td:nth-child(2) { width: 7%; }     /* Index */
+  th:nth-child(3), td:nth-child(3) { width: 12%; }    /* Name */
+  th:nth-child(4), td:nth-child(4) { width: 5%; }     /* LSB */
+  th:nth-child(5), td:nth-child(5) { width: 5%; }     /* Width */
+  th:nth-child(6), td:nth-child(6) { width: 7%; }     /* Class */
+  th:nth-child(7), td:nth-child(7) { width: 7%; }     /* Unit */
+  th:nth-child(8), td:nth-child(8) { width: 7%; }     /* Writeable */
+  th:nth-child(9), td:nth-child(9) { width: 7%; }     /* Since */
+  th:nth-child(10), td:nth-child(10) { width: 8%; }   /* Until */
+  th:nth-child(11), td:nth-child(11) { width: 25%; }  /* Description */
 
 </style>
 </head>
@@ -70,11 +71,12 @@
   <label><input type="checkbox" data-col="3" checked>Name</label>
   <label><input type="checkbox" data-col="4" unchecked>LSB</label>
   <label><input type="checkbox" data-col="5" unchecked>Width</label>
-  <label><input type="checkbox" data-col="6" checked>Field Type</label>
-  <label><input type="checkbox" data-col="7" checked>Writeable</label>
-  <label><input type="checkbox" data-col="8" unchecked>Since</label>
-  <label><input type="checkbox" data-col="9" unchecked>Until</label>
-  <label><input type="checkbox" data-col="10" checked>Description</label>
+  <label><input type="checkbox" data-col="6" checked>Class</label>
+  <label><input type="checkbox" data-col="7" checked>Unit</label>
+  <label><input type="checkbox" data-col="8" checked>Writeable</label>
+  <label><input type="checkbox" data-col="9" unchecked>Since</label>
+  <label><input type="checkbox" data-col="10" unchecked>Until</label>
+  <label><input type="checkbox" data-col="11" checked>Description</label>
 </div>
 
 <table id="table">
@@ -85,7 +87,8 @@
             <th>Name</th>
             <th class="hide-col">LSB</th>
             <th class="hide-col">Width</th>
-            <th>Field Type</th>
+            <th>Class</th>
+            <th>Unit</th>
             <th>Writeable</th>
             <th class="hide-col">Since</th>
             <th class="hide-col">Until</th>
@@ -97,7 +100,8 @@
             <th><input id="f_name"></th>
             <th class="hide-col"><input id="f_lsb"></th>
             <th class="hide-col"><input id="f_width"></th>
-            <th><input id="f_fieldtype"></th>
+            <th><input id="f_class"></th>
+            <th><input id="f_unit"></th>
             <th><input id="f_writeable"></th>
             <th class="hide-col"><input id="f_since"></th>
             <th class="hide-col"><input id="f_until"></th>

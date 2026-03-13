@@ -29,7 +29,10 @@ def get_string(string):
     return f'"{str(string)}"'
 
 def get_writeable(writeable):
-    return get_string("yes" if writeable else "no")
+    return get_string("y" if writeable else "")
+
+def get_unit(unit):
+    return get_string(unit if unit else "")
 
 def get_version(version):
     return get_string("" if version is None else ".".join(map(str, version[:3])))
@@ -49,8 +52,9 @@ def get_items(definitions):
             "name": get_string(d.name),
             "lsb": 0 if d.bit_offset is None else d.bit_offset,
             "width": d.num_bits,
-            "fieldtype": get_string(d.field_type.__name__),
+            "class": get_string(d.field_type.datatype_class),
             "writeable": get_writeable(d.writeable),
+            "unit": get_unit(d.field_type.unit),
             "since": get_version(d.since),
             "until": get_version(d.until),
             "description": get_desc(desc),

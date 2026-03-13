@@ -18,7 +18,8 @@ function matchesFilters(item) {
       name: f_name.value.trim(),
       lsb: f_lsb.value.trim(),
       width: f_width.value.trim(),
-      fieldtype: f_fieldtype.value.trim(),
+      class: f_class.value.trim(),
+      unit: f_unit.value.trim(),
       writeable: f_writeable.value.trim(),
       since: f_since.value.trim(),
       until: f_until.value.trim(),
@@ -82,7 +83,8 @@ function renderTable() {
       <td>${item.name}</td>
       <td>${item.lsb}</td>
       <td>${item.width}</td>
-      <td>${item.fieldtype}</td>
+      <td>${item.class}</td>
+      <td>${item.unit}</td>
       <td>${item.writeable}</td>
       <td>${item.since}</td>
       <td>${item.until}</td>
