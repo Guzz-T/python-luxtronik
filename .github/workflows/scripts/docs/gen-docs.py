@@ -44,7 +44,7 @@ def get_items(definitions):
     items = []
     for d in definitions:
         desc = d.description
-        if issubclass(d.field_type, SelectionBase):
+        if issubclass(d.field_type, SelectionBase) and d.writeable:
             desc += ("\n" if desc else "") + "\nUser-Options:\n" + "\n".join(d.field_type.options())
         items.append({
             "category": get_string(definitions.name),
