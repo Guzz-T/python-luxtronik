@@ -52,9 +52,13 @@ pip install git+https://github.com/Bouni/python-luxtronik.git@main
 
 ## DOCUMENTATION
 
-Here you can find our automatically generated [documentation](https://bouni.github.io/python-luxtronik/).
+There is no automatically rendered documentation of this library available yet,
+so you'll have to fall back to using the source code itself as documentation.
+It can be found in the [luxtronik](luxtronik/) directory.
 
-Discovered data fields:
+At least for the data fields, there is such a
+[documentation](https://bouni.github.io/python-luxtronik/). Alternatively,
+you can take a look at the definitions for all discovered data fields:
 
 - Calculations holds measurement values (config interface): \
 [luxtronik/definitions/calculations.py](luxtronik/definitions/calculations.py)
