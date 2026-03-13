@@ -79,14 +79,20 @@ def gather_data():
 def render_docs():
     logger.info("render docs")
     env = Environment(loader=FileSystemLoader(str(BASEPATH / "templates")), autoescape=select_autoescape())
-    template = env.get_template("definitions.js")
 
     data = gather_data()
     (BASEPATH.parents[3] / "docs").mkdir(exist_ok=True)
 
+    # create data files
+    template = env.get_template("definitions.js")
     for name, items in data.items():
         with open(BASEPATH.parents[3] / f"docs/{name}.js", "w", encoding="UTF-8") as f:
-            f.write(template.render(group=name.upper(), data=items, now=datetime.now()))
+            f.write(template.render(group=name.upper(), data=items))
+
+    # create meta file
+    template = env.get_template("meta.js")
+    with open(BASEPATH.parents[3] / f"docs/meta.js", "w", encoding="UTF-8") as f:
+        f.write(template.render(version="0.3.14", now=datetime.now().replace(microsecond=0)))
 
 if __name__ == "__main__":
     render_docs()

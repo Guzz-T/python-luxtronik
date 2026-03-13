@@ -1,5 +1,3 @@
-const CREATED_ON = new Date().toISOString().split("T")[0];
-
 
 // Combine all data sources
 let data = [
@@ -103,8 +101,8 @@ function renderTable() {
 filterFields.forEach(f => f.addEventListener("input", renderTable));
 
 // set creation-date
-document.getElementById("createdInfo").textContent = `Generated automatically on ${CREATED_ON}`;
-
+document.getElementById("createdInfo").textContent =
+    `Generated automatically on ${window.META.createdOn}`;
 
 // initial rendering
 activateColumnToggle();
