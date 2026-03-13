@@ -3,9 +3,9 @@ const CREATED_ON = new Date().toISOString().split("T")[0];
 
 // Combine all data sources
 let data = [
-  ...window.VISIBILITY,
-  ...window.PARAMETER,
   ...window.CALCULATION,
+  ...window.PARAMETER,
+  ...window.VISIBILITY,
   ...window.INPUT,
   ...window.HOLDING
 ];
