@@ -50,12 +50,41 @@ pip install git+https://github.com/Bouni/python-luxtronik.git@main
 
 ## MODULE STRUCTURE
 
-```txt
-CFI-Interface  ←-is-+
-                    |
-                  Luxtronik-Interface  ←-uses--  Luxtronik
-                    |                              |
-SHI-Interface  ←-is-+       LuxtronikAllData ←-is--+
+```mermaid
+classDiagram
+    direction BT
+
+    %% Classes
+
+    class cfi["Config interface (CFI)"] {
+      + read()
+      + write()
+      + write_and_read()
+    }
+
+    class shi["Smart home interface (SHI)"] {
+      + read()
+      + write()
+      + write_and_read()
+    }
+
+    class lti["Luxtronik interface"]
+
+    class lux["Luxtronik"] {
+      + read()
+      + write()
+      + write_and_read()
+    }
+
+    class LuxtronikAllData["LuxtronikAllData (see below)"]
+
+    %% Relations
+
+    lti --|> cfi : inherits
+    lti --|> shi : inherits
+
+    lux "1" --* "1" lti : creates
+    lux --|> LuxtronikAllData : inherits
 ```
 
 The library has a modular structure, so that all interfaces
@@ -71,19 +100,63 @@ and the smart home interface can be found in their separate README files
 
 ## DATA STRUCTURE
 
-```txt
-field  ←-owns 0..n--  data_vector
-                          ↑
-                          is
-   +----------------+-----+-------+-------------+----------+
-   |                |             |             |          |
-Parameters    Calculations    Visiblities    Holdings    Inputs
-   ↑                ↑             ↑             ↑          ↑
-  uses             uses          uses          uses       uses
-   |                |             |             |          |
-   +----------  LuxtronikData ----+         LuxtronikSmartHomeData
-                    ↑                                ↑
-                    +--is----LuxtronikAllData----is--+
+A concise overview of the data structures that users typically use:
+
+```mermaid
+classDiagram
+    direction BT
+
+    %% Classes
+
+    class field["field (fka. 'Base')"] {
+      + unit
+      + name
+      + value
+    }
+
+    class data_vector {
+      + get()
+      + set()
+    }
+
+    class Parameters
+    class Calculations
+    class Visibilities
+    class Holdings
+    class Inputs
+
+    class LuxtronikData {
+      + parameters
+      + calculations
+      + visibilities
+    }
+
+    class LuxtronikSmartHomeData {
+      + holdings
+      + inputs
+    }
+
+    class LuxtronikAllData
+
+    %% Relations
+
+    data_vector "1" --* "0..*" field
+
+    Parameters --|> data_vector : inherits
+    Calculations --|> data_vector : inherits
+    Visibilities --|> data_vector : inherits
+    Holdings --|> data_vector : inherits
+    Inputs --|> data_vector : inherits
+
+    LuxtronikData "1" --* "1" Parameters : creates
+    LuxtronikData "1" --* "1" Calculations : creates
+    LuxtronikData "1" --* "1" Visibilities : creates
+
+    LuxtronikSmartHomeData "1" --* "1" Holdings : creates
+    LuxtronikSmartHomeData "1" --* "1" Inputs : creates
+
+    LuxtronikAllData --|> LuxtronikData : inherits
+    LuxtronikAllData --|> LuxtronikSmartHomeData : inherits
 ```
 
 The heat pump data is stored in so-called `fields` and can be retrieved
