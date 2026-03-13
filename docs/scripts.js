@@ -103,6 +103,11 @@ filterFields.forEach(f => f.addEventListener("input", renderTable));
 // set creation-date
 document.getElementById("createdInfo").textContent =
     `Generated automatically on ${window.META.createdOn}`;
+// set version
+document.getElementById("versionInfo").textContent =
+    `Build version: ${window.META.version}`;
+
+
 
 // initial rendering
 activateColumnToggle();

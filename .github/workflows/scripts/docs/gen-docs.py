@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import subprocess
 
 from luxtronik.cfi import (
     CALCULATIONS_DEFINITIONS,
@@ -24,6 +25,15 @@ logger = logging.getLogger("docs generator")
 
 BASEPATH = Path(__file__).resolve().parent
 
+
+def get_git_version():
+    try:
+        return subprocess.check_output(
+            ["git", "describe", "--tags"],
+            stderr=subprocess.STDOUT
+        ).decode().strip()
+    except Exception:
+        return None
 
 def get_string(string):
     return f'"{str(string)}"'
@@ -91,8 +101,9 @@ def render_docs():
 
     # create meta file
     template = env.get_template("meta.js")
-    with open(BASEPATH.parents[3] / f"docs/meta.js", "w", encoding="UTF-8") as f:
-        f.write(template.render(version="0.3.14", now=datetime.now().replace(microsecond=0)))
+    with open(BASEPATH.parents[3] / "docs/meta.js", "w", encoding="UTF-8") as f:
+        f.write(template.render(version=get_git_version(), now=datetime.now().replace(microsecond=0)))
+
 
 if __name__ == "__main__":
     render_docs()
