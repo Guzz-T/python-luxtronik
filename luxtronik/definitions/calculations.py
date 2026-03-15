@@ -2643,10 +2643,21 @@ CALCULATIONS_DEFINITIONS_LIST: Final = [
         "count": 1,
         "names": ['Unknown_Calculation_252'],
         "type": Unknown,
+        "successor": 'ID_WEB_Temperatur_THG_max',
         "writeable": False,
         "datatype": 'UINT32',
         "unit": '',
         "description": '',
+    },
+    {
+        "index": 252,
+        "count": 1,
+        "names": ['ID_WEB_Temperatur_THG_max'],
+        "type": Celsius,
+        "writeable": False,
+        "datatype": 'UINT32',
+        "unit": '',
+        "description": 'TODO: Provisional new description based on #180',
     },
     {
         "index": 253,
@@ -2719,6 +2730,34 @@ CALCULATIONS_DEFINITIONS_LIST: Final = [
         "count": 1,
         "names": ['Unknown_Calculation_259'],
         "type": Unknown,
+        "successor": 'cooling_active',
+        "writeable": False,
+        "datatype": 'UINT32',
+        "unit": '',
+        "description": '',
+    },
+    {
+        "index": 259,
+        "count": 1,
+        "names": ['cooling_active'],
+        "type": Bool,
+        "writeable": False,
+        "datatype": 'UINT32',
+        "unit": '',
+        "description": (
+            "Pin 9 on the main board. "
+            "Signal to the room thermostat to switch between heating and cooling. "
+            "If the expansion board is installed, "
+            "this signal comes from calculation 140 `ID_WEB_FP3out`.\n\n"
+            "TODO: Provisional new description based on #180"
+        )
+    },
+    {
+        "index": 260,
+        "count": 1,
+        "names": ['Unknown_Calculation_260'],
+        "type": Unknown,
+        "successor": 'ID_WEB_Time_ena_cooling',
         "writeable": False,
         "datatype": 'UINT32',
         "unit": '',
@@ -2727,12 +2766,15 @@ CALCULATIONS_DEFINITIONS_LIST: Final = [
     {
         "index": 260,
         "count": 1,
-        "names": ['Unknown_Calculation_260'],
-        "type": Unknown,
+        "names": ['ID_WEB_Time_ena_cooling'],
+        "type": Seconds,
         "writeable": False,
         "datatype": 'UINT32',
         "unit": '',
-        "description": '',
+        "description": (
+            "Time in seconds until cooling is enabled\n\n"
+            "TODO: Provisional new description based on #180"
+        )
     },
     {
         "index": 261,
