@@ -5,6 +5,8 @@ This changelog follows the "Keep a Changelog" format and Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.0.0] - 2027-xx-xx
+
 ### Added
 
 - Support multiple data fields on one index. [#221]
