@@ -39,6 +39,8 @@ never released and has been replaced.
 - SHI holding `66` (`heat_overall_offset`): the documented range is now
 -50..50 (+/-5.0 K) instead of -200..200.
 - Document that `LevelMode` values 1 and 2 are identical on firmware V3.92.3.
+- Change the scaling factor of 'ID_Waermemenge' parameters from 0.1 to 0.01 [#198]
+- Change the scaling factor of the voltage data fields to 0.01 [#198]
 
 ### Removed
 
