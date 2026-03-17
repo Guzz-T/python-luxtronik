@@ -1259,12 +1259,12 @@ class TestCompatibility:
                 "Unknown_Parameter_1134": (1134, Unknown),
                 "Unknown_Parameter_1135": (1135, Unknown),
                 "Unknown_Parameter_1136": (1136, Unknown),
-                "HEAT_ENERGY_INPUT": (1136, Energy),
+                "HEAT_ENERGY_INPUT": (1136, Energy, True), # See #198 -> type change allowed
                 "Unknown_Parameter_1137": (1137, Unknown),
-                "DHW_ENERGY_INPUT": (1137, Energy),
+                "DHW_ENERGY_INPUT": (1137, Energy, True), # See #198 -> type change allowed
                 "Unknown_Parameter_1138": (1138, Unknown),
                 "Unknown_Parameter_1139": (1139, Unknown),
-                "COOLING_ENERGY_INPUT": (1139, Energy),
+                "COOLING_ENERGY_INPUT": (1139, Energy, True), # See #198 -> type change allowed
                 "Unknown_Parameter_1140": (1140, Unknown),
                 "SECOND_HEAT_GENERATOR_AMOUNT_COUNTER": (1140, Unknown),
                 "Unknown_Parameter_1141": (1141, Unknown),

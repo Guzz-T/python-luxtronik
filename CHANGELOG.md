@@ -1133,17 +1133,17 @@ from `Unknown` to `TimeOfDay`
 - Type of `ID_Einst_SuMk3Tg_zeit_2_13` (index `848`) changed
 from `Unknown` to `TimeOfDay`
 - Type of `ID_Waermemenge_Seit` (index `852`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_Hz` (index `854`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Zaehler_BetrZeitSW` (index `859`) changed
 from `Unknown` to `Seconds`
 - Type of `ID_Einst_Popt_Nachlauf_akt` (index `864`) changed
 from `Unknown` to `Minutes`
 - Type of `ID_Waermemenge_BW` (index `878`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_SW` (index `879`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_Datum` (index `880`) changed
 from `Unknown` to `Timestamp`
 - Type of `ID_Einst_SuLuf_akt` (index `895`) changed
@@ -1277,9 +1277,15 @@ from `Unknown` to `Bool`
 - Type of `ID_Einst_WW_Nachheizung_max` (index `1020`) changed
 from `Unknown` to `Hours2`
 - Type of `ID_Waermemenge_ZWE` (index `1059`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_Reset` (index `1060`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
+- Type of `HEAT_ENERGY_INPUT` (index `1136`) changed
+from `Energy` to `Energy2`
+- Type of `DHW_ENERGY_INPUT` (index `1137`) changed
+from `Energy` to `Energy2`
+- Type of `COOLING_ENERGY_INPUT` (index `1139`) changed
+from `Energy` to `Energy2`
 - Add `SILENT_MODE` (index `1087`) of type `OnOffMode`
 - Add `ID_Einst_SuSilence` (index `1092`) of type `TimerProgram`
 - Add `ID_Einst_SilenceTimer_0` (index `1093`) of type `TimeOfDay2`
