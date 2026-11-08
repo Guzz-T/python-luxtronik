@@ -1279,7 +1279,7 @@ from `Unknown` to `Bool`
 - Type of `ID_Einst_WW_Nachheizung_max` (index `1020`) changed
 from `Unknown` to `Hours2`
 - Type of `ID_Waermemenge_ZWE` (index `1059`) changed
-from `Unknown` to `Energy2`
+from `Unknown` to `Energy`
 - Type of `ID_Waermemenge_Reset` (index `1060`) changed
 from `Unknown` to `Energy2`
 - Type of `HEAT_ENERGY_INPUT` (index `1136`) changed
