@@ -4,6 +4,8 @@ from luxtronik.definitions import (
     LuxtronikDefinitionsDictionary,
     LuxtronikDefinitionsList,
 )
+from luxtronik.version import VersionRequirement, VersionRequirements
+import operator
 
 ###############################################################################
 # Tests
@@ -45,8 +47,11 @@ class TestDefinition:
         assert definition.offset == 20
         assert definition.addr == 20 + self.TEST_DATA['index']
         assert definition.num_bits == 16
-        assert definition.since == (1, 1, 0, 0)
-        assert definition.until == (3, 16, 7, 0)
+        vr = VersionRequirements([
+            VersionRequirement(operator.ge, (1, 1, 0, 0)),
+            VersionRequirement(operator.le, (3, 16, 7, 0))
+        ])
+        assert definition.version == vr
 
         definition = LuxtronikDefinition({
             'index': 10,
@@ -72,8 +77,8 @@ class TestDefinition:
         assert definition.type_name == 'foo'
         assert definition.offset == 30
         assert definition.addr == 30 + 2
-        assert definition.since is None
-        assert definition.until is None
+        vr = VersionRequirements([])
+        assert definition.version == vr
 
     def test_init_invalid(self):
         # create invalid
@@ -308,8 +313,8 @@ class TestDefinitionsList:
         assert definition.type_name == 'foo'
         assert definition.offset == 100
         assert definition.addr == 100 + 4
-        assert definition.since is None
-        assert definition.until is None
+        vr = VersionRequirements([])
+        assert definition.version == vr
 
     def test_add(self):
         definitions = LuxtronikDefinitionsList(self.def_list, 'foo', 100, '')

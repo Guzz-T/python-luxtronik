@@ -4,7 +4,6 @@ import logging
 
 from luxtronik.common import classproperty
 from luxtronik.constants import LUXTRONIK_LATEST_VERSION
-from luxtronik.version import version_in_range
 from luxtronik.collections import get_data_arr
 from luxtronik.datatypes import Base
 from luxtronik.definitions import (
@@ -147,7 +146,7 @@ class LuxtronikSmartHomeInterface:
             definition = definitions.get(def_name_or_idx)
         if definition is None:
             return None
-        if not version_in_range(self._version, definition.since, definition.until):
+        if not definition.version.matches(self._version):
             LOGGER.debug(f"Field {definition.name} not valid for {self._version}")
             return None
         return definition
@@ -349,7 +348,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if all checks have been passed, False otherwise.
         """
         # Skip non-supported fields
-        if not version_in_range(self._version, definition.since, definition.until):
+        if not definition.version.matches(self._version):
             return False
 
         return True
@@ -372,7 +371,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if all checks have been passed, False otherwise.
         """
         # Skip non-supported fields
-        if not version_in_range(self._version, definition.since, definition.until):
+        if not definition.version.matches(self._version):
             return False
 
         # Skip fields that do not carry user-data and not data is provided
