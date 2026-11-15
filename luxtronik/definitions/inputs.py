@@ -51,7 +51,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "bit_offset": 0,
         "bit_count": 1,
         "unit": "boolean",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Indicates whether VD1 is running"
     },
     {
@@ -64,7 +64,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "bit_offset": 1,
         "bit_count": 1,
         "unit": "boolean",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Indicates whether VD2 is running"
     },
     {
@@ -77,7 +77,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "bit_offset": 2,
         "bit_count": 1,
         "unit": "boolean",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Indicates whether ZWE1 is running"
     },
     {
@@ -90,7 +90,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "bit_offset": 3,
         "bit_count": 1,
         "unit": "boolean",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Indicates whether ZWE2 is running"
     },
     {
@@ -103,7 +103,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "bit_offset": 4,
         "bit_count": 1,
         "unit": "boolean",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Indicates whether ZWE3 is running"
     },
     {
@@ -114,7 +114,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "bitmask",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Heat pump status bitmask:\n"
             "1: VD1\n"
@@ -136,7 +136,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "unit": "enum",
         "default": 5,
         "range": {"min": 0, "max": 7},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Operating mode status:\n"
             "0: Heating\n"
@@ -158,7 +158,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "enum",
         "range": {"min": 0, "max": 3},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Heating status:\n"
             "0: Off\n"
@@ -176,7 +176,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "enum",
         "range": {"min": 0, "max": 3},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "DHW status:\n"
             "0: Off\n"
@@ -194,7 +194,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "enum",
         "range": {"min": 0, "max": 3},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Cooling status:\n"
             "0: Off\n"
@@ -212,7 +212,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "enum",
         "range": {"min": 0, "max": 3},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Pool heating / Solar status:\n"
             "0: Off\n"
@@ -229,7 +229,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current return line temperature",
     },
     {
@@ -240,7 +240,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Target return line temperature",
     },
     {
@@ -251,7 +251,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current value of the external return temperature sensor",
     },
     {
@@ -262,7 +262,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Maximum allowed return line temperature",
     },
     {
@@ -273,7 +273,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum target return line temperature",
     },
     {
@@ -284,7 +284,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current flow line temperature",
     },
     {
@@ -295,7 +295,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Current room temperature. "
             "Requires accessory RBE+ room control unit."
@@ -309,7 +309,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Heating demand border: current heating setpoint minus hysteresis "
             "(firmware text 'Heating demand border'). "
@@ -324,7 +324,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Measured outdoor temperature",
     },
     {
@@ -335,7 +335,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Average outdoor temperature",
     },
     {
@@ -346,7 +346,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Heat source input temperature",
     },
     {
@@ -357,7 +357,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Heat source output temperature",
     },
     {
@@ -366,7 +366,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["max_flow_temp"],
         "type": CelsiusUInt16,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Maximum flow temperature",
     },
     {
@@ -377,7 +377,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Calculated maximum flow temperature (firmware text 'TVL calc max')",
     },
     {
@@ -388,7 +388,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current hot water temperature",
     },
     {
@@ -399,7 +399,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Target hot water temperature",
     },
     {
@@ -410,7 +410,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum adjustable hot water temperature",
     },
     {
@@ -421,7 +421,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Maximum adjustable hot water temperature",
     },
     {
@@ -432,7 +432,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "DHW demand border: current DHW setpoint minus hysteresis "
             "(firmware text 'DHW Demand border'). "
@@ -447,7 +447,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current flow temperature of mixing circuit 1",
     },
     {
@@ -458,7 +458,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Desired target temperature of mixing circuit 1",
     },
     {
@@ -469,7 +469,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum temperature of mixing circuit 1",
     },
     {
@@ -480,7 +480,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Maximum temperature of mixing circuit 1",
     },
     {
@@ -491,7 +491,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current flow temperature of mixing circuit 2",
     },
     {
@@ -502,7 +502,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Desired target temperature of mixing circuit 2",
     },
     {
@@ -513,7 +513,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum temperature of mixing circuit 2",
     },
     {
@@ -524,7 +524,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Maximum temperature of mixing circuit 2",
     },
     {
@@ -535,7 +535,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current flow temperature of mixing circuit 3",
     },
     {
@@ -546,7 +546,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Desired target temperature of mixing circuit 3",
     },
     {
@@ -557,7 +557,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum temperature of mixing circuit 3",
     },
     {
@@ -568,7 +568,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Maximum temperature of mixing circuit 3",
     },
     {
@@ -578,7 +578,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "type": Errorcode,
         "writeable": False,
         "datatype": "UINT16",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Current error number:\n"
             "0: no error\n"
@@ -593,7 +593,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "range": {"min": 0, "max": 2},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Buffer tank configuration:\n"
             "0: series buffer\n"
@@ -609,7 +609,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "minute",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum off-time before heat pump may restart."
     },
     {
@@ -620,7 +620,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "minute",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum runtime of the heat pump."
     },
     {
@@ -632,7 +632,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "bool",
         "range": {"min": 0, "max": 1},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Indicates whether cooling mode is configured:\n"
             "0: no\n"
@@ -648,7 +648,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "bool",
         "range": {"min": 0, "max": 1},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Indicates whether pool heating is configured:\n"
             "0: no\n"
@@ -664,7 +664,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "datatype": "UINT16",
         "unit": "bool",
         "range": {"min": 0, "max": 1},
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": (
             "Cooling release condition fulfilled:\n"
             "0: no\n"
@@ -680,7 +680,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "kW/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current heating power."
     },
     {
@@ -691,7 +691,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "kW/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Current electrical power consumption."
     },
     {
@@ -702,7 +702,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT16",
         "unit": "kW/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Minimum predicted electrical power consumption."
     },
     {
@@ -713,7 +713,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Total electrical energy consumption (all modes)."
     },
     {
@@ -724,7 +724,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Total electrical energy consumption for heating."
     },
     {
@@ -735,7 +735,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Total electrical energy consumption for DHW."
     },
     {
@@ -746,7 +746,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Total electrical energy consumption for cooling."
     },
     {
@@ -757,7 +757,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Total electrical energy consumption for pool heating / solar."
     },
     {
@@ -768,7 +768,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Total thermal energy production (all modes)."
     },
     {
@@ -779,7 +779,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Total thermal energy production for heating."
     },
     {
@@ -790,7 +790,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Total thermal energy production for DHW."
     },
     {
@@ -801,7 +801,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Total thermal energy production for cooling."
     },
     {
@@ -812,7 +812,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT32",
         "unit": "kWh/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Total thermal energy production for pool heating / solar."
     },
     {
@@ -821,7 +821,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_350"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -830,7 +830,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_351"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -839,7 +839,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_352"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -848,7 +848,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_353"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -857,7 +857,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_354"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -866,7 +866,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_355"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -875,7 +875,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_356"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -884,7 +884,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_360"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -893,7 +893,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_361"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -902,7 +902,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["version"],
         "type": FullVersion,
         "writeable": False,
-        "since": "3.90.1",
+        "version": ">=3.90.1",
         "description": "Full firmware version information",
     },
     {
@@ -911,7 +911,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_404"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -920,7 +920,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_405"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -929,7 +929,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_406"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -938,7 +938,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_407"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -947,7 +947,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_408"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -956,7 +956,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_409"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -967,7 +967,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT32",
         "unit": "h",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Operating hours of the cooling mode (UINT32, high word first)",
     },
     {
@@ -976,7 +976,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_412"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -985,7 +985,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "names": ["unknown_input_413"],
         "type": Unknown,
         "writeable": False,
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "TODO: Function unknown – requires further analysis",
     },
     {
@@ -996,7 +996,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "UINT32",
         "unit": "h",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Operating hours of the solar function (UINT32, high word first)",
     },
     {
@@ -1007,7 +1007,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "°C/10",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Setpoint of the extra DHW function (device parameter 1146)",
     },
     {
@@ -1018,7 +1018,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "min",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Duration of the extra DHW function (device parameter 1147)",
     },
     {
@@ -1029,7 +1029,7 @@ INPUTS_DEFINITIONS_LIST: Final = [
         "writeable": False,
         "datatype": "INT16",
         "unit": "min",
-        "since": "3.92.0",
+        "version": ">=3.92.0",
         "description": "Remaining run time of the extra DHW function",
     },
 ]
