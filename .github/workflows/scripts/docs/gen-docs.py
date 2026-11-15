@@ -44,9 +44,6 @@ def get_writeable(writeable):
 def get_unit(unit):
     return get_string(unit if unit else "")
 
-def get_version(version):
-    return get_string("" if version is None else ".".join(map(str, version[:3])))
-
 def get_desc(desc):
     return get_string(desc.replace('\n', '\\n'))
 
@@ -66,8 +63,7 @@ def get_items(definitions):
                 "class": get_string(d.field_type.datatype_class),
                 "writeable": get_writeable(d.writeable),
                 "unit": get_unit(d.field_type.unit),
-                "since": get_version(d.since),
-                "until": get_version(d.until),
+                "version": get_string(d.version),
                 "description": get_desc(desc),
             })
     return items

@@ -54,9 +54,8 @@
   th:nth-child(6), td:nth-child(6) { width: 7%; }     /* Class */
   th:nth-child(7), td:nth-child(7) { width: 7%; }     /* Unit */
   th:nth-child(8), td:nth-child(8) { width: 7%; }     /* Writeable */
-  th:nth-child(9), td:nth-child(9) { width: 7%; }     /* Since */
-  th:nth-child(10), td:nth-child(10) { width: 8%; }   /* Until */
-  th:nth-child(11), td:nth-child(11) { width: 25%; }  /* Description */
+  th:nth-child(9), td:nth-child(9) { width: 15%; }    /* Version */
+  th:nth-child(10), td:nth-child(10) { width: 25%; }  /* Description */
 
 </style>
 </head>
@@ -80,9 +79,8 @@
   <label><input type="checkbox" data-col="6" checked>Class</label>
   <label><input type="checkbox" data-col="7" checked>Unit</label>
   <label><input type="checkbox" data-col="8" checked>Writeable</label>
-  <label><input type="checkbox" data-col="9" unchecked>Since</label>
-  <label><input type="checkbox" data-col="10" unchecked>Until</label>
-  <label><input type="checkbox" data-col="11" checked>Description</label>
+  <label><input type="checkbox" data-col="9" unchecked>Version</label>
+  <label><input type="checkbox" data-col="10" checked>Description</label>
 </div>
 
 <table id="table">
@@ -96,8 +94,7 @@
             <th>Class</th>
             <th>Unit</th>
             <th>Writeable</th>
-            <th class="hide-col">Since</th>
-            <th class="hide-col">Until</th>
+            <th class="hide-col">Version</th>
             <th>Description</th>
         </tr>
         <tr>
@@ -109,8 +106,7 @@
             <th><input id="f_class"></th>
             <th><input id="f_unit"></th>
             <th><input id="f_writeable"></th>
-            <th class="hide-col"><input id="f_since"></th>
-            <th class="hide-col"><input id="f_until"></th>
+            <th class="hide-col"><input id="f_version"></th>
             <th><input id="f_description"></th>
         </tr>
     </thead>
