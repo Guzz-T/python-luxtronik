@@ -372,28 +372,28 @@ class TestDefinitionsList:
 def test_get_version_definitions():
     def_list = [
         {
-            "index": 5,
-            "type": Base,
+            Keys.IDX: 5,
+            Keys.TYPE: Base,
         },
         {
-            "index": 6,
-            "type": MajorMinorVersion,
+            Keys.IDX: 6,
+            Keys.TYPE: MajorMinorVersion,
         },
         {
-            "index": 8,
-            "type": Unknown,
+            Keys.IDX: 8,
+            Keys.TYPE: Unknown,
         },
         {
-            "index": 10,
-            "type": FullVersion,
+            Keys.IDX: 10,
+            Keys.TYPE: FullVersion,
         },
         {
-            "index": 40,
-            "type": Version,
+            Keys.IDX: 40,
+            Keys.TYPE: Version,
         },
         {
-            "index": 41,
-            "type": MajorMinorVersion,
+            Keys.IDX: 41,
+            Keys.TYPE: MajorMinorVersion,
         },
     ]
 
