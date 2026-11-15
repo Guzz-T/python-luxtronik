@@ -24,7 +24,7 @@ from luxtronik.shi import (
     Inputs,  # noqa: F401
     LuxtronikSmartHomeData,
     LuxtronikSmartHomeInterface,
-    resolve_version,
+    determine_shi_version,
 )
 # endregion Imports
 
@@ -110,7 +110,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         self._host = host
         LuxtronikSocketInterface.__init__(self, host, port_config)
         modbus_interface = LuxtronikModbusTcpInterface(host, port_shi)
-        resolved_version = resolve_version(modbus_interface)
+        resolved_version = determine_shi_version(modbus_interface)
         LuxtronikSmartHomeInterface.__init__(self, modbus_interface, resolved_version)
 
     @property
