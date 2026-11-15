@@ -11,8 +11,8 @@ from luxtronik.constants import (
     LUXTRONIK_LATEST_VERSION,
 )
 from luxtronik.collections import integrate_data
+from luxtronik.definitions import get_version_definitions
 from luxtronik.version import parse_version
-from luxtronik.datatypes import FullVersion, MajorMinorVersion
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
@@ -31,23 +31,6 @@ LOGGER = logging.getLogger(__name__)
 ###############################################################################
 # Helper methods
 ###############################################################################
-
-def get_version_definitions(definitions):
-    """
-    Retrieve all definitions that represent version fields.
-
-    Args:
-        definitions (LuxtronikDefinitionsList): List of definitions
-
-    Returns:
-        list[LuxtronikDefinition]: List of definitions whose field_type
-        is either FullVersion or MajorMinorVersion.
-    """
-    version_definitions = []
-    for d in definitions:
-        if d.field_type in (FullVersion, MajorMinorVersion):
-            version_definitions.append(d)
-    return version_definitions
 
 def determine_version(interface):
     """

@@ -1,9 +1,17 @@
-from luxtronik.datatypes import Base, Unknown
+
+from luxtronik.datatypes import (
+    Base,
+    Unknown,
+    FullVersion,
+    Version,
+    MajorMinorVersion
+)
 from luxtronik.definitions import (
     Keys,
     LuxtronikDefinition,
     LuxtronikDefinitionsDictionary,
     LuxtronikDefinitionsList,
+    get_version_definitions,
 )
 from luxtronik.version import VersionRequirement, VersionRequirements
 import operator
@@ -359,3 +367,44 @@ class TestDefinitionsList:
         definitions = LuxtronikDefinitionsList(self.def_list, 'foo', 100, '')
         text = repr(definitions)
         assert text
+
+
+def test_get_version_definitions():
+    def_list = [
+        {
+            "index": 5,
+            "type": Base,
+        },
+        {
+            "index": 6,
+            "type": MajorMinorVersion,
+        },
+        {
+            "index": 8,
+            "type": Unknown,
+        },
+        {
+            "index": 10,
+            "type": FullVersion,
+        },
+        {
+            "index": 40,
+            "type": Version,
+        },
+        {
+            "index": 41,
+            "type": MajorMinorVersion,
+        },
+    ]
+
+    definitions = LuxtronikDefinitionsList(def_list, 'bar', 100, '')
+    got_definitions = get_version_definitions(definitions)
+    assert len(got_definitions) == 4
+    assert got_definitions[0].index == 10
+    assert got_definitions[0].field_type is FullVersion
+    assert got_definitions[1].index == 40
+    assert got_definitions[1].field_type is Version
+    assert got_definitions[2].index == 6
+    assert got_definitions[2].field_type is MajorMinorVersion
+    assert got_definitions[3].index == 41
+    assert got_definitions[3].field_type is MajorMinorVersion
