@@ -45,7 +45,7 @@ If you want to install the latest version from the git repo you can do that
 with the following command:
 
 ```shell
-pip install git+https://github.com/Bouni/python-luxtronik.git@main
+pip install git+https://github.com/Guzz-T/python-luxtronik.git@main
 ```
 
 ## MODULE STRUCTURE
@@ -173,7 +173,7 @@ so you'll have to fall back to using the source code itself as documentation.
 It can be found in the [luxtronik](luxtronik/) directory.
 
 At least for the data fields, there is such a
-[documentation](https://bouni.github.io/python-luxtronik/). Alternatively,
+[documentation](https://Guzz-T.github.io/python-luxtronik/). Alternatively,
 you can take a look at the definitions for all discovered data fields:
 
 - Calculations holds measurement values (config interface): \
@@ -478,6 +478,6 @@ on your system because some of the hooks are based on JavaScript / Node.js.
 > FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 > DEALINGS IN THE SOFTWARE.
 
-[github-repo]: https://github.com/Bouni/python-luxtronik
-[issue-tracker]: https://github.com/Bouni/python-luxtronik/issues
+[github-repo]: https://github.com/Guzz-T/python-luxtronik
+[issue-tracker]: https://github.com/Guzz-T/python-luxtronik/issues
 [pull-request-doc]: https://docs.github.com/articles/about-pull-requests
