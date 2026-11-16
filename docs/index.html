@@ -67,7 +67,13 @@
 <p>
   <div id="createdInfo">Generated automatically on </div>
   <div id="versionInfo">Build version: </div>
-  Note: Use regular expressions to refine your search
+</p>
+<p>
+    Notes:
+<ul>
+  <li>Use regular expressions to refine your search.</li>
+  <li>Most fields have tooltips at the headings that explain them.</li>
+</ul>
 </p>
 
 <div id="columnToggle" style="margin-bottom: 8px; font-size: 11px;">
@@ -86,16 +92,16 @@
 <table id="table">
     <thead>
         <tr>
-            <th>Category</th>
-            <th>Index</th>
-            <th>Name</th>
-            <th class="hide-col">LSB</th>
-            <th class="hide-col">Width</th>
-            <th>Class</th>
-            <th>Unit</th>
-            <th>Writeable</th>
-            <th class="hide-col">Version</th>
-            <th>Description</th>
+            <th><div id="th_category" style="cursor: help">Category</div></th>
+            <th><div id="th_index" style="cursor: help">Index</div></th>
+            <th><div id="th_name" style="cursor: help">Name</div></th>
+            <th class="hide-col"><div id="th_lsb" style="cursor: help">LSB</div></th>
+            <th class="hide-col"><div id="th_width" style="cursor: help">Width</div></th>
+            <th><div id="th_class" style="cursor: help">Class</div></th>
+            <th><div id="th_unit" style="cursor: help">Unit</div></th>
+            <th><div id="th_wrt" style="cursor: help">Writeable</div></th>
+            <th class="hide-col"><div id="th_version" style="cursor: help">Version</div></th>
+            <th><div id="th_description" style="cursor: help">Description</div></th>
         </tr>
         <tr>
             <th><input id="f_category"></th>
@@ -123,6 +129,7 @@
 
 <!-- Main logic -->
 <script src="meta.js"></script>
+<script src="keys.js"></script>
 <script src="scripts.js"></script>
 
 </body>

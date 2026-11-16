@@ -18,6 +18,7 @@ from luxtronik.shi import (
 from luxtronik.datatypes import (
     SelectionBase,
 )
+from luxtronik.definitions import Keys
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("docs generator")
@@ -99,6 +100,11 @@ def render_docs():
     template = env.get_template("meta.js")
     with open(BASEPATH.parents[3] / "docs/meta.js", "w", encoding="UTF-8", newline="\n") as f:
         f.write(template.render(version=get_git_version(), now=datetime.now().replace(microsecond=0)) + "\n")
+
+    # create keys file
+    template = env.get_template("keys.js")
+    with open(BASEPATH.parents[3] / "docs/keys.js", "w", encoding="UTF-8", newline="\n") as f:
+        f.write(template.render(keys=Keys) + "\n")
 
 
 if __name__ == "__main__":
