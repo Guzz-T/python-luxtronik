@@ -177,6 +177,26 @@ document.getElementById("createdInfo").textContent =
 document.getElementById("versionInfo").textContent =
     `Build version: ${window.META.version}`;
 
+document.getElementById("th_category").title =
+    `Either parameter, calculation, visibility, holding or input.`;
+document.getElementById("th_index").title =
+    `${window.KEYS["index"].description}`;
+document.getElementById("th_name").title =
+    `The preferred name for this field.`;
+document.getElementById("th_lsb").title =
+    `${window.KEYS["bit_offset"].description}`;
+document.getElementById("th_width").title =
+    `${window.KEYS["bit_count"].description}`;
+document.getElementById("th_class").title =
+    `${window.KEYS["type"].description}`;
+document.getElementById("th_unit").title =
+    `${window.KEYS["unit"].description}`;
+document.getElementById("th_wrt").title =
+    `${window.KEYS["writeable"].description}`;
+document.getElementById("th_version").title =
+    `${window.KEYS["version"].description}`;
+document.getElementById("th_description").title =
+    `${window.KEYS["description"].description}`;
 
 
 // initial rendering

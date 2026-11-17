@@ -2,30 +2,12 @@ import re
 
 from luxtronik.version import parse_version, parse_version_requirement
 from luxtronik.datatypes import Base
-from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.definitions import Keys, LuxtronikDefinition
 from luxtronik.definitions.calculations import CALCULATIONS_DEFINITIONS_LIST
 from luxtronik.definitions.holdings import HOLDINGS_DEFINITIONS_LIST
 from luxtronik.definitions.inputs import INPUTS_DEFINITIONS_LIST
 from luxtronik.definitions.parameters import PARAMETERS_DEFINITIONS_LIST
 from luxtronik.definitions.visibilities import VISIBILITIES_DEFINITIONS_LIST
-
-
-KEY_IDX = "index"
-KEY_COUNT = "count"
-KEY_NAMES = "names"
-KEY_SUCCESSOR = "successor"
-KEY_TYPE = "type"
-KEY_WRT = "writeable"
-KEY_DATATYPE = "datatype"
-KEY_UNIT = "unit"
-KEY_DEFAULT = "default"
-KEY_RANGE = "range"
-KEY_MIN = "min"
-KEY_MAX = "max"
-KEY_SINCE = "since"
-KEY_UNTIL = "until"
-KEY_VERSION = "version"
-KEY_DESC = "description"
 
 
 class RunTestDefinitionList:
@@ -37,7 +19,7 @@ class RunTestDefinitionList:
     do_lower_case_test = True
 
     def get_names(self, definition):
-        names = definition.get(KEY_NAMES, [])
+        names = definition.get(Keys.NAMES, [])
         if isinstance(names, str):
             names = [names]
         return names
@@ -46,95 +28,95 @@ class RunTestDefinitionList:
         for definition in self.definitions:
 
             # index
-            assert KEY_IDX in definition, \
-                f"{KEY_IDX} not defined: {definition}"
-            assert isinstance(definition[KEY_IDX], int), \
-                f"{KEY_IDX} must be of type 'int': {definition}"
+            assert Keys.IDX in definition, \
+                f"{Keys.IDX} not defined: {definition}"
+            assert isinstance(definition[Keys.IDX], int), \
+                f"{Keys.IDX} must be of type 'int': {definition}"
 
             # count
-            if KEY_COUNT in definition:
-                assert isinstance(definition[KEY_COUNT], int), \
-                    f"{KEY_COUNT} must be of type 'int': {definition}"
+            if Keys.COUNT in definition:
+                assert isinstance(definition[Keys.COUNT], int), \
+                    f"{Keys.COUNT} must be of type 'int': {definition}"
 
             # names
-            if KEY_NAMES in definition:
-                assert isinstance(definition[KEY_NAMES], list) \
-                        or isinstance(definition[KEY_NAMES], str), \
-                    f"{KEY_NAMES} must be of type 'list' or 'str': {definition}"
-                if isinstance(definition[KEY_NAMES], list):
-                    for name in definition[KEY_NAMES]:
-                        assert isinstance(name, str), f"Entry of {KEY_NAMES} " \
+            if Keys.NAMES in definition:
+                assert isinstance(definition[Keys.NAMES], list) \
+                        or isinstance(definition[Keys.NAMES], str), \
+                    f"{Keys.NAMES} must be of type 'list' or 'str': {definition}"
+                if isinstance(definition[Keys.NAMES], list):
+                    for name in definition[Keys.NAMES]:
+                        assert isinstance(name, str), f"Entry of {Keys.NAMES} " \
                             f"must be of type 'int': {definition}"
 
             # successor
-            if KEY_SUCCESSOR in definition:
-                if definition[KEY_SUCCESSOR] is not None:
-                    assert isinstance(definition[KEY_SUCCESSOR], str), \
-                        f"{KEY_SUCCESSOR} must be of type 'str': {definition}"
+            if Keys.SUCCESSOR in definition:
+                if definition[Keys.SUCCESSOR] is not None:
+                    assert isinstance(definition[Keys.SUCCESSOR], str), \
+                        f"{Keys.SUCCESSOR} must be of type 'str': {definition}"
 
             # field_type
-            if KEY_TYPE in definition:
-                assert issubclass(definition[KEY_TYPE], Base), \
-                    f"{KEY_TYPE} must be inherit from 'Base': {definition}"
+            if Keys.TYPE in definition:
+                assert issubclass(definition[Keys.TYPE], Base), \
+                    f"{Keys.TYPE} must be inherit from 'Base': {definition}"
 
             # writeable
-            if KEY_WRT in definition:
-                assert isinstance(definition[KEY_WRT], bool), \
-                    f"{KEY_WRT} must be of type 'bool': {definition}"
+            if Keys.WRT in definition:
+                assert isinstance(definition[Keys.WRT], bool), \
+                    f"{Keys.WRT} must be of type 'bool': {definition}"
 
             # data type
-            if KEY_DATATYPE in definition:
-                assert isinstance(definition[KEY_DATATYPE], str), \
-                    f"{KEY_DATATYPE} must be of type 'str': {definition}"
+            if Keys.DATATYPE in definition:
+                assert isinstance(definition[Keys.DATATYPE], str), \
+                    f"{Keys.DATATYPE} must be of type 'str': {definition}"
 
             # unit
-            if KEY_UNIT in definition:
-                assert isinstance(definition[KEY_UNIT], str), \
-                    f"{KEY_UNIT} must be of type 'str': {definition}"
+            if Keys.UNIT in definition:
+                assert isinstance(definition[Keys.UNIT], str), \
+                    f"{Keys.UNIT} must be of type 'str': {definition}"
 
             # default (raw value)
-            if KEY_DEFAULT in definition:
-                assert isinstance(definition[KEY_DEFAULT], int), \
-                    f"{KEY_DEFAULT} must be of type 'int': {definition}"
+            if Keys.DEFAULT in definition:
+                assert isinstance(definition[Keys.DEFAULT], int), \
+                    f"{Keys.DEFAULT} must be of type 'int': {definition}"
 
             # range (raw value)
-            if KEY_RANGE in definition:
-                assert isinstance(definition[KEY_RANGE], dict), \
-                    f"{KEY_RANGE} must be of type 'dict': {definition}"
+            if Keys.RANGE in definition:
+                assert isinstance(definition[Keys.RANGE], dict), \
+                    f"{Keys.RANGE} must be of type 'dict': {definition}"
 
             # range - min (raw value)
-            if KEY_RANGE in definition and KEY_MIN in definition[KEY_RANGE]:
-                assert isinstance(definition[KEY_RANGE][KEY_MIN], int), \
-                    f"{KEY_MIN} must be of type 'int': {definition}"
+            if Keys.RANGE in definition and Keys.MIN in definition[Keys.RANGE]:
+                assert isinstance(definition[Keys.RANGE][Keys.MIN], int), \
+                    f"{Keys.MIN} must be of type 'int': {definition}"
 
             # range - max (raw value)
-            if KEY_RANGE in definition and KEY_MAX in definition[KEY_RANGE]:
-                assert isinstance(definition[KEY_RANGE][KEY_MAX], int), \
-                    f"{KEY_MAX} must be of type 'int': {definition}"
+            if Keys.RANGE in definition and Keys.MAX in definition[Keys.RANGE]:
+                assert isinstance(definition[Keys.RANGE][Keys.MAX], int), \
+                    f"{Keys.MAX} must be of type 'int': {definition}"
 
             # since
-            if KEY_SINCE in definition:
-                assert isinstance(definition[KEY_SINCE], str), \
-                    f"{KEY_SINCE} must be of type 'str': {definition}"
+            if Keys.SINCE in definition:
+                assert isinstance(definition[Keys.SINCE], str), \
+                    f"{Keys.SINCE} must be of type 'str': {definition}"
 
             # until
-            if KEY_UNTIL in definition:
-                assert isinstance(definition[KEY_UNTIL], str), \
-                    f"{KEY_UNTIL} must be of type 'str': {definition}"
+            if Keys.UNTIL in definition:
+                assert isinstance(definition[Keys.UNTIL], str), \
+                    f"{Keys.UNTIL} must be of type 'str': {definition}"
 
             # version
-            if KEY_VERSION in definition:
-                assert isinstance(definition[KEY_VERSION], str), \
-                    f"{KEY_VERSION} must be of type 'str': {definition}"
+            if Keys.VERSION in definition:
+                assert isinstance(definition[Keys.VERSION], str), \
+                    f"{Keys.VERSION} must be of type 'str': {definition}"
 
             # description
-            if KEY_DESC in definition:
-                assert isinstance(definition[KEY_DESC], str), \
-                    f"{KEY_DESC} must be of type 'str': {definition}"
+            if Keys.DESC in definition:
+                assert isinstance(definition[Keys.DESC], str), \
+                    f"{Keys.DESC} must be of type 'str': {definition}"
 
     def test_index(self):
         for definition in self.definitions:
-            idx = definition.get(KEY_IDX, 0)
+            idx = definition.get(Keys.IDX, 0)
             assert idx >= 0, \
             f"The index must be greater or equal than zero: {definition}"
 
@@ -142,8 +124,8 @@ class RunTestDefinitionList:
         prev = self.definitions[0]
 
         for definition in self.definitions:
-            prev_idx = prev.get(KEY_IDX, -1)
-            this_idx = definition.get(KEY_IDX, 0)
+            prev_idx = prev.get(Keys.IDX, -1)
+            this_idx = definition.get(Keys.IDX, 0)
             assert prev_idx <= this_idx, \
                 "The definitions must be arranged in ascending order. " \
                 "This allows us to avoid sorting them afterwards." \
@@ -153,7 +135,7 @@ class RunTestDefinitionList:
 
     def test_count(self):
         for definition in self.definitions:
-            count = definition.get(KEY_COUNT, 1)
+            count = definition.get(Keys.COUNT, 1)
             assert count > 0, \
                 f"Count field must be greater than zero: {definition}"
 
@@ -190,37 +172,37 @@ class RunTestDefinitionList:
 
     def test_field_type(self):
         for definition in self.definitions:
-            field_type = definition.get(KEY_TYPE, None)
+            field_type = definition.get(Keys.TYPE, None)
             assert issubclass(field_type, Base), \
                 f"Type must be set: {definition}"
 
     def test_data_type(self):
         for definition in self.definitions:
-            if KEY_DATATYPE in definition:
-                data_type = definition[KEY_DATATYPE]
+            if Keys.DATATYPE in definition:
+                data_type = definition[Keys.DATATYPE]
                 assert data_type in LuxtronikDefinition.VALID_DATA_TYPES, \
                     f"Datatype must be set correctly: {definition}"
 
     def test_since(self):
         for definition in self.definitions:
-            if KEY_SINCE in definition:
-                since = definition[KEY_SINCE]
+            if Keys.SINCE in definition:
+                since = definition[Keys.SINCE]
                 parsed = parse_version(since)
                 assert parsed is not None, \
                     f"Since must be a valid version instead of {since}: {definition}"
 
     def test_until(self):
         for definition in self.definitions:
-            if KEY_UNTIL in definition:
-                until = definition[KEY_UNTIL]
+            if Keys.UNTIL in definition:
+                until = definition[Keys.UNTIL]
                 parsed = parse_version(until)
                 assert parsed is not None, \
                     f"Until must be a valid version instead of {until}: {definition}"
 
     def test_version(self):
         for definition in self.definitions:
-            if KEY_VERSION in definition:
-                version = definition[KEY_VERSION]
+            if Keys.VERSION in definition:
+                version = definition[Keys.VERSION]
                 parsed = parse_version_requirement(version)
                 assert parsed is not None, \
                     f"Version must be a valid version requirement instead of {version}: {definition}"
