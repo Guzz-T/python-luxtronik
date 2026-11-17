@@ -92,13 +92,13 @@ def render_docs():
     # create data files
     template = env.get_template("definitions.js")
     for name, items in data.items():
-        with open(BASEPATH.parents[3] / f"docs/{name}.js", "w", encoding="UTF-8") as f:
-            f.write(template.render(group=name.upper(), data=items))
+        with open(BASEPATH.parents[3] / f"docs/{name}.js", "w", encoding="UTF-8", newline="\n") as f:
+            f.write(template.render(group=name.upper(), data=items) + "\n")
 
     # create meta file
     template = env.get_template("meta.js")
-    with open(BASEPATH.parents[3] / "docs/meta.js", "w", encoding="UTF-8") as f:
-        f.write(template.render(version=get_git_version(), now=datetime.now().replace(microsecond=0)))
+    with open(BASEPATH.parents[3] / "docs/meta.js", "w", encoding="UTF-8", newline="\n") as f:
+        f.write(template.render(version=get_git_version(), now=datetime.now().replace(microsecond=0)) + "\n")
 
 
 if __name__ == "__main__":
