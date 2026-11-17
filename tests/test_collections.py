@@ -5,7 +5,7 @@ from luxtronik.collections import (
     LuxtronikDefFieldPair,
     LuxtronikFieldsDictionary,
 )
-from luxtronik.definitions import LuxtronikDefinition, LuxtronikDefinitionsDictionary
+from luxtronik.definitions import Keys, LuxtronikDefinition, LuxtronikDefinitionsDictionary
 from luxtronik.datatypes import (
     Base,
     Unknown,
@@ -270,16 +270,16 @@ class TestLuxtronikFieldsDictionary:
         u = LuxtronikDefinition.unknown(2, "test", 0)
         d.add(u, u.create_field())
         b = LuxtronikDefinition({
-            "index": 2,
-            "type": Base,
-            "names": ["base2"],
+            Keys.IDX: 2,
+            Keys.TYPE: Base,
+            Keys.NAMES: ["base2"],
         }, "test", 0)
         f = b.create_field()
         d.add(b, f)
         b = LuxtronikDefinition({
-            "index": 3,
-            "type": Base,
-            "names": ["base3"],
+            Keys.IDX: 3,
+            Keys.TYPE: Base,
+            Keys.NAMES: ["base3"],
         }, "test", 0)
         d.add(b, b.create_field())
         return d, u, f

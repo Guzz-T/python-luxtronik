@@ -6,7 +6,7 @@ import pytest
 
 from luxtronik.data_vector import DataVector
 from luxtronik.datatypes import Base
-from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.definitions import Keys, LuxtronikDefinition
 
 
 class ObsoleteDataVector(DataVector):
@@ -20,9 +20,9 @@ class ObsoleteDataVector(DataVector):
     def __init__(self):
         super().__init__()
         d = LuxtronikDefinition({
-            "index": 0,
-            "type": Base,
-            "names": ["foo", "bar"],
+            Keys.IDX: 0,
+            Keys.TYPE: Base,
+            Keys.NAMES: ["foo", "bar"],
         }, "type", 0)
         self._data = {
             d: d.create_field()

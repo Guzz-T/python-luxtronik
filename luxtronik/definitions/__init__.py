@@ -13,8 +13,8 @@ from luxtronik.constants import (
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
     LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE,
 )
+from luxtronik.definitions.keys import Keys
 from luxtronik.version import VersionRequirements
-from luxtronik.datatypes import Unknown
 
 
 LOGGER = logging.getLogger(__name__)
@@ -32,19 +32,7 @@ class LuxtronikDefinition:
     """
 
     DEFAULT_DATA = {
-        "index": -1,
-        "count": 1,
-        "type": Unknown,
-        "writeable": False,
-        "names": [],
-        "successor": None,
-        "since": "",
-        "until": "",
-        "version": "",
-        "datatype": "",
-        "bit_offset": None,
-        "bit_count": None,
-        "description": "",
+        k.key_value: k.default_value for k in Keys
     }
 
     # It is permissible not to specify a data type.
@@ -72,39 +60,39 @@ class LuxtronikDefinition:
         self.report_outdated_name = True
         try:
             data_dict = self.DEFAULT_DATA | data_dict
-            index = int(data_dict["index"])
+            index = int(data_dict[Keys.IDX])
             self._valid = index >= 0
             self._index = index if self._valid else 0
-            self._count = int(data_dict["count"])
-            self._field_type = data_dict["type"]
-            self._writeable = bool(data_dict["writeable"])
-            names = data_dict["names"]
+            self._count = int(data_dict[Keys.COUNT])
+            self._field_type = data_dict[Keys.TYPE]
+            self._writeable = bool(data_dict[Keys.WRT])
+            names = data_dict[Keys.NAMES]
             if not isinstance(names, list):
                 names = [str(names)]
             names = [str(name).strip() for name in names if str(name).strip()]
             if not names:
                 names = ["_invalid_"]
             self._names = names
-            self._successor = data_dict["successor"]
-            since = str(data_dict["since"])
-            until = str(data_dict["until"])
-            version = str(data_dict["version"])
+            self._successor = data_dict[Keys.SUCCESSOR]
+            since = str(data_dict[Keys.SINCE])
+            until = str(data_dict[Keys.UNTIL])
+            version = str(data_dict[Keys.VERSION])
             self._version = VersionRequirements.from_list(version, since, until)
-            self._description = str(data_dict["description"])
+            self._description = str(data_dict[Keys.DESC])
             self._type_name = type_name.lower()
             self._valid &= len(self._type_name) > 0
             self._offset = int(offset)
             self._addr = self._offset + self._index
 
             # Determine the data type. Use default one if none is provided.
-            self._data_type = data_dict["datatype"]
+            self._data_type = data_dict[Keys.DATATYPE]
             if self._data_type not in self.VALID_DATA_TYPES or self._data_type == "":
                 self._data_type = data_type
 
-            self._bit_offset = data_dict["bit_offset"]
+            self._bit_offset = data_dict[Keys.BIT_OFFS]
 
             # Determine the bit count. Extract from the data type if not given.
-            bit_count = data_dict["bit_count"]
+            bit_count = data_dict[Keys.BIT_CNT]
             if bit_count:
                 self._num_bits = bit_count
             else:
@@ -130,9 +118,9 @@ class LuxtronikDefinition:
             LuxtronikDefinition: A definition marked as unknown.
         """
         return cls({
-            "index": index,
-            "names": [f"unknown_{type_name.lower()}_{index}"],
-            "datatype": data_type,
+            Keys.IDX: index,
+            Keys.NAMES: [f"unknown_{type_name.lower()}_{index}"],
+            Keys.DATATYPE: data_type,
         }, type_name, offset)
 
     def __bool__(self):

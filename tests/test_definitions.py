@@ -1,5 +1,6 @@
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import (
+    Keys,
     LuxtronikDefinition,
     LuxtronikDefinitionsDictionary,
     LuxtronikDefinitionsList,
@@ -204,44 +205,44 @@ class TestDefinitionsList:
 
     def_list = [
         {
-            "index": 5,
-            "count": 1,
-            "names": ["field_5"],
-            "type": Base,
-            "writeable": True,
-            "version": ">=1.1,<=1.2",
+            Keys.IDX: 5,
+            Keys.COUNT: 1,
+            Keys.NAMES: ["field_5"],
+            Keys.TYPE: Base,
+            Keys.WRT: True,
+            Keys.VERSION: ">=1.1,<=1.2",
         },
         {
-            "index": 7,
-            "count": 2,
-            "names": ["field_7"],
-            "type": Base,
-            "writeable": True,
-            "version": ">=3.1",
+            Keys.IDX: 7,
+            Keys.COUNT: 2,
+            Keys.NAMES: ["field_7"],
+            Keys.TYPE: Base,
+            Keys.WRT: True,
+            Keys.VERSION: ">=3.1",
         },
         {
-            "index": 9,
-            "count": 1,
-            "names": ["field_9a"],
-            "type": Base,
-            "writeable": True,
-            "version": "<=1.3",
+            Keys.IDX: 9,
+            Keys.COUNT: 1,
+            Keys.NAMES: ["field_9a"],
+            Keys.TYPE: Base,
+            Keys.WRT: True,
+            Keys.VERSION: "<=1.3",
         },
         {
-            "index": 9,
-            "count": 2,
-            "names": ["field_9"],
-            "type": Base,
-            "writeable": True,
-            "version": "<=3.3",
+            Keys.IDX: 9,
+            Keys.COUNT: 2,
+            Keys.NAMES: ["field_9"],
+            Keys.TYPE: Base,
+            Keys.WRT: True,
+            Keys.VERSION: "<=3.3",
         },
         {
-            "index": -1,
-            "count": 1,
-            "names": ["field_invalid"],
-            "type": Base,
-            "writeable": True,
-            "version": "<=3.3",
+            Keys.IDX: -1,
+            Keys.COUNT: 1,
+            Keys.NAMES: ["field_invalid"],
+            Keys.TYPE: Base,
+            Keys.WRT: True,
+            Keys.VERSION: "<=3.3",
         },
     ]
 
@@ -320,9 +321,9 @@ class TestDefinitionsList:
 
         # add custom definition
         added_1 = definitions.add({
-            "index": 5,
-            "count": 2,
-            "names": "baz"
+            Keys.IDX: 5,
+            Keys.COUNT: 2,
+            Keys.NAMES: "baz"
         })
         assert len(definitions) == 5
         assert definitions.get(5) == added_1
@@ -330,9 +331,9 @@ class TestDefinitionsList:
 
         # add custom definition (partly covers previously added)
         added_2 = definitions.add({
-            "index": 10,
-            "count": 2,
-            "names": "baz"
+            Keys.IDX: 10,
+            Keys.COUNT: 2,
+            Keys.NAMES: "baz"
         })
         assert len(definitions) == 6
         assert definitions.get(5) == added_1
@@ -340,17 +341,17 @@ class TestDefinitionsList:
 
         # add invalid definition (not valid)
         added_3 = definitions.add({
-            "index": -1,
-            "count": 2,
-            "names": "baz"
+            Keys.IDX: -1,
+            Keys.COUNT: 2,
+            Keys.NAMES: "baz"
         })
         assert added_3 is None
 
         # add invalid definition (exception)
         added_4 = definitions.add({
-            "index": "foo",
-            "count": 2,
-            "names": 1
+            Keys.IDX: "foo",
+            Keys.COUNT: 2,
+            Keys.NAMES: 1
         })
         assert added_4 is None
 
