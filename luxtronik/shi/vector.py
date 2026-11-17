@@ -2,7 +2,6 @@
 import logging
 
 from luxtronik.constants import LUXTRONIK_LATEST_VERSION
-from luxtronik.version import version_in_range
 from luxtronik.data_vector import DataVector
 
 from luxtronik.shi.contiguous import ContiguousDataBlockList
@@ -48,7 +47,7 @@ class DataVectorSmartHome(DataVector):
 
         # Create fields depending on the given version
         for d in self.definitions:
-            if version_in_range(version, d.since, d.until):
+            if d.version.matches(version):
                 # The definitions are already sorted correctly.
                 # So we can just add them one after the other.
                 self._data.add(d, d.create_field())
@@ -107,7 +106,7 @@ class DataVectorSmartHome(DataVector):
             return existing_field
 
         # Add a (new) field
-        if version_in_range(self._version, definition.since, definition.until):
+        if definition.version.matches(self._version):
             if field is None:
                 field = definition.create_field()
             self._read_blocks_up_to_date = False

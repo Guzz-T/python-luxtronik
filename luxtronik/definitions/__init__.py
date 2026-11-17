@@ -13,14 +13,12 @@ from luxtronik.constants import (
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
     LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE,
 )
-from luxtronik.version import (
-    parse_version,
-    version_in_range
-)
+from luxtronik.version import VersionRequirements
 from luxtronik.datatypes import Unknown
 
 
 LOGGER = logging.getLogger(__name__)
+
 
 ###############################################################################
 # LuxtronikDefinition
@@ -42,6 +40,7 @@ class LuxtronikDefinition:
         "successor": None,
         "since": "",
         "until": "",
+        "version": "",
         "datatype": "",
         "bit_offset": None,
         "bit_count": None,
@@ -88,9 +87,9 @@ class LuxtronikDefinition:
             self._names = names
             self._successor = data_dict["successor"]
             since = str(data_dict["since"])
-            self._since = parse_version(since)
             until = str(data_dict["until"])
-            self._until = parse_version(until)
+            version = str(data_dict["version"])
+            self._version = VersionRequirements.from_list(version, since, until)
             self._description = str(data_dict["description"])
             self._type_name = type_name.lower()
             self._valid &= len(self._type_name) > 0
@@ -204,12 +203,8 @@ class LuxtronikDefinition:
         return self._names[0]
 
     @property
-    def since(self):
-        return self._since
-
-    @property
-    def until(self):
-        return self._until
+    def version(self):
+        return self._version
 
     @property
     def description(self):
@@ -434,7 +429,7 @@ class LuxtronikDefinitionsList:
         obj._init_instance(definitions.name, definitions.offset, definitions._default_data_type, version)
 
         for d in definitions:
-            if d.valid and version_in_range(obj._version, d.since, d.until):
+            if d.valid and d.version.matches(obj._version):
                 obj._add(d)
 
         return obj
