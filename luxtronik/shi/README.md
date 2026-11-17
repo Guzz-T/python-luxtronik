@@ -341,53 +341,53 @@ Index
 
 - **Version-dependent definitions**:
   The definitions themselves may contain version information specifying
-  in which version the described field is included. This is used to
-  determine a subset that matches a specific firmware version of the controller.
-  Fields without version information are always included.
+  in which version the described field is included (multiple statements are AND-ed).
+  This is used to determine a subset that matches a specific firmware version
+  of the controller. Fields without version information are always included.
   Note: If the desired version is "None",
   all "available" are considered as "version-dependent".
 
 ```json
 Available:
-- {index: 0, since: 1.0, until: 2.9}
-- {index: 1, since: 2.2            }
-- {index: 4,             until: 1.5}
+- {index: 0, version: ">=1.0,<=2.9"}
+- {index: 1, version: ">=2.2"      }
+- {index: 4, version: "<=1.5"      }
 - {index: 5, since: 2.4, until: 3.0}
-- {index: 6, since: 1.3            }
+- {index: 6, version: ">=1.3"      }
 - {index: 8,                       }
-- {index: 9,             until: 2.0}
+- {index: 9, version: "<=2.0"      }
 
 Version-dependent on v0.3:
-- {index: 4,             until: 1.5}
+- {index: 4, version: "<=1.5"      }
 - {index: 8,                       }
-- {index: 9,             until: 2.0}
+- {index: 9, version: "<=2.0"      }
 
 Version-dependent on v1.1:
-- {index: 0, since: 1.0, until: 2.9}
-- {index: 4,             until: 1.5}
+- {index: 0, version: ">=1.0,<=2.9"}
+- {index: 4, version: "<=1.5"      }
 - {index: 8,                       }
-- {index: 9,             until: 2.0}
+- {index: 9, version: "<=2.0"      }
 
 Version-dependent on v2.6:
-- {index: 0, since: 1.0, until: 2.9}
-- {index: 1, since: 2.2            }
+- {index: 0, version: ">=1.0,<=2.9"}
+- {index: 1, version: ">=2.2"      }
 - {index: 5, since: 2.4, until: 3.0}
-- {index: 6, since: 1.3            }
+- {index: 6, version: ">=1.3"      }
 - {index: 8,                       }
 
 Version-dependent on v3.2:
-- {index: 1, since: 2.2            }
-- {index: 6, since: 1.3            }
+- {index: 1, version: ">=2.2"      }
+- {index: 6, version: ">=1.3"      }
 - {index: 8,                       }
 
 Version-dependent on None:
-- {index: 0, since: 1.0, until: 2.9}
-- {index: 1, since: 2.2            }
-- {index: 4,             until: 1.5}
+- {index: 0, version: ">=1.0,<=2.9"}
+- {index: 1, version: ">=2.2"      }
+- {index: 4, version: "<=1.5"      }
 - {index: 5, since: 2.4, until: 3.0}
-- {index: 6, since: 1.3            }
+- {index: 6, version: ">=1.3"      }
 - {index: 8,                       }
-- {index: 9,             until: 2.0}
+- {index: 9, version: "<=2.0"      }
 ```
 
 ### Data-blocks vs. telegrams

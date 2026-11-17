@@ -21,8 +21,7 @@ class TestDefinition:
         'names': ['test1', 'test2'],
         'successor': 'abcd',
         'datatype': 'INT16',
-        'since': '1.1',
-        'until': '3.16.7',
+        'version': '>=1.1,<=3.16.7',
         'description': 'foo',
     }
     DEFAULT_DATA = LuxtronikDefinition.DEFAULT_DATA
@@ -210,8 +209,7 @@ class TestDefinitionsList:
             "names": ["field_5"],
             "type": Base,
             "writeable": True,
-            "since": "1.1",
-            "until": "1.2",
+            "version": ">=1.1,<=1.2",
         },
         {
             "index": 7,
@@ -219,7 +217,7 @@ class TestDefinitionsList:
             "names": ["field_7"],
             "type": Base,
             "writeable": True,
-            "since": "3.1",
+            "version": ">=3.1",
         },
         {
             "index": 9,
@@ -227,7 +225,7 @@ class TestDefinitionsList:
             "names": ["field_9a"],
             "type": Base,
             "writeable": True,
-            "until": "1.3",
+            "version": "<=1.3",
         },
         {
             "index": 9,
@@ -235,7 +233,7 @@ class TestDefinitionsList:
             "names": ["field_9"],
             "type": Base,
             "writeable": True,
-            "until": "3.3",
+            "version": "<=3.3",
         },
         {
             "index": -1,
@@ -243,7 +241,7 @@ class TestDefinitionsList:
             "names": ["field_invalid"],
             "type": Base,
             "writeable": True,
-            "until": "3.3",
+            "version": "<=3.3",
         },
     ]
 

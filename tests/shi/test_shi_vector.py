@@ -23,8 +23,7 @@ def_list = [
         "names": ["field_5"],
         "type": Base,
         "writeable": False,
-        "since": "1.1",
-        "until": "1.2",
+        "version": ">=1.1,<=1.2",
     },
     {
         "index": 7,
@@ -32,7 +31,7 @@ def_list = [
         "names": ["field_7"],
         "type": Base,
         "writeable": True,
-        "since": "3.1",
+        "version": ">=3.1",
     },
     {
         "index": 9,
@@ -40,7 +39,7 @@ def_list = [
         "names": ["field_9a"],
         "type": Base,
         "writeable": True,
-        "until": "1.3",
+        "version": "<=1.3",
     },
     {
         "index": 9,
@@ -48,7 +47,7 @@ def_list = [
         "names": ["field_9"],
         "type": Base,
         "writeable": True,
-        "until": "3.3",
+        "version": "<=3.3",
     },
     {
         "index": -1,
@@ -56,7 +55,7 @@ def_list = [
         "names": ["field_invalid"],
         "type": Base,
         "writeable": True,
-        "until": "3.3",
+        "version": "<=3.3",
     },
 ]
 TEST_DEFINITIONS = LuxtronikDefinitionsList(def_list, 'foo', 100, 'INT16')
