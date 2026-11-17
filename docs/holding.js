@@ -8,8 +8,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for heating operation\n0: no influence\n1: Heating setpoint\n2: Heating offset\n3: Heating level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -20,8 +19,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current return temperature setpoint (tRL) for heating. Value may be limited by heat pump controller settings. Requires heating_mode = setpoint to apply."
   },{
       category: "holding",
@@ -32,8 +30,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current return temperature setpoint (tRL) for heating. Requires heating_mode = offset to apply."
   },{
       category: "holding",
@@ -44,9 +41,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease the heating temperature using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease the heating temperature using the SHI offset settings. The amounts are the device parameters 1189 (decrease) and 1190 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 5,
@@ -56,8 +52,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for domestic hot water operation\n0: no influence\n1: DHW setpoint\n2: DHW offset\n3: DHW level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -68,8 +63,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for domestic hot water operation\n0: no influence\n1: DHW setpoint\n2: DHW offset\n3: DHW level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -80,8 +74,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current DHW setpoint. Value may be limited by heat pump controller settings. Requires dhw_mode = setpoint to apply."
   },{
       category: "holding",
@@ -92,8 +85,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current DHW setpoint. Value may be limited by heat pump controller settings. Requires dhw_mode = setpoint to apply."
   },{
       category: "holding",
@@ -104,8 +96,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current DHW setpoint. Requires dhw_mode = offset to apply."
   },{
       category: "holding",
@@ -116,8 +107,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current DHW setpoint. Requires dhw_mode = offset to apply."
   },{
       category: "holding",
@@ -128,9 +118,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease the hot water temperature using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease the hot water temperature using the SHI offset settings. The amounts are the device parameters 1197 (decrease) and 1198 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 8,
@@ -140,9 +129,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease the hot water temperature using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease the hot water temperature using the SHI offset settings. The amounts are the device parameters 1197 (decrease) and 1198 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 10,
@@ -152,8 +140,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for mixing circuit 1 heating operation\n0: no influence\n1: Heating setpoint\n2: Heating offset\n3: Heating level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -164,8 +151,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current flow temperature for mixing circuit 1 heating. Value may be limited by heat pump controller settings. Requires mc1_heat_mode = setpoint to apply."
   },{
       category: "holding",
@@ -176,8 +162,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current flow temperature for mixing circuit 1 heating. Requires mc1_heat_mode = offset to apply."
   },{
       category: "holding",
@@ -188,9 +173,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease the mixing circuit 1 temperature using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease the mixing circuit 1 temperature using the SHI offset settings. The amounts are the device parameters 1191 (decrease) and 1192 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 15,
@@ -200,8 +184,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for mixing circuit 1 cooling operation\n0: no influence\n1: Cooling setpoint\n2: Cooling offset\n3: Cooling level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -212,8 +195,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current flow temperature for mixing circuit 1 cooling. Value may be limited by heat pump controller settings. Requires mc1_cool_mode = setpoint to apply."
   },{
       category: "holding",
@@ -224,8 +206,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current flow temperature for mixing circuit 1 cooling. Requires mc1_cool_mode = offset to apply."
   },{
       category: "holding",
@@ -236,8 +217,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for mixing circuit 2 heating operation\n0: no influence\n1: Heating setpoint\n2: Heating offset\n3: Heating level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -248,8 +228,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current flow temperature for mixing circuit 2 heating. Value may be limited by heat pump controller settings. Requires mc2_heat_mode = setpoint to apply."
   },{
       category: "holding",
@@ -260,8 +239,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current flow temperature for mixing circuit 2 heating. Requires mc2_heat_mode = offset to apply."
   },{
       category: "holding",
@@ -272,9 +250,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease the mixing circuit 2 temperature using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease the mixing circuit 2 temperature using the SHI offset settings. The amounts are the device parameters 1193 (decrease) and 1194 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 25,
@@ -284,8 +261,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for mixing circuit 2 cooling operation\n0: no influence\n1: Cooling setpoint\n2: Cooling offset\n3: Cooling level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -296,8 +272,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current flow temperature for mixing circuit 2 cooling. Value may be limited by heat pump controller settings. Requires mc2_cool_mode = setpoint to apply."
   },{
       category: "holding",
@@ -308,8 +283,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current flow temperature for mixing circuit 2 cooling. Requires mc2_cool_mode = offset to apply."
   },{
       category: "holding",
@@ -320,8 +294,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for mixing circuit 3 heating operation\n0: no influence\n1: Heating setpoint\n2: Heating offset\n3: Heating level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -332,8 +305,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current flow temperature for mixing circuit 3 heating. Value may be limited by heat pump controller settings. Requires mc3_heat_mode = setpoint to apply."
   },{
       category: "holding",
@@ -344,8 +316,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current flow temperature for mixing circuit 3 heating. Requires mc3_heat_mode = offset to apply."
   },{
       category: "holding",
@@ -356,9 +327,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease the mixing circuit 3 temperature using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease the mixing circuit 3 temperature using the SHI offset settings. The amounts are the device parameters 1195 (decrease) and 1196 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 35,
@@ -368,8 +338,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for mixing circuit 3 cooling operation\n0: no influence\n1: Cooling setpoint\n2: Cooling offset\n3: Cooling level\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -380,8 +349,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Overrides the current flow temperature for mixing circuit 3 cooling. Value may be limited by heat pump controller settings. Requires mc3_cool_mode = setpoint to apply."
   },{
       category: "holding",
@@ -392,8 +360,7 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Offset applied to the current flow temperature for mixing circuit 3 cooling. Requires mc3_cool_mode = offset to apply."
   },{
       category: "holding",
@@ -404,8 +371,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Configuration for limitation of power consumption:\n0: no power limitation (normal operation)\nSetpoint values are achieved with heat pump performance curve\n1: Soft limitation (recommended for PV surplus)\nPower recommendation for heat pump, i.e., heat pump attempts to limit power demand according to data point pc_limit If the actual value deviates too much from the setpoint (hysteresis), the heat pump ignores the PC Limit power specification.\n2: Hard limitation (recommended only for §14a EnWG).\nThe heat pump limits the power consumption according to pc_limit regardless of hysteresis. Hard limitation may reduce comfort.\n\nUser-Options:\nNo limit\nSoft limit\nHard limit"
   },{
       category: "holding",
@@ -416,8 +382,7 @@ window.HOLDING = [
       class: "power",
       writeable: "y",
       unit: "kW",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum allowed power consumption of the heat pump. Requires lpc_mode to be set accordingly."
   },{
       category: "holding",
@@ -428,8 +393,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Lock state for the heating function\n\nUser-Options:\nOff\nOn"
   },{
       category: "holding",
@@ -440,8 +404,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Lock state for the hot water system\n\nUser-Options:\nOff\nOn"
   },{
       category: "holding",
@@ -452,8 +415,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Cooling operation lock.\n0: normal operation\n1: lock passive and active cooling.\nFrequent switching may cause wear on heat pump and hydraulic components.\n\nUser-Options:\nOff\nOn"
   },{
       category: "holding",
@@ -464,21 +426,19 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Swimming pool heating lock.\n0: normal operation\n1: lock pool heating.\nFrequent switching may cause wear on heat pump and hydraulic components.\n\nUser-Options:\nOff\nOn"
   },{
       category: "holding",
       index: 60,
-      name: "unknown_holding_60",
+      name: "room_temperature_setpoint",
       lsb: 0,
       width: 16,
-      class: "None",
-      writeable: "",
-      unit: "",
-      since: "3.92.1",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      class: "temperature",
+      writeable: "y",
+      unit: "°C",
+      version: ">= 3.92.1.0",
+      description: "Room temperature setpoint of the RBE room control unit. Writes the persisted device parameter 1148 (HEATING_TARGET_TEMP_ROOM_THERMOSTAT) directly. Only available with an RBE installed and connected (firmware V3.92.3). The value range is unknown, so no range is defined here. When the SHI watchdog expires, the parameter is reset to its persisted value."
   },{
       category: "holding",
       index: 65,
@@ -488,8 +448,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Operating mode of all heating functions (no setpoint available)\n\nUser-Options:\nOff\nSetpoint\nOffset\nLevel"
   },{
       category: "holding",
@@ -500,9 +459,8 @@ window.HOLDING = [
       class: "temperature",
       writeable: "y",
       unit: "K",
-      since: "3.92.0",
-      until: "",
-      description: "Temperature correction in Kelvin for all heating functions"
+      version: ">= 3.92.0.0",
+      description: "Temperature correction in Kelvin for all heating functions (firmware V3.92.3 limits it to +/-5.0 K)"
   },{
       category: "holding",
       index: 67,
@@ -512,9 +470,8 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "Increase or decrease all heating temperatures using the SHI offset settings.\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
+      version: ">= 3.92.0.0",
+      description: "Increase or decrease all heating temperatures using the SHI offset settings. The amounts are the device parameters 1187 (decrease) and 1188 (increase).\n\nUser-Options:\nNormal\nIncreased\nIncreased2\nDecreased"
   },{
       category: "holding",
       index: 70,
@@ -524,8 +481,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "When set to ON, the circulation pump is activated, but only if no time schedule is configured for it.\n\nUser-Options:\nOff\nOn"
   },{
       category: "holding",
@@ -536,8 +492,7 @@ window.HOLDING = [
       class: "selection",
       writeable: "y",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "When set to ON, the hot water heating is activated and will run until the maximum temperature is reached.\n\nUser-Options:\nOff\nOn"
   }
 ];

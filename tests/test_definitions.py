@@ -4,6 +4,8 @@ from luxtronik.definitions import (
     LuxtronikDefinitionsDictionary,
     LuxtronikDefinitionsList,
 )
+from luxtronik.version import VersionRequirement, VersionRequirements
+import operator
 
 ###############################################################################
 # Tests
@@ -19,8 +21,7 @@ class TestDefinition:
         'names': ['test1', 'test2'],
         'successor': 'abcd',
         'datatype': 'INT16',
-        'since': '1.1',
-        'until': '3.16.7',
+        'version': '>=1.1,<=3.16.7',
         'description': 'foo',
     }
     DEFAULT_DATA = LuxtronikDefinition.DEFAULT_DATA
@@ -45,8 +46,11 @@ class TestDefinition:
         assert definition.offset == 20
         assert definition.addr == 20 + self.TEST_DATA['index']
         assert definition.num_bits == 16
-        assert definition.since == (1, 1, 0, 0)
-        assert definition.until == (3, 16, 7, 0)
+        vr = VersionRequirements([
+            VersionRequirement(operator.ge, (1, 1, 0, 0)),
+            VersionRequirement(operator.le, (3, 16, 7, 0))
+        ])
+        assert definition.version == vr
 
         definition = LuxtronikDefinition({
             'index': 10,
@@ -72,8 +76,8 @@ class TestDefinition:
         assert definition.type_name == 'foo'
         assert definition.offset == 30
         assert definition.addr == 30 + 2
-        assert definition.since is None
-        assert definition.until is None
+        vr = VersionRequirements([])
+        assert definition.version == vr
 
     def test_init_invalid(self):
         # create invalid
@@ -205,8 +209,7 @@ class TestDefinitionsList:
             "names": ["field_5"],
             "type": Base,
             "writeable": True,
-            "since": "1.1",
-            "until": "1.2",
+            "version": ">=1.1,<=1.2",
         },
         {
             "index": 7,
@@ -214,7 +217,7 @@ class TestDefinitionsList:
             "names": ["field_7"],
             "type": Base,
             "writeable": True,
-            "since": "3.1",
+            "version": ">=3.1",
         },
         {
             "index": 9,
@@ -222,7 +225,7 @@ class TestDefinitionsList:
             "names": ["field_9a"],
             "type": Base,
             "writeable": True,
-            "until": "1.3",
+            "version": "<=1.3",
         },
         {
             "index": 9,
@@ -230,7 +233,7 @@ class TestDefinitionsList:
             "names": ["field_9"],
             "type": Base,
             "writeable": True,
-            "until": "3.3",
+            "version": "<=3.3",
         },
         {
             "index": -1,
@@ -238,7 +241,7 @@ class TestDefinitionsList:
             "names": ["field_invalid"],
             "type": Base,
             "writeable": True,
-            "until": "3.3",
+            "version": "<=3.3",
         },
     ]
 
@@ -308,8 +311,8 @@ class TestDefinitionsList:
         assert definition.type_name == 'foo'
         assert definition.offset == 100
         assert definition.addr == 100 + 4
-        assert definition.since is None
-        assert definition.until is None
+        vr = VersionRequirements([])
+        assert definition.version == vr
 
     def test_add(self):
         definitions = LuxtronikDefinitionsList(self.def_list, 'foo', 100, '')

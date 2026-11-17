@@ -8,8 +8,7 @@ window.INPUT = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether VD1 is running"
   },{
       category: "input",
@@ -20,8 +19,7 @@ window.INPUT = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether VD2 is running"
   },{
       category: "input",
@@ -32,8 +30,7 @@ window.INPUT = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether ZWE1 is running"
   },{
       category: "input",
@@ -44,8 +41,7 @@ window.INPUT = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether ZWE2 is running"
   },{
       category: "input",
@@ -56,8 +52,7 @@ window.INPUT = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether ZWE3 is running"
   },{
       category: "input",
@@ -68,8 +63,7 @@ window.INPUT = [
       class: "bitmask",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Heat pump status bitmask:\n1: VD1\n2: VD2\n4: ZWE1\n8: ZWE2\n16: ZWE3\n0: Heat pump inactive\n>0: Heat pump or auxiliary heater active"
   },{
       category: "input",
@@ -80,8 +74,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Operating mode status:\n0: Heating\n1: DHW heating\n2: Pool heating / Solar\n3: Utility lockout\n4: Defrost\n5: No demand\n6: Not used\n7: Cooling"
   },{
       category: "input",
@@ -92,8 +85,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Heating status:\n0: Off\n1: No demand\n2: Demand\n3: Active"
   },{
       category: "input",
@@ -104,8 +96,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "DHW status:\n0: Off\n1: No demand\n2: Demand\n3: Active"
   },{
       category: "input",
@@ -116,8 +107,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "DHW status:\n0: Off\n1: No demand\n2: Demand\n3: Active"
   },{
       category: "input",
@@ -128,8 +118,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Cooling status:\n0: Off\n1: No demand\n2: Demand\n3: Active"
   },{
       category: "input",
@@ -140,8 +129,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Pool heating / Solar status:\n0: Off\n1: No demand\n2: Demand\n3: Active"
   },{
       category: "input",
@@ -152,8 +140,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current return line temperature"
   },{
       category: "input",
@@ -164,8 +151,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Target return line temperature"
   },{
       category: "input",
@@ -176,8 +162,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current value of the external return temperature sensor"
   },{
       category: "input",
@@ -188,8 +173,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum allowed return line temperature"
   },{
       category: "input",
@@ -200,8 +184,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum target return line temperature"
   },{
       category: "input",
@@ -212,8 +195,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current flow line temperature"
   },{
       category: "input",
@@ -224,8 +206,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current room temperature. Requires accessory RBE+ room control unit."
   },{
       category: "input",
@@ -236,9 +217,8 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
-      description: "Heating limit temperature. If undershot (heating curve setpoint - hysteresis), soft-limit power control is ignored."
+      version: ">= 3.90.1.0",
+      description: "Heating demand border: current heating setpoint minus hysteresis (firmware text 'Heating demand border'). If undershot, soft-limit power control is ignored."
   },{
       category: "input",
       index: 108,
@@ -248,8 +228,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Measured outdoor temperature"
   },{
       category: "input",
@@ -260,8 +239,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Average outdoor temperature"
   },{
       category: "input",
@@ -272,8 +250,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Heat source input temperature"
   },{
       category: "input",
@@ -284,8 +261,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Heat source output temperature"
   },{
       category: "input",
@@ -296,21 +272,19 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Maximum flow temperature"
   },{
       category: "input",
       index: 113,
-      name: "unknown_input_113",
+      name: "calculated_max_flow_temp",
       lsb: 0,
       width: 16,
-      class: "None",
+      class: "temperature",
       writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      unit: "°C",
+      version: ">= 3.92.0.0",
+      description: "Calculated maximum flow temperature (firmware text 'TVL calc max')"
   },{
       category: "input",
       index: 120,
@@ -320,8 +294,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current hot water temperature"
   },{
       category: "input",
@@ -332,8 +305,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current hot water temperature"
   },{
       category: "input",
@@ -344,8 +316,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Target hot water temperature"
   },{
       category: "input",
@@ -356,8 +327,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Target hot water temperature"
   },{
       category: "input",
@@ -368,8 +338,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum adjustable hot water temperature"
   },{
       category: "input",
@@ -380,8 +349,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum adjustable hot water temperature"
   },{
       category: "input",
@@ -392,8 +360,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum adjustable hot water temperature"
   },{
       category: "input",
@@ -404,8 +371,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum adjustable hot water temperature"
   },{
       category: "input",
@@ -416,9 +382,8 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
-      description: "DHW limit temperature. If undershot (desired regulation value), soft-limit power control is ignored."
+      version: ">= 3.90.1.0",
+      description: "DHW demand border: current DHW setpoint minus hysteresis (firmware text 'DHW Demand border'). If undershot, soft-limit power control is ignored."
   },{
       category: "input",
       index: 124,
@@ -428,9 +393,8 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
-      description: "DHW limit temperature. If undershot (desired regulation value), soft-limit power control is ignored."
+      version: ">= 3.90.1.0",
+      description: "DHW demand border: current DHW setpoint minus hysteresis (firmware text 'DHW Demand border'). If undershot, soft-limit power control is ignored."
   },{
       category: "input",
       index: 140,
@@ -440,8 +404,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current flow temperature of mixing circuit 1"
   },{
       category: "input",
@@ -452,8 +415,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Desired target temperature of mixing circuit 1"
   },{
       category: "input",
@@ -464,8 +426,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum temperature of mixing circuit 1"
   },{
       category: "input",
@@ -476,8 +437,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum temperature of mixing circuit 1"
   },{
       category: "input",
@@ -488,8 +448,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current flow temperature of mixing circuit 2"
   },{
       category: "input",
@@ -500,8 +459,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Desired target temperature of mixing circuit 2"
   },{
       category: "input",
@@ -512,8 +470,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum temperature of mixing circuit 2"
   },{
       category: "input",
@@ -524,8 +481,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum temperature of mixing circuit 2"
   },{
       category: "input",
@@ -536,8 +492,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current flow temperature of mixing circuit 3"
   },{
       category: "input",
@@ -548,8 +503,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Desired target temperature of mixing circuit 3"
   },{
       category: "input",
@@ -560,8 +514,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum temperature of mixing circuit 3"
   },{
       category: "input",
@@ -572,8 +525,7 @@ window.INPUT = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Maximum temperature of mixing circuit 3"
   },{
       category: "input",
@@ -584,8 +536,7 @@ window.INPUT = [
       class: "errorcode",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current error number:\n0: no error\nX: error code."
   },{
       category: "input",
@@ -596,8 +547,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Buffer tank configuration:\n0: series buffer\n1: separation buffer\n2: multifunction buffer."
   },{
       category: "input",
@@ -608,8 +558,7 @@ window.INPUT = [
       class: "timespan",
       writeable: "",
       unit: "min",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum off-time before heat pump may restart."
   },{
       category: "input",
@@ -620,8 +569,7 @@ window.INPUT = [
       class: "timespan",
       writeable: "",
       unit: "min",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum runtime of the heat pump."
   },{
       category: "input",
@@ -632,8 +580,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether cooling mode is configured:\n0: no\n1: yes."
   },{
       category: "input",
@@ -644,8 +591,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Indicates whether pool heating is configured:\n0: no\n1: yes."
   },{
       category: "input",
@@ -656,8 +602,7 @@ window.INPUT = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Cooling release condition fulfilled:\n0: no\n1: yes.\nCooling release only valid if cooling is enabled (see cooling_configured)."
   },{
       category: "input",
@@ -668,8 +613,7 @@ window.INPUT = [
       class: "power",
       writeable: "",
       unit: "kW",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current heating power."
   },{
       category: "input",
@@ -680,8 +624,7 @@ window.INPUT = [
       class: "power",
       writeable: "",
       unit: "kW",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Current electrical power consumption."
   },{
       category: "input",
@@ -692,8 +635,7 @@ window.INPUT = [
       class: "power",
       writeable: "",
       unit: "kW",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Minimum predicted electrical power consumption."
   },{
       category: "input",
@@ -704,8 +646,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Total electrical energy consumption (all modes)."
   },{
       category: "input",
@@ -716,8 +657,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Total electrical energy consumption for heating."
   },{
       category: "input",
@@ -728,8 +668,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Total electrical energy consumption for DHW."
   },{
       category: "input",
@@ -740,8 +679,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Total electrical energy consumption for cooling."
   },{
       category: "input",
@@ -752,8 +690,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Total electrical energy consumption for pool heating / solar."
   },{
       category: "input",
@@ -764,8 +701,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Total thermal energy production (all modes)."
   },{
       category: "input",
@@ -776,8 +712,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Total thermal energy production for heating."
   },{
       category: "input",
@@ -788,8 +723,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Total thermal energy production for DHW."
   },{
       category: "input",
@@ -800,8 +734,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Total thermal energy production for cooling."
   },{
       category: "input",
@@ -812,8 +745,7 @@ window.INPUT = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "Total thermal energy production for pool heating / solar."
   },{
       category: "input",
@@ -824,8 +756,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -836,8 +767,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -848,8 +778,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -860,8 +789,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -872,8 +800,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -884,8 +811,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -896,8 +822,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -908,8 +833,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -920,8 +844,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -932,8 +855,7 @@ window.INPUT = [
       class: "version",
       writeable: "",
       unit: "",
-      since: "3.90.1",
-      until: "",
+      version: ">= 3.90.1.0",
       description: "Full firmware version information"
   },{
       category: "input",
@@ -944,8 +866,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -956,8 +877,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -968,8 +888,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -980,8 +899,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -992,8 +910,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -1004,33 +921,19 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
       index: 410,
-      name: "unknown_input_410",
+      name: "operating_hours_cooling",
       lsb: 0,
-      width: 16,
-      class: "None",
+      width: 32,
+      class: "timespan",
       writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
-  },{
-      category: "input",
-      index: 411,
-      name: "unknown_input_411",
-      lsb: 0,
-      width: 16,
-      class: "None",
-      writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      unit: "h",
+      version: ">= 3.92.0.0",
+      description: "Operating hours of the cooling mode (UINT32, high word first)"
   },{
       category: "input",
       index: 412,
@@ -1040,8 +943,7 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
@@ -1052,68 +954,51 @@ window.INPUT = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "3.92.0",
-      until: "",
+      version: ">= 3.92.0.0",
       description: "TODO: Function unknown – requires further analysis"
   },{
       category: "input",
       index: 416,
-      name: "unknown_input_416",
+      name: "operating_hours_solar",
       lsb: 0,
-      width: 16,
-      class: "None",
+      width: 32,
+      class: "timespan",
       writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
-  },{
-      category: "input",
-      index: 417,
-      name: "unknown_input_417",
-      lsb: 0,
-      width: 16,
-      class: "None",
-      writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      unit: "h",
+      version: ">= 3.92.0.0",
+      description: "Operating hours of the solar function (UINT32, high word first)"
   },{
       category: "input",
       index: 500,
-      name: "unknown_input_500",
+      name: "hot_water_extra_setpoint",
       lsb: 0,
       width: 16,
-      class: "None",
+      class: "temperature",
       writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      unit: "°C",
+      version: ">= 3.92.0.0",
+      description: "Setpoint of the extra DHW function (device parameter 1146)"
   },{
       category: "input",
       index: 501,
-      name: "unknown_input_501",
+      name: "hot_water_extra_duration",
       lsb: 0,
       width: 16,
-      class: "None",
+      class: "timespan",
       writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      unit: "min",
+      version: ">= 3.92.0.0",
+      description: "Duration of the extra DHW function (device parameter 1147)"
   },{
       category: "input",
       index: 502,
-      name: "unknown_input_502",
+      name: "hot_water_extra_remaining",
       lsb: 0,
       width: 16,
-      class: "None",
+      class: "timespan",
       writeable: "",
-      unit: "",
-      since: "3.92.0",
-      until: "",
-      description: "TODO: Function unknown – requires further analysis"
+      unit: "min",
+      version: ">= 3.92.0.0",
+      description: "Remaining run time of the extra DHW function"
   }
 ];
