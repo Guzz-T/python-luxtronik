@@ -1,6 +1,6 @@
 from luxtronik.version import parse_version
 from luxtronik.datatypes import Base, Unknown
-from luxtronik.definitions import LuxtronikDefinitionsList
+from luxtronik.definitions import Keys, LuxtronikDefinitionsList
 from luxtronik.shi.vector import DataVectorSmartHome
 from luxtronik.shi.holdings import Holdings
 from luxtronik.shi.inputs import Inputs
@@ -18,44 +18,44 @@ Base.concatenate_multiple_data_chunks = False
 
 def_list = [
     {
-        "index": 5,
-        "count": 1,
-        "names": ["field_5"],
-        "type": Base,
-        "writeable": False,
-        "version": ">=1.1,<=1.2",
+        Keys.IDX: 5,
+        Keys.COUNT: 1,
+        Keys.NAMES: ["field_5"],
+        Keys.TYPE: Base,
+        Keys.WRT: False,
+        Keys.VERSION: ">=1.1,<=1.2",
     },
     {
-        "index": 7,
-        "count": 2,
-        "names": ["field_7"],
-        "type": Base,
-        "writeable": True,
-        "version": ">=3.1",
+        Keys.IDX: 7,
+        Keys.COUNT: 2,
+        Keys.NAMES: ["field_7"],
+        Keys.TYPE: Base,
+        Keys.WRT: True,
+        Keys.VERSION: ">=3.1",
     },
     {
-        "index": 9,
-        "count": 1,
-        "names": ["field_9a"],
-        "type": Base,
-        "writeable": True,
-        "version": "<=1.3",
+        Keys.IDX: 9,
+        Keys.COUNT: 1,
+        Keys.NAMES: ["field_9a"],
+        Keys.TYPE: Base,
+        Keys.WRT: True,
+        Keys.VERSION: "<=1.3",
     },
     {
-        "index": 9,
-        "count": 2,
-        "names": ["field_9"],
-        "type": Base,
-        "writeable": True,
-        "version": "<=3.3",
+        Keys.IDX: 9,
+        Keys.COUNT: 2,
+        Keys.NAMES: ["field_9"],
+        Keys.TYPE: Base,
+        Keys.WRT: True,
+        Keys.VERSION: "<=3.3",
     },
     {
-        "index": -1,
-        "count": 1,
-        "names": ["field_invalid"],
-        "type": Base,
-        "writeable": True,
-        "version": "<=3.3",
+        Keys.IDX: -1,
+        Keys.COUNT: 1,
+        Keys.NAMES: ["field_invalid"],
+        Keys.TYPE: Base,
+        Keys.WRT: True,
+        Keys.VERSION: "<=3.3",
     },
 ]
 TEST_DEFINITIONS = LuxtronikDefinitionsList(def_list, 'foo', 100, 'INT16')
@@ -336,9 +336,9 @@ class TestDataVector:
 
         # reset updated
         def_10 = TEST_DEFINITIONS.add({
-            "index": 10,
-            "count": 3,
-            "names": "foo"
+            Keys.IDX: 10,
+            Keys.COUNT: 3,
+            Keys.NAMES: "foo"
         })
         data_vector.add(def_10)
         assert not data_vector._read_blocks_up_to_date

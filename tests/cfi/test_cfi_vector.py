@@ -1,5 +1,5 @@
 from luxtronik.datatypes import Base
-from luxtronik.definitions import LuxtronikDefinitionsList
+from luxtronik.definitions import Keys, LuxtronikDefinitionsList
 from luxtronik.cfi.vector import DataVectorConfig
 
 
@@ -9,60 +9,60 @@ from luxtronik.cfi.vector import DataVectorConfig
 
 def_list = [
     {
-        "index": 5,
-        "count": 1,
-        "names": ["field_5_bit1"],
-        "bit_offset": 0,
-        "bit_count": 1,
-        "type": Base,
-        "writeable": False,
+        Keys.IDX: 5,
+        Keys.COUNT: 1,
+        Keys.NAMES: ["field_5_bit1"],
+        Keys.BIT_OFFS: 0,
+        Keys.BIT_CNT: 1,
+        Keys.TYPE: Base,
+        Keys.WRT: False,
     },
     {
-        "index": 5,
-        "count": 1,
-        "names": ["field_5_bit2"],
-        "bit_offset": 1,
-        "bit_count": 3,
-        "type": Base,
-        "writeable": False,
+        Keys.IDX: 5,
+        Keys.COUNT: 1,
+        Keys.NAMES: ["field_5_bit2"],
+        Keys.BIT_OFFS: 1,
+        Keys.BIT_CNT: 3,
+        Keys.TYPE: Base,
+        Keys.WRT: False,
     },
     {
-        "index": 5,
-        "count": 1,
-        "names": ["field_5_all"],
-        "type": Base,
-        "writeable": False,
+        Keys.IDX: 5,
+        Keys.COUNT: 1,
+        Keys.NAMES: ["field_5_all"],
+        Keys.TYPE: Base,
+        Keys.WRT: False,
     },
     {
-        "index": 7,
-        "count": 2,
-        "names": ["field_7"],
-        "type": Base,
-        "writeable": True,
+        Keys.IDX: 7,
+        Keys.COUNT: 2,
+        Keys.NAMES: ["field_7"],
+        Keys.TYPE: Base,
+        Keys.WRT: True,
     },
     {
-        "index": 9,
-        "count": 2,
-        "names": ["field_9"],
-        "type": Base,
-        "writeable": True,
+        Keys.IDX: 9,
+        Keys.COUNT: 2,
+        Keys.NAMES: ["field_9"],
+        Keys.TYPE: Base,
+        Keys.WRT: True,
     }
 ]
 TEST_DEFINITIONS = LuxtronikDefinitionsList(def_list, 'foo', 100, 'INT32')
 
 FIELD_11_DICT = {
-    "index": 11,
-    "count": 1,
-    "names": ["field_11"],
-    "type": Base,
-    "writeable": True,
+    Keys.IDX: 11,
+    Keys.COUNT: 1,
+    Keys.NAMES: ["field_11"],
+    Keys.TYPE: Base,
+    Keys.WRT: True,
 }
 FIELD_12_DICT = {
-    "index": 12,
-    "count": 1,
-    "names": ["field_12"],
-    "type": Base,
-    "writeable": True,
+    Keys.IDX: 12,
+    Keys.COUNT: 1,
+    Keys.NAMES: ["field_12"],
+    Keys.TYPE: Base,
+    Keys.WRT: True,
 }
 
 class DataVectorTest(DataVectorConfig):
