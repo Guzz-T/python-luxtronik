@@ -2,17 +2,15 @@
 
 import logging
 
-from luxtronik.common import classproperty, version_in_range
+from luxtronik.common import classproperty
+from luxtronik.constants import LUXTRONIK_LATEST_VERSION
 from luxtronik.collections import get_data_arr
 from luxtronik.datatypes import Base
 from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
 )
-from luxtronik.shi.constants import (
-    LUXTRONIK_LATEST_SHI_VERSION,
-    LUXTRONIK_SHI_REGISTER_BIT_SIZE
-)
+from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadHoldingsTelegram,
     LuxtronikSmartHomeReadInputsTelegram,
@@ -46,7 +44,7 @@ class LuxtronikSmartHomeData:
         self,
         holdings=None,
         inputs=None,
-        version=LUXTRONIK_LATEST_SHI_VERSION,
+        version=LUXTRONIK_LATEST_VERSION,
         safe=SAFE
     ):
         """
@@ -60,7 +58,7 @@ class LuxtronikSmartHomeData:
             version (tuple[int] | None): Version to be used for creating the data vectors.
                 This ensures that the data vectors only contain valid fields.
                 If None is passed, all available fields are added.
-                (default: LUXTRONIK_LATEST_SHI_VERSION)
+                (default: LUXTRONIK_LATEST_VERSION)
             safe (bool): If true, prevent holding fields marked as
                 not secure from being written to.
         """
@@ -70,7 +68,7 @@ class LuxtronikSmartHomeData:
     @classmethod
     def empty(
         cls,
-        version=LUXTRONIK_LATEST_SHI_VERSION,
+        version=LUXTRONIK_LATEST_VERSION,
         safe=SAFE
     ):
         """
@@ -80,7 +78,7 @@ class LuxtronikSmartHomeData:
         Args:
             version (tuple[int] | None): The version is added to the data vectors
                 so some checks can be performed later.
-                (default: LUXTRONIK_LATEST_SHI_VERSION)
+                (default: LUXTRONIK_LATEST_VERSION)
             safe (bool): If true, prevent holding fields marked as
                 not secure from being written to.
         """
@@ -107,7 +105,7 @@ class LuxtronikSmartHomeInterface:
     which is cleared afterwards.
     """
 
-    def __init__(self, interface, version=LUXTRONIK_LATEST_SHI_VERSION):
+    def __init__(self, interface, version=LUXTRONIK_LATEST_VERSION):
         """
         Initialize the smart home interface.
 
@@ -117,7 +115,7 @@ class LuxtronikSmartHomeInterface:
                 This ensures that the data vectors only contain valid fields.
                 If None is passed, all available fields are added.
                 Additionally, the version is used to performed some consistency checks.
-                (default: LUXTRONIK_LATEST_SHI_VERSION)
+                (default: LUXTRONIK_LATEST_VERSION)
         """
         self._interface = interface
         self._version = version
@@ -148,7 +146,7 @@ class LuxtronikSmartHomeInterface:
             definition = definitions.get(def_name_or_idx)
         if definition is None:
             return None
-        if not version_in_range(self._version, definition.since, definition.until):
+        if not definition.version.matches(self._version):
             LOGGER.debug(f"Field {definition.name} not valid for {self._version}")
             return None
         return definition
@@ -350,7 +348,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if all checks have been passed, False otherwise.
         """
         # Skip non-supported fields
-        if not version_in_range(self._version, definition.since, definition.until):
+        if not definition.version.matches(self._version):
             return False
 
         return True
@@ -373,7 +371,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if all checks have been passed, False otherwise.
         """
         # Skip non-supported fields
-        if not version_in_range(self._version, definition.since, definition.until):
+        if not definition.version.matches(self._version):
             return False
 
         # Skip fields that do not carry user-data and not data is provided

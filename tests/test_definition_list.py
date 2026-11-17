@@ -1,6 +1,6 @@
 import re
 
-from luxtronik.common import parse_version
+from luxtronik.version import parse_version, parse_version_requirement
 from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.definitions.calculations import CALCULATIONS_DEFINITIONS_LIST
@@ -24,6 +24,7 @@ KEY_MIN = "min"
 KEY_MAX = "max"
 KEY_SINCE = "since"
 KEY_UNTIL = "until"
+KEY_VERSION = "version"
 KEY_DESC = "description"
 
 
@@ -121,6 +122,11 @@ class RunTestDefinitionList:
                 assert isinstance(definition[KEY_UNTIL], str), \
                     f"{KEY_UNTIL} must be of type 'str': {definition}"
 
+            # version
+            if KEY_VERSION in definition:
+                assert isinstance(definition[KEY_VERSION], str), \
+                    f"{KEY_VERSION} must be of type 'str': {definition}"
+
             # description
             if KEY_DESC in definition:
                 assert isinstance(definition[KEY_DESC], str), \
@@ -210,6 +216,15 @@ class RunTestDefinitionList:
                 parsed = parse_version(until)
                 assert parsed is not None, \
                     f"Until must be a valid version instead of {until}: {definition}"
+
+    def test_version(self):
+        for definition in self.definitions:
+            if KEY_VERSION in definition:
+                version = definition[KEY_VERSION]
+                parsed = parse_version_requirement(version)
+                assert parsed is not None, \
+                    f"Version must be a valid version requirement instead of {version}: {definition}"
+
 
 ###############################################################################
 # Tests

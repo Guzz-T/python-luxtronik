@@ -8,8 +8,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -20,8 +19,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -32,8 +30,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -44,8 +41,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -56,8 +52,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -68,8 +63,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -80,8 +74,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -92,8 +85,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -104,8 +96,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -116,8 +107,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -128,8 +118,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -140,8 +129,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -152,8 +140,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -164,8 +151,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -176,8 +162,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -188,8 +173,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -200,8 +184,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -212,8 +195,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -224,8 +206,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -236,8 +217,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -248,8 +228,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -260,8 +239,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -272,8 +250,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -284,8 +261,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -296,8 +272,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -308,8 +283,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -320,8 +294,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -332,8 +305,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -344,8 +316,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -356,8 +327,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -368,8 +338,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -380,8 +349,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -392,8 +360,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -404,8 +371,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -416,8 +382,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -428,8 +393,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -440,8 +404,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -452,8 +415,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -464,8 +426,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -476,8 +437,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -488,8 +448,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -500,8 +459,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -512,8 +470,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -524,8 +481,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -536,8 +492,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -548,8 +503,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -560,8 +514,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -572,8 +525,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -584,8 +536,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -596,8 +547,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -608,8 +558,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -620,8 +569,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -632,8 +580,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -644,8 +591,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -656,8 +602,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -668,8 +613,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -680,8 +624,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -692,8 +635,7 @@ window.CALCULATION = [
       class: "count",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -704,8 +646,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -716,8 +657,7 @@ window.CALCULATION = [
       class: "count",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -728,8 +668,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -740,8 +679,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -752,8 +690,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -764,8 +701,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -776,8 +712,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -788,8 +723,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -800,8 +734,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -812,8 +745,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -824,8 +756,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -836,8 +767,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -848,8 +778,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -860,8 +789,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -872,8 +800,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -884,8 +811,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -896,8 +822,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -908,8 +833,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -920,8 +844,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -932,8 +855,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -944,8 +866,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -956,8 +877,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -968,8 +888,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -980,8 +899,7 @@ window.CALCULATION = [
       class: "version",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -992,8 +910,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1004,8 +921,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1016,8 +932,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1028,8 +943,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1040,8 +954,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1052,8 +965,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1064,8 +976,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1076,8 +987,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1088,8 +998,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1100,8 +1009,7 @@ window.CALCULATION = [
       class: "character",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1112,8 +1020,7 @@ window.CALCULATION = [
       class: "ipv4_address",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1124,8 +1031,7 @@ window.CALCULATION = [
       class: "ipv4_address",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1136,8 +1042,7 @@ window.CALCULATION = [
       class: "ipv4_address",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1148,8 +1053,7 @@ window.CALCULATION = [
       class: "ipv4_address",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1160,8 +1064,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1172,8 +1075,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1184,8 +1086,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1196,8 +1097,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1208,8 +1108,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1220,8 +1119,7 @@ window.CALCULATION = [
       class: "errorcode",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1232,8 +1130,7 @@ window.CALCULATION = [
       class: "errorcode",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1244,8 +1141,7 @@ window.CALCULATION = [
       class: "errorcode",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1256,8 +1152,7 @@ window.CALCULATION = [
       class: "errorcode",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1268,8 +1163,7 @@ window.CALCULATION = [
       class: "errorcode",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1280,8 +1174,7 @@ window.CALCULATION = [
       class: "count",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1292,8 +1185,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1304,8 +1196,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1316,8 +1207,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1328,8 +1218,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1340,8 +1229,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1352,8 +1240,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1364,8 +1251,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1376,8 +1262,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1388,8 +1273,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1400,8 +1284,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1412,8 +1295,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1424,8 +1306,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1436,8 +1317,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1448,8 +1328,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1460,8 +1339,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1472,8 +1350,7 @@ window.CALCULATION = [
       class: "level",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1484,8 +1361,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1496,8 +1372,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1508,8 +1383,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1520,8 +1394,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1532,8 +1405,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1544,8 +1416,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1556,8 +1427,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1568,8 +1438,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1580,8 +1449,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1592,8 +1460,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1604,8 +1471,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1616,8 +1482,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1628,8 +1493,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1640,8 +1504,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1652,8 +1515,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1664,8 +1526,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1676,8 +1537,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1688,8 +1548,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1700,8 +1559,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1712,8 +1570,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1724,8 +1581,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1736,8 +1592,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1748,8 +1603,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1760,8 +1614,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1772,8 +1625,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1784,8 +1636,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1796,8 +1647,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1808,8 +1658,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1820,8 +1669,7 @@ window.CALCULATION = [
       class: "icon",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1832,8 +1680,7 @@ window.CALCULATION = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1844,8 +1691,7 @@ window.CALCULATION = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1856,8 +1702,7 @@ window.CALCULATION = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1868,8 +1713,7 @@ window.CALCULATION = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1880,8 +1724,7 @@ window.CALCULATION = [
       class: "flow",
       writeable: "",
       unit: "l/h",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1892,8 +1735,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1904,8 +1746,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1916,8 +1757,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1928,8 +1768,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1940,8 +1779,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1952,8 +1790,7 @@ window.CALCULATION = [
       class: "timespan",
       writeable: "",
       unit: "s",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1964,8 +1801,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1976,8 +1812,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -1988,8 +1823,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2000,8 +1834,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2012,8 +1845,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2024,8 +1856,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2036,8 +1867,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2048,8 +1878,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2060,8 +1889,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2072,8 +1900,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2084,8 +1911,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2096,8 +1922,7 @@ window.CALCULATION = [
       class: "flow",
       writeable: "",
       unit: "l/h",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2108,8 +1933,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2120,8 +1944,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2132,8 +1955,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2144,8 +1966,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2156,8 +1977,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2168,8 +1988,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2180,8 +1999,7 @@ window.CALCULATION = [
       class: "pressure",
       writeable: "",
       unit: "bar",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2192,8 +2010,7 @@ window.CALCULATION = [
       class: "pressure",
       writeable: "",
       unit: "bar",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2204,8 +2021,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2216,8 +2032,7 @@ window.CALCULATION = [
       class: "percent",
       writeable: "",
       unit: "%",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2228,8 +2043,7 @@ window.CALCULATION = [
       class: "speed",
       writeable: "",
       unit: "rpm",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2240,8 +2054,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2252,8 +2065,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2264,8 +2076,7 @@ window.CALCULATION = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2276,8 +2087,7 @@ window.CALCULATION = [
       class: "energy",
       writeable: "",
       unit: "kWh",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2288,8 +2098,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2300,8 +2109,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2312,8 +2120,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2324,8 +2131,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2336,8 +2142,7 @@ window.CALCULATION = [
       class: "speed",
       writeable: "",
       unit: "rpm",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2348,8 +2153,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2360,8 +2164,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2372,8 +2175,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2384,8 +2186,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2396,8 +2197,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2408,8 +2208,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2420,8 +2219,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2432,8 +2230,7 @@ window.CALCULATION = [
       class: "pressure",
       writeable: "",
       unit: "bar",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2444,8 +2241,7 @@ window.CALCULATION = [
       class: "voltage",
       writeable: "",
       unit: "V",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2456,8 +2252,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2468,8 +2263,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2480,8 +2274,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2492,8 +2285,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2504,8 +2296,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2516,8 +2307,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2528,8 +2318,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2540,8 +2329,7 @@ window.CALCULATION = [
       class: "pressure",
       writeable: "",
       unit: "bar",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2552,8 +2340,7 @@ window.CALCULATION = [
       class: "pressure",
       writeable: "",
       unit: "bar",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2564,8 +2351,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2576,8 +2362,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2588,8 +2373,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2600,8 +2384,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2612,8 +2395,7 @@ window.CALCULATION = [
       class: "boolean",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2624,8 +2406,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2636,8 +2417,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2648,8 +2428,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2660,8 +2439,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2672,8 +2450,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2684,8 +2461,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2696,8 +2472,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2708,8 +2483,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2720,8 +2494,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2732,8 +2505,7 @@ window.CALCULATION = [
       class: "timestamp",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2744,8 +2516,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2756,8 +2527,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2768,8 +2538,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2780,8 +2549,7 @@ window.CALCULATION = [
       class: "selection",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2792,8 +2560,7 @@ window.CALCULATION = [
       class: "frequency",
       writeable: "",
       unit: "Hz",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2804,8 +2571,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2816,8 +2582,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2828,8 +2593,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2840,8 +2604,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2852,8 +2615,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2864,8 +2626,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2876,8 +2637,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2888,8 +2648,7 @@ window.CALCULATION = [
       class: "frequency",
       writeable: "",
       unit: "Hz",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2900,8 +2659,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2912,8 +2670,7 @@ window.CALCULATION = [
       class: "frequency",
       writeable: "",
       unit: "Hz",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2924,8 +2681,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2936,8 +2692,7 @@ window.CALCULATION = [
       class: "frequency",
       writeable: "",
       unit: "Hz",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2948,8 +2703,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2960,8 +2714,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2972,8 +2725,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2984,8 +2736,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -2996,8 +2747,7 @@ window.CALCULATION = [
       class: "percent",
       writeable: "",
       unit: "%",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3008,8 +2758,7 @@ window.CALCULATION = [
       class: "percent",
       writeable: "",
       unit: "%",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3020,8 +2769,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3032,8 +2780,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3044,8 +2791,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3056,8 +2802,7 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "K",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3068,8 +2813,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3080,8 +2824,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3092,8 +2835,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3104,8 +2846,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3116,8 +2857,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3128,8 +2868,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3140,8 +2879,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3152,8 +2890,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3164,8 +2901,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3176,8 +2912,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3188,8 +2923,7 @@ window.CALCULATION = [
       class: "flow",
       writeable: "",
       unit: "l/h",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3200,8 +2934,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3212,8 +2945,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3224,8 +2956,7 @@ window.CALCULATION = [
       class: "power",
       writeable: "",
       unit: "W",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3236,8 +2967,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3248,8 +2978,7 @@ window.CALCULATION = [
       class: "version",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3260,8 +2989,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3272,8 +3000,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3284,8 +3011,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3296,8 +3022,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3308,8 +3033,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3320,8 +3044,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3332,8 +3055,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3344,8 +3066,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3356,8 +3077,18 @@ window.CALCULATION = [
       class: "temperature",
       writeable: "",
       unit: "°C",
-      since: "",
-      until: "",
+      version: "",
+      description: ""
+  },{
+      category: "calculation",
+      index: 268,
+      name: "Unknown_Calculation_268",
+      lsb: 0,
+      width: 32,
+      class: "None",
+      writeable: "",
+      unit: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3368,8 +3099,7 @@ window.CALCULATION = [
       class: "power",
       writeable: "",
       unit: "W",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3380,8 +3110,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3392,8 +3121,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3404,8 +3132,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3416,8 +3143,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3428,8 +3154,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   },{
       category: "calculation",
@@ -3440,8 +3165,7 @@ window.CALCULATION = [
       class: "None",
       writeable: "",
       unit: "",
-      since: "",
-      until: "",
+      version: "",
       description: ""
   }
 ];
