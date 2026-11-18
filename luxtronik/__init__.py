@@ -76,7 +76,7 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
                 not secure from being written to.
         """
         version, _ = resolve_version_input(version) # no auto-detect possible here
-        LuxtronikData.__init__(self, parameters, calculations, visibilities, safe)
+        LuxtronikData.__init__(self, parameters, calculations, visibilities, version, safe)
         LuxtronikSmartHomeData.__init__(self, holdings, inputs, version, safe)
 
     def get_firmware_version(self):
