@@ -217,6 +217,49 @@ class DataVector:
         return iter(self._data.items())
 
 
+# Add methods #################################################################
+
+    def add(self, def_field_name_or_idx):
+        """
+        Adds an additional version-dependent field (= included in class variable
+        `cls.definitions` and is valid for `self.version`) to this data vector.
+        Mainly used for data vectors created via `empty()`
+        to read/write individual fields. Existing fields will not be overwritten.
+
+        Args:
+            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
+                Field to add. Either by definition, name or index, or the field itself.
+
+        Returns:
+            Base | None: The added field object if this could be added or
+                the existing field, otherwise None.
+
+        Note:
+            It is not possible to add fields which are not defined.
+            To add custom fields, add them to the used `LuxtronikDefinitionsList`
+            (`cls.definitions`) first.
+            If multiple fields added for the same index/name, the last added takes precedence.
+        """
+        # Look-up the related definition
+        definition, field = self._get_definition(def_field_name_or_idx, True)
+        if definition is None:
+            return None
+
+        # Check if the field already exists
+        existing_field = self._data.get(definition, None)
+        if existing_field is not None:
+            return existing_field
+
+        # Add a (new) field
+        if definition.version.matches(self._version):
+            if field is None:
+                field = definition.create_field()
+            self._read_blocks_up_to_date = False
+            self._data.add_sorted(definition, field)
+            return field
+        return None
+
+
 # Get and set methods #########################################################
 
     def _get_definition(self, def_field_name_or_idx, all_not_version_dependent):
