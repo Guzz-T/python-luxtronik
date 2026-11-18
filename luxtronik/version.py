@@ -65,6 +65,7 @@ def parse_version(version):
     if isinstance(version, tuple) and all(type(p) is int for p in version):
         return (version + (0, 0, 0, 0))[:4]
     elif isinstance(version, str):
+        version = version.replace('v', '').replace('V', '')
         parts = version.strip().split(VERSION_DELIMITER)
         if not parts or any(not p.isdigit() for p in parts):
             return None
