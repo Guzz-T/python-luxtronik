@@ -408,3 +408,6 @@ def test_get_version_definitions():
     assert got_definitions[2].field_type is MajorMinorVersion
     assert got_definitions[3].index == 41
     assert got_definitions[3].field_type is MajorMinorVersion
+
+    defs = definitions.get_version_definitions()
+    assert got_definitions == defs

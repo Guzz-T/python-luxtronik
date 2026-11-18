@@ -508,6 +508,9 @@ class LuxtronikDefinitionsList:
         self._definitions.sort(key=lambda item: item.index)
         return definition
 
+    def get_version_definitions(self):
+        return get_version_definitions(self)
+
 
 ###############################################################################
 # Helper functions
