@@ -7,6 +7,7 @@ import time
 
 from luxtronik.collections import integrate_data
 from luxtronik.common import get_host_lock
+from luxtronik.version import VER_IGNORE
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_CFI_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
@@ -36,7 +37,7 @@ class LuxtronikData:
     """
 
     def __init__(self, parameters=None, calculations=None, visibilities=None, safe=True):
-        self.parameters = Parameters(safe) if parameters is None else parameters
+        self.parameters = Parameters(VER_IGNORE, safe) if parameters is None else parameters
         self.calculations = Calculations() if calculations is None else calculations
         self.visibilities = Visibilities() if visibilities is None else visibilities
 
@@ -103,7 +104,7 @@ class LuxtronikSocketInterface:
         This data object is returned afterwards, mainly for access to a newly created.
         """
         if data is None:
-            data = LuxtronikData()
+            data = LuxtronikData(None, None, None, True)
         return self._with_lock_and_connect(self._read, data)
 
     def read_parameters(self, parameters=None):
@@ -149,7 +150,7 @@ class LuxtronikSocketInterface:
         after a short wait time
         """
         if data is None:
-            data = LuxtronikData()
+            data = LuxtronikData(None, None, None, True)
         return self._with_lock_and_connect(self._write_and_read, parameters, data)
 
     def _read(self, data):

@@ -2,9 +2,11 @@
 
 import logging
 
+from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import LuxtronikFieldsDictionary
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.version import resolve_version_input
 
 
 LOGGER = logging.getLogger(__name__)
@@ -100,16 +102,62 @@ class DataVector:
 
 # constructor, magic methods and iterators ####################################
 
-    def _init_instance(self, safe):
+    def _init_instance(self, version, safe):
         """Re-usable method to initialize all instance variables."""
         self.safe = safe
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        self._version = version # is never None
 
         # Dictionary that holds all fields
         self._data = LuxtronikFieldsDictionary()
 
-    def __init__(self):
-        """Initialize DataVector class."""
-        self._init_instance(True)
+    def __init__(self, version=LUXTRONIK_VERSION_IGNORE, safe=True):
+        """
+        Initialize the data-vector instance.
+
+        Creates field objects for all version-dependent definitions (= included
+        in class variable `cls.definitions` and is valid for `self.version`)
+        and stores them in the data vector.
+
+        Args:
+            version (tuple[int] | str | None):
+                Version to be used for creating the field objects.
+                This ensures that the data vector only contain valid fields.
+                If None is passed, all available fields are added.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent fields marked as
+                not secure from being written to.
+        """
+        self._init_instance(version, safe)
+
+        # Create fields depending on the given version
+        for d in self.definitions:
+            if d.version.matches(self._version):
+                # The definitions are already sorted correctly.
+                # So we can just add them one after the other.
+                self._data.add(d, d.create_field())
+
+    @classmethod
+    def empty(cls, version=LUXTRONIK_VERSION_IGNORE, safe=True):
+        """
+        Initialize the data-vector instance without any fields.
+
+        Args:
+            version (tuple[int] | str | None):
+                Version to be used for creating the field objects afterwards.
+                This ensures that the data vector only contain valid fields.
+                If None is passed, all available fields can be added.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls) # this don't call __init__()
+        obj._init_instance(version, safe)
+        return obj
+
+    @property
+    def version(self):
+        return self._version
 
     @property
     def data(self):
