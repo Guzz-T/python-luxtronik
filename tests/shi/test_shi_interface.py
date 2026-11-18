@@ -5,7 +5,7 @@ from luxtronik.constants import (
     LUXTRONIK_LATEST_VERSION,
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
 )
-from luxtronik.datatypes import Base, Unknown
+from luxtronik.datatypes import Base, Unknown, FullVersion
 from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.version import VER_IGNORE
 
@@ -1340,3 +1340,46 @@ class TestLuxtronikSmartHomeInterface:
         self.check_definitions(interface)
 
         FakeModbus.result = True
+
+
+class FakeReadInput:
+    param = None
+
+    def fake_read_input(self, definition):
+        if FakeReadInput is None:
+            return None
+        else:
+            field = FullVersion("ver")
+            field.raw = FakeReadInput.param
+            return field
+
+@patch("luxtronik.LuxtronikSmartHomeInterface.read_input", FakeReadInput.fake_read_input)
+class TestLuxtronikSmartHomeInterfaceVersion:
+
+    def test_determine_version(self):
+        FakeReadInput.param = [18, 12, 3, 0]
+        ver = LuxtronikSmartHomeInterface.determine_shi_version(None)
+        assert ver == (18, 12, 3, 0)
+
+        FakeReadInput.param = None
+        ver = LuxtronikSmartHomeInterface.determine_shi_version(None)
+        assert ver == VER_IGNORE
+
+    def test_read_version(self):
+        shi = LuxtronikSmartHomeInterface(None, None)
+
+        FakeReadInput.param = [7, 3, 3, 3]
+        ver = shi.read_version()
+        # FullVersion only transport Major.Minor.Patch
+        assert ver == (7, 3, 3, 0)
+
+        FakeReadInput.param = []
+        ver = shi.read_version()
+        assert ver == VER_IGNORE
+
+    def test_version_detect(self):
+        FakeReadInput.param = [5, 3, 2, 1]
+        shi = LuxtronikSmartHomeInterface(None, 'detect')
+        ver = shi.version
+        # FullVersion only transport Major.Minor.Patch
+        assert ver == (5, 3, 2, 0)
