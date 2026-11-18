@@ -64,8 +64,8 @@ class LuxtronikSmartHomeData:
                 not secure from being written to.
         """
         version, _ = resolve_version_input(version) # no auto-detect possible here
-        self.holdings = holdings if holdings is not None else Holdings(version, safe)
-        self.inputs = inputs if inputs is not None else Inputs(version)
+        self.holdings = Holdings(version, safe) if holdings is None else holdings
+        self.inputs = Inputs(version) if inputs is None else inputs
 
     @classmethod
     def empty(
@@ -89,6 +89,9 @@ class LuxtronikSmartHomeData:
         obj.holdings = Holdings.empty(version, safe)
         obj.inputs = Inputs.empty(version)
         return obj
+
+    def get_firmware_version(self):
+        return self.inputs.get_firmware_version()
 
 ###############################################################################
 # Smart home interface
