@@ -6,13 +6,11 @@ via the smart home interface. Powered by Guzz-T.
 import logging
 
 from luxtronik.constants import LUXTRONIK_VERSION_DETECT
-from luxtronik.collections import integrate_data
 from luxtronik.definitions import get_version_definitions
 from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-    LUXTRONIK_SHI_REGISTER_BIT_SIZE,
 )
 from luxtronik.shi.inputs import INPUTS_DEFINITIONS, Inputs  # noqa: F401
 from luxtronik.shi.holdings import HOLDINGS_DEFINITIONS, Holdings  # noqa: F401
@@ -46,11 +44,11 @@ def determine_shi_version(interface):
             or None if no version could be determined.
     """
     definitions = get_version_definitions(INPUTS_DEFINITIONS)
+    # create a temporary shi interface, where all definitions are allowed
+    shi_interface = LuxtronikSmartHomeInterface(interface)
     for definition in definitions:
-        data = interface.read_inputs(definition.addr, definition.count)
-        if data is not None:
-            field = definition.create_field()
-            integrate_data(definition, field, data, LUXTRONIK_SHI_REGISTER_BIT_SIZE, 0)
+        field = shi_interface.read_input(definition)
+        if field is not None:
             parsed = parse_version(field.get_version_str())
             if parsed is not None:
                 return parsed
