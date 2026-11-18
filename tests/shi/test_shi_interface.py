@@ -7,6 +7,7 @@ from luxtronik.constants import (
 )
 from luxtronik.datatypes import Base, Unknown
 from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.version import VER_IGNORE
 
 from luxtronik.shi.constants import LUXTRONIK_FIRST_VERSION_WITH_SHI
 
@@ -1309,11 +1310,11 @@ class TestLuxtronikSmartHomeInterface:
 
     def test_create_modbus(self):
         interface = create_modbus_tcp('host', version=None)
-        assert interface.version is None
+        assert interface.version is VER_IGNORE
         self.check_definitions(interface)
 
         interface = create_modbus_tcp('host', version=1)
-        assert interface.version is None
+        assert interface.version is VER_IGNORE
         self.check_definitions(interface)
 
         interface = create_modbus_tcp('host', version="1.2.3")
@@ -1335,7 +1336,7 @@ class TestLuxtronikSmartHomeInterface:
         FakeModbus.result = False
 
         interface = create_modbus_tcp('host')
-        assert interface.version is None
+        assert interface.version is VER_IGNORE
         self.check_definitions(interface)
 
         FakeModbus.result = True

@@ -1,4 +1,5 @@
 from tests.fake.fake_common import fake_resolve_version  # noqa: F401
+from tests.fake.fake_common import fake_determine_shi_version  # noqa: F401
 from tests.fake.fake_luxtronik import FakeLuxtronik  # noqa: F401
 from tests.fake.fake_modbus_client import FakeModbusClient  # noqa: F401
 from tests.fake.fake_modbus import FakeModbus  # noqa: F401

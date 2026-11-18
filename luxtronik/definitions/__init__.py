@@ -15,6 +15,11 @@ from luxtronik.constants import (
 )
 from luxtronik.definitions.keys import Keys
 from luxtronik.version import VersionRequirements
+from luxtronik.datatypes import (
+    FullVersion,
+    Version,
+    MajorMinorVersion
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -502,3 +507,35 @@ class LuxtronikDefinitionsList:
         self._add(definition)
         self._definitions.sort(key=lambda item: item.index)
         return definition
+
+
+###############################################################################
+# Helper functions
+###############################################################################
+
+def get_version_definitions(definitions):
+    """
+    Retrieve all definitions that represent version fields.
+
+    Args:
+        definitions (LuxtronikDefinitionsList): List of definitions
+
+    Returns:
+        list[LuxtronikDefinition]: List of definitions whose field_type
+            is either FullVersion, Version or MajorMinorVersion.
+            Sorted by priority, with the first item as the preferred choice.
+            Note: All of them must implement the get_version_str() method.
+    """
+    # Define all data types to be searched for.
+    # The order determines the priority.
+    types_to_search = (FullVersion, Version, MajorMinorVersion)
+    num_types = len(types_to_search)
+
+    version_definitions_sorted = [[] for _ in range(num_types)]
+    for d in definitions:
+        for i in range(num_types):
+            if d.field_type is types_to_search[i]:
+                version_definitions_sorted[i].append(d)
+
+    version_definitions = [elem for arr in version_definitions_sorted for elem in arr]
+    return version_definitions
