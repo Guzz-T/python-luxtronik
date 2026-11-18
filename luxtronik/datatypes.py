@@ -669,6 +669,10 @@ class Version(Base):
             return None
         return "".join([chr(c) for c in value]).strip("\x00")
 
+    def get_version_str(self):
+        # return major.minor.patch
+        return self.value.replace("v", "").replace("V", "")
+
 
 class Character(Base):
     """Character datatype, converts from and to a Character."""
@@ -698,6 +702,10 @@ class MajorMinorVersion(Base):
             minor = value % 100
             return f"{major}.{minor}"
         return "0"
+
+    def get_version_str(self):
+        # return major.minor
+        return self.value
 
 
 class Icon(Base):
@@ -1175,6 +1183,10 @@ class FullVersion(Base):
             return None
         if len(value) >= 3:
             return f"{value[0]}.{value[1]}.{value[2]}"
+
+    def get_version_str(self):
+        # return major.minor.patch
+        return self.value
 
 
 class Unknown(Base):

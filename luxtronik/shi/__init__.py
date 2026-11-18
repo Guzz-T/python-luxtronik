@@ -72,7 +72,7 @@ def determine_version(interface):
         if data is not None:
             field = definition.create_field()
             integrate_data(definition, field, data, LUXTRONIK_SHI_REGISTER_BIT_SIZE, 0)
-            parsed = parse_version(field.value)
+            parsed = parse_version(field.get_version_str())
             if parsed is not None:
                 return parsed
     LOGGER.warning("It was not possible to determine the controller version. " \
