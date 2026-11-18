@@ -10,7 +10,7 @@ from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
 )
-from luxtronik.version import VER_IGNORE, resolve_version_input
+from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadHoldingsTelegram,
@@ -108,6 +108,14 @@ class LuxtronikSmartHomeInterface:
     which is cleared afterwards.
     """
 
+    def _init_instance(self, interface, version, holdings, inputs):
+        """Re-usable method to initialize all instance variables."""
+        self._interface = interface
+        self._version = version # is never none
+        self._blocks_list = []
+        self._filtered_holdings = holdings
+        self._filtered_inputs = inputs
+
     def __init__(self, interface, version=LUXTRONIK_VERSION_IGNORE):
         """
         Initialize the smart home interface.
@@ -120,16 +128,70 @@ class LuxtronikSmartHomeInterface:
                 Additionally, the version is used to performed some consistency checks.
                 (default: LUXTRONIK_VERSION_IGNORE)
         """
-        self._interface = interface
-        version, _ = resolve_version_input(version) # no auto-detect possible here
-        self._version = version # is never none
-        self._blocks_list = []
-        self._filtered_holdings = LuxtronikDefinitionsList.filtered(HOLDINGS_DEFINITIONS, self._version)
-        self._filtered_inputs = LuxtronikDefinitionsList.filtered(INPUTS_DEFINITIONS, self._version)
+        version, do_auto_detect = resolve_version_input(version)
+
+        if do_auto_detect:
+            version = LuxtronikSmartHomeInterface.determine_shi_version(interface)
+            LOGGER.info(f"Auto-detect version {version}")
+
+        self._init_instance(
+            interface,
+            version,
+            LuxtronikDefinitionsList.filtered(HOLDINGS_DEFINITIONS, version),
+            LuxtronikDefinitionsList.filtered(INPUTS_DEFINITIONS, version)
+        )
+
+    @classmethod
+    def _temp(cls, interface):
+        """Constructor for a temporary interface used in determine_shi_version"""
+        obj = cls.__new__(cls) # this don't call __init__()
+        obj._init_instance(interface, VER_IGNORE, HOLDINGS_DEFINITIONS, INPUTS_DEFINITIONS)
+        return obj
+
+
+# Version methods ##############################################################
+
+    @classmethod
+    def determine_shi_version(cls, interface):
+        """
+        Determine the version of the luxtronik controller.
+
+        This is a little bit ugly! The controller version is required
+        to locate the version field. As workaround, probe each ever known
+        version field until one yields a valid read and a parsable version.
+        This approach works as long as the version-field has not changed.
+
+        Returns:
+            tuple[int] | None: The version of the controller on success,
+                or None if no version could be determined.
+        """
+        # Create a temporary interface, that allows any field, to read out the version info
+        shi_interface = LuxtronikSmartHomeInterface._temp(interface)
+        return shi_interface.read_version()
 
     @property
     def version(self):
         return self._version
+
+    def read_version(self):
+        """
+        Determine the version of the luxtronik controller, via one
+        of the valid version fields.
+
+        Returns:
+            tuple[int] | None: The version of the controller on success,
+                or None if no version could be determined.
+        """
+        definitions = INPUTS_DEFINITIONS.get_version_definitions()
+        for definition in definitions:
+            field = self.read_input(definition)
+            if field is not None:
+                parsed = parse_version(field.get_version_str())
+                if parsed is not None:
+                    return parsed
+        LOGGER.warning("It was not possible to determine the controller version " \
+            + "via the SHI.")
+        return VER_IGNORE
 
 # Helper methods ##############################################################
 
