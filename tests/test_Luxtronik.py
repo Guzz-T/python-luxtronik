@@ -23,7 +23,7 @@ from tests.fake import (
 @patch("luxtronik.LuxtronikSmartHomeInterface", FakeShiInterface)
 @patch("luxtronik.LuxtronikSmartHomeInterface.read_inputs", FakeShiInterface.read_inputs)
 @patch("luxtronik.LuxtronikSmartHomeInterface.read_holdings", FakeShiInterface.read_holdings)
-@patch("luxtronik.determine_shi_version", fake_determine_shi_version)
+@patch("luxtronik.LuxtronikSmartHomeInterface.determine_shi_version", fake_determine_shi_version)
 class TestLuxtronik:
 
     def test_if_init(self):

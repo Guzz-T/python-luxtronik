@@ -1,8 +1,9 @@
 
 import logging
 
-from luxtronik.constants import LUXTRONIK_LATEST_VERSION
+from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.data_vector import DataVector
+from luxtronik.version import resolve_version_input
 
 from luxtronik.shi.contiguous import ContiguousDataBlockList
 
@@ -19,14 +20,15 @@ class DataVectorSmartHome(DataVector):
     def _init_instance(self, version, safe):
         """Re-usable method to initialize all instance variables."""
         super()._init_instance(safe)
-        self._version = version
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        self._version = version # is never None
 
         # Instead of re-create the block-list on every read, we just update it
         # on first time used or on next time used if some fields are added.
         self._read_blocks_up_to_date = False
         self._read_blocks = ContiguousDataBlockList(self.name, True)
 
-    def __init__(self, version=LUXTRONIK_LATEST_VERSION, safe=True):
+    def __init__(self, version=LUXTRONIK_VERSION_IGNORE, safe=True):
         """
         Initialize the data-vector instance.
 
@@ -35,11 +37,11 @@ class DataVectorSmartHome(DataVector):
         and stores them in the data vector.
 
         Args:
-            version (tuple[int] | None):
+            version (tuple[int] | str | None):
                 Version to be used for creating the field objects.
                 This ensures that the data vector only contain valid fields.
                 If None is passed, all available fields are added.
-                (default: LUXTRONIK_LATEST_VERSION)
+                (default: LUXTRONIK_VERSION_IGNORE)
             safe (bool): If true, prevent fields marked as
                 not secure from being written to.
         """
@@ -47,22 +49,22 @@ class DataVectorSmartHome(DataVector):
 
         # Create fields depending on the given version
         for d in self.definitions:
-            if d.version.matches(version):
+            if d.version.matches(self._version):
                 # The definitions are already sorted correctly.
                 # So we can just add them one after the other.
                 self._data.add(d, d.create_field())
 
     @classmethod
-    def empty(cls, version=LUXTRONIK_LATEST_VERSION, safe=True):
+    def empty(cls, version=LUXTRONIK_VERSION_IGNORE, safe=True):
         """
         Initialize the data-vector instance without any fields.
 
         Args:
-            version (tuple[int] | None):
+            version (tuple[int] | str | None):
                 Version to be used for creating the field objects afterwards.
                 This ensures that the data vector only contain valid fields.
                 If None is passed, all available fields can be added.
-                (default: LUXTRONIK_LATEST_VERSION)
+                (default: LUXTRONIK_VERSION_IGNORE)
             safe (bool): If true, prevent fields marked as
                 not secure from being written to.
         """

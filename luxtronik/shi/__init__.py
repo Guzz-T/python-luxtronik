@@ -6,13 +6,9 @@ via the smart home interface. Powered by Guzz-T.
 import logging
 
 from luxtronik.constants import LUXTRONIK_VERSION_DETECT
-from luxtronik.collections import integrate_data
-from luxtronik.definitions import get_version_definitions
-from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.shi.constants import (
     LUXTRONIK_DEFAULT_MODBUS_PORT,
     LUXTRONIK_DEFAULT_MODBUS_TIMEOUT,
-    LUXTRONIK_SHI_REGISTER_BIT_SIZE,
 )
 from luxtronik.shi.inputs import INPUTS_DEFINITIONS, Inputs  # noqa: F401
 from luxtronik.shi.holdings import HOLDINGS_DEFINITIONS, Holdings  # noqa: F401
@@ -21,42 +17,6 @@ from luxtronik.shi.interface import LuxtronikSmartHomeData, LuxtronikSmartHomeIn
 
 
 LOGGER = logging.getLogger(__name__)
-
-
-
-###############################################################################
-# Helper methods
-###############################################################################
-
-def determine_shi_version(interface):
-    """
-    Determine the version of the luxtronik controller.
-
-    This is a little bit ugly! The controller version is required
-    to locate the version field. As workaround, probe each known
-    version field until one yields a valid read and a parsable version.
-    This approach works as long as the version-field has not changed.
-
-    Args:
-        interface (LuxtronikModbusTcpInterface):
-            Simple read/write interface to read out the version.
-
-    Returns:
-        tuple[int] | None: The version of the controller on success,
-            or None if no version could be determined.
-    """
-    definitions = get_version_definitions(INPUTS_DEFINITIONS)
-    for definition in definitions:
-        data = interface.read_inputs(definition.addr, definition.count)
-        if data is not None:
-            field = definition.create_field()
-            integrate_data(definition, field, data, LUXTRONIK_SHI_REGISTER_BIT_SIZE, 0)
-            parsed = parse_version(field.get_version_str())
-            if parsed is not None:
-                return parsed
-    LOGGER.warning("It was not possible to determine the controller version " \
-        + "via the SHI. Switch to trial-and-error mode.")
-    return VER_IGNORE
 
 
 ###############################################################################
@@ -94,10 +54,7 @@ def create_modbus_tcp(
         LuxtronikSmartHomeInterface:
             Initialized interface instance bound to the Modbus TCP connection.
     """
-    resolved_version, do_auto_detect = resolve_version_input(version)
     modbus_interface = LuxtronikModbusTcpInterface(host, port, timeout)
-    if do_auto_detect:
-        resolved_version = determine_shi_version(modbus_interface)
     LOGGER.info(f"Create smart home interface via modbus-TCP on {host}:{port}"
-        + f" for version {resolved_version}")
-    return LuxtronikSmartHomeInterface(modbus_interface, resolved_version)
+        + f" for version {version}")
+    return LuxtronikSmartHomeInterface(modbus_interface, version)

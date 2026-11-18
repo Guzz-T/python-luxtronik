@@ -13,7 +13,7 @@ from luxtronik.definitions import (
     LuxtronikDefinitionsList,
     get_version_definitions,
 )
-from luxtronik.version import VersionRequirement, VersionRequirements
+from luxtronik.version import VER_IGNORE, VersionRequirement, VersionRequirements
 import operator
 
 ###############################################################################
@@ -261,7 +261,7 @@ class TestDefinitionsList:
         assert len(definitions) == 4
         assert definitions.name == 'foo'
         assert definitions.offset == 100
-        assert definitions._version is None
+        assert definitions._version is VER_IGNORE
         assert 5 in definitions
         assert 'field_9a' in definitions
         assert definitions[7] in definitions
@@ -408,3 +408,6 @@ def test_get_version_definitions():
     assert got_definitions[2].field_type is MajorMinorVersion
     assert got_definitions[3].index == 41
     assert got_definitions[3].field_type is MajorMinorVersion
+
+    defs = definitions.get_version_definitions()
+    assert got_definitions == defs
