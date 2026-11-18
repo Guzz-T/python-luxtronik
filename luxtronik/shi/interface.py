@@ -182,7 +182,7 @@ class LuxtronikSmartHomeInterface:
             tuple[int] | None: The version of the controller on success,
                 or None if no version could be determined.
         """
-        definitions = INPUTS_DEFINITIONS.get_version_definitions()
+        definitions = INPUTS_DEFINITIONS.get_version_definitions(self._version)
         for definition in definitions:
             field = self.read_input(definition)
             if field is not None:

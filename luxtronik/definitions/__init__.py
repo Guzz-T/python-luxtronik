@@ -12,9 +12,14 @@ import logging
 from luxtronik.constants import (
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
     LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE,
+    LUXTRONIK_VERSION_IGNORE
 )
 from luxtronik.definitions.keys import Keys
-from luxtronik.version import VER_IGNORE, VersionRequirements
+from luxtronik.version import (
+    VER_IGNORE,
+    VersionRequirements,
+    resolve_version_input
+)
 from luxtronik.datatypes import (
     FullVersion,
     Version,
@@ -508,20 +513,22 @@ class LuxtronikDefinitionsList:
         self._definitions.sort(key=lambda item: item.index)
         return definition
 
-    def get_version_definitions(self):
-        return get_version_definitions(self)
+    def get_version_definitions(self, version=LUXTRONIK_VERSION_IGNORE):
+        return get_version_definitions(self, version)
 
 
 ###############################################################################
 # Helper functions
 ###############################################################################
 
-def get_version_definitions(definitions):
+def get_version_definitions(definitions, version=LUXTRONIK_VERSION_IGNORE):
     """
     Retrieve all definitions that represent version fields.
 
     Args:
         definitions (LuxtronikDefinitionsList): List of definitions
+        version (tuple[int] | str | None): the version that must meet
+            the version requirements of the definitions found
 
     Returns:
         list[LuxtronikDefinition]: List of definitions whose field_type
@@ -529,6 +536,7 @@ def get_version_definitions(definitions):
             Sorted by priority, with the first item as the preferred choice.
             Note: All of them must implement the get_version_str() method.
     """
+    version, _ = resolve_version_input(version)
     # Define all data types to be searched for.
     # The order determines the priority.
     types_to_search = (FullVersion, Version, MajorMinorVersion)
@@ -537,7 +545,7 @@ def get_version_definitions(definitions):
     version_definitions_sorted = [[] for _ in range(num_types)]
     for d in definitions:
         for i in range(num_types):
-            if d.field_type is types_to_search[i]:
+            if d.field_type is types_to_search[i] and d.version.matches(version):
                 version_definitions_sorted[i].append(d)
 
     version_definitions = [elem for arr in version_definitions_sorted for elem in arr]
