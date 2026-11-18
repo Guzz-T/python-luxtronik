@@ -87,6 +87,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
     Attention! It must be ensured that `LuxtronikSocketInterface` and
     `LuxtronikSmartHomeInterface` do not instantiate the same fields.
     Otherwise, the derivations will overwrite each other.
+    Luckily, there's a pytest for that.
     """
 
     def __init__(
