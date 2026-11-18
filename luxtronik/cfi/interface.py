@@ -67,8 +67,33 @@ class LuxtronikData:
         self.calculations = Calculations(version) if calculations is None else calculations
         self.visibilities = Visibilities(version) if visibilities is None else visibilities
 
+    @classmethod
+    def empty(
+        cls,
+        version=LUXTRONIK_VERSION_IGNORE,
+        safe=True
+    ):
+        """
+        Initialize an empty LuxtronikData instance
+        (= no fields are added to the data-vectors).
+
+        Args:
+            version (tuple[int] | str | None): The version is added to the data vectors
+                so some checks can be performed later.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent holding fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        obj.parameters = Parameters.empty(version, safe)
+        obj.calculations = Calculations.empty(version)
+        obj.visibilities = Visibilities.empty(version)
+        return obj
+
     def get_firmware_version(self):
         return self.calculations.get_firmware_version()
+
 
 ###############################################################################
 # Config interface
