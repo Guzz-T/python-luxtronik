@@ -275,6 +275,10 @@ def resolve_version_input(version_input=LUXTRONIK_VERSION_DETECT):
     """
     if version_input is None:
         return VER_IGNORE, False
+    if version_input is VER_IGNORE:
+        return VER_IGNORE, False
+    if version_input is VER_NONE:
+        return VER_NONE, False
     elif isinstance(version_input, str):
         version_lower = version_input.lower()
         if version_lower == LUXTRONIK_VERSION_DETECT:

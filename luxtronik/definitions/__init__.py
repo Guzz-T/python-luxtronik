@@ -14,7 +14,7 @@ from luxtronik.constants import (
     LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE,
 )
 from luxtronik.definitions.keys import Keys
-from luxtronik.version import VersionRequirements
+from luxtronik.version import VER_IGNORE, VersionRequirements
 from luxtronik.datatypes import (
     FullVersion,
     Version,
@@ -397,7 +397,7 @@ class LuxtronikDefinitionsList:
             - The value of count must always be greater than or equal to 1
             - All names should be unique
         """
-        self._init_instance(name, offset, default_data_type, None)
+        self._init_instance(name, offset, default_data_type, VER_IGNORE)
 
         # Add definition objects only for valid items.
         # The correct sorting has already been ensured by the pytest

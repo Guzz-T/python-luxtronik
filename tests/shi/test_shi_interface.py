@@ -40,10 +40,10 @@ class TestLuxtronikSmartHomeData:
     def test_init(self):
         data1 = LuxtronikSmartHomeData()
         assert data1.holdings is not None
-        assert data1.holdings.version == LUXTRONIK_LATEST_VERSION
+        assert data1.holdings.version == VER_IGNORE
         assert data1.holdings.safe
         assert data1.inputs is not None
-        assert data1.inputs.version == LUXTRONIK_LATEST_VERSION
+        assert data1.inputs.version == VER_IGNORE
         assert data1.inputs.safe
 
         data2 = LuxtronikSmartHomeData(data1.holdings)
