@@ -671,7 +671,10 @@ class Version(Base):
 
     def get_version_str(self):
         # return major.minor.patch
-        return self.value.replace("v", "").replace("V", "")
+        try:
+            return self.value.replace("v", "").replace("V", "")
+        except Exception:
+            return ""
 
 
 class Character(Base):
