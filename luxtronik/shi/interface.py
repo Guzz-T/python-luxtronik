@@ -131,7 +131,7 @@ class LuxtronikSmartHomeInterface:
         version, do_auto_detect = resolve_version_input(version)
 
         if do_auto_detect:
-            version = LuxtronikSmartHomeInterface.determine_shi_version(interface)
+            version = LuxtronikSmartHomeInterface.determine_version(interface)
             LOGGER.info(f"Auto-detect version {version}")
 
         self._init_instance(
@@ -143,7 +143,7 @@ class LuxtronikSmartHomeInterface:
 
     @classmethod
     def _temp(cls, interface):
-        """Constructor for a temporary interface used in determine_shi_version"""
+        """Constructor for a temporary interface used in determine_version"""
         obj = cls.__new__(cls) # this don't call __init__()
         obj._init_instance(interface, VER_IGNORE, HOLDINGS_DEFINITIONS, INPUTS_DEFINITIONS)
         return obj
@@ -152,7 +152,7 @@ class LuxtronikSmartHomeInterface:
 # Version methods ##############################################################
 
     @classmethod
-    def determine_shi_version(cls, interface):
+    def determine_version(cls, interface):
         """
         Determine the version of the luxtronik controller.
 
