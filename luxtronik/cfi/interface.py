@@ -35,6 +35,12 @@ class LuxtronikData:
     """
     Collection of parameters, calculations and visiblities.
     Also provide some high level access functions to their data values.
+
+    Note: This class is grouped with other classes in the Luxtronik section.
+    Use only unique identifiers (e.g., using name mangling like `self.__version`;
+    this is checked by pytest) for methods and fields and do not use public
+    methods internally (e.g., `self.version`). Otherwise, the correct function
+    might not be called.
     """
 
     def __init__(
@@ -100,19 +106,27 @@ class LuxtronikData:
 ###############################################################################
 
 class LuxtronikSocketInterface:
-    """Luxtronik read/write interface via socket."""
+    """
+    Luxtronik read/write interface via socket.
+
+    Note: This class is grouped with other classes in the Luxtronik section.
+    Use only unique identifiers (e.g., using name mangling like `self.__version`;
+    this is checked by pytest) for methods and fields and do not use public
+    methods internally (e.g., `self.version`). Otherwise, the correct function
+    might not be called.
+    """
 
     def __init__(self, host, port=LUXTRONIK_DEFAULT_CFI_PORT):
+        # Use name-mangling for unique field names. See class description.
         # Acquire a lock object for this host to ensure thread safety
-        self._lock = get_host_lock(host)
-
-        self._host = host
-        self._port = port
+        self.__lock = get_host_lock(host)
+        self.__host = host
+        self.__port = port
         self._socket = None
 
     @property
     def lock(self):
-        return self._lock
+        return self.__lock
 
     def _with_lock_and_connect(self, func, *args, **kwargs):
         """
@@ -123,28 +137,28 @@ class LuxtronikSocketInterface:
         performed at any point in time. This helps to avoid issues with the
         Luxtronik controller, which seems unstable otherwise.
         """
-        with self.lock:
+        with self.__lock:
             try:
                 ret_val = None
-                with socket.create_connection((self._host, self._port)) as sock:
+                with socket.create_connection((self.__host, self.__port)) as sock:
                     self._socket = sock
-                    LOGGER.info("Connected to CFI of Luxtronik heat pump %s:%s", self._host, self._port)
+                    LOGGER.info("Connected to CFI of Luxtronik heat pump %s:%s", self.__host, self.__port)
                     ret_val = func(*args, **kwargs)
             except socket.gaierror as e:
                 LOGGER.error("Failed to connect to Luxtronik heat pump %s:%s. %s.",
-                    self._host, self._port, f"Address-related error: {e}")
+                    self.__host, self.__port, f"Address-related error: {e}")
             except socket.timeout as e:
                 LOGGER.error("Failed to connect to Luxtronik heat pump %s:%s. %s.",
-                    self._host, self._port, f"Connection timed out: {e}")
+                    self.__host, self.__port, f"Connection timed out: {e}")
             except ConnectionRefusedError as e:
                 LOGGER.error("Failed to connect to Luxtronik heat pump %s:%s. %s.",
-                    self._host, self._port, f"Connection refused: {e}")
+                    self.__host, self.__port, f"Connection refused: {e}")
             except OSError as e:
                 LOGGER.error("Failed to connect to Luxtronik heat pump %s:%s. %s.",
-                    self._host, self._port, f"OS error during connect: {e}")
+                    self.__host, self.__port, f"OS error during connect: {e}")
             except Exception as e:
                 LOGGER.error("Failed to connect to Luxtronik heat pump %s:%s. %s.",
-                    self._host, self._port, f"Unknown exception: {e}")
+                    self.__host, self.__port, f"Unknown exception: {e}")
         self._socket = None
         return ret_val
 
@@ -226,19 +240,19 @@ class LuxtronikSocketInterface:
                 if not isinstance(definition.index, int) or not field.check_for_write(parameters.safe):
                     LOGGER.warning(
                         "%s: Parameter id '%s' or value '%s' invalid!",
-                        self._host,
+                        self.__host,
                         definition.index,
                         value,
                     )
                     continue
-                LOGGER.debug("%s: Parameter '%d' set to '%s'", self._host, definition.index, value)
+                LOGGER.debug("%s: Parameter '%d' set to '%s'", self.__host, definition.index, value)
                 self._send_ints(LUXTRONIK_PARAMETERS_WRITE, definition.index, value)
                 cmd = self._read_int()
-                LOGGER.debug("%s: Command %s", self._host, cmd)
+                LOGGER.debug("%s: Command %s", self.__host, cmd)
                 val = self._read_int()
-                LOGGER.debug("%s: Value %s", self._host, val)
+                LOGGER.debug("%s: Value %s", self.__host, val)
                 count += 1
-        LOGGER.info("%s: Write %d parameters", self._host, count)
+        LOGGER.info("%s: Write %d parameters", self.__host, count)
         # Give the heatpump a short time to handle the value changes/calculations:
         time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
 
@@ -246,12 +260,12 @@ class LuxtronikSocketInterface:
         data = []
         self._send_ints(LUXTRONIK_PARAMETERS_READ, 0)
         cmd = self._read_int()
-        LOGGER.debug("%s: Command %s", self._host, cmd)
+        LOGGER.debug("%s: Command %s", self.__host, cmd)
         length = self._read_int()
-        LOGGER.debug("%s: Length %s", self._host, length)
+        LOGGER.debug("%s: Length %s", self.__host, length)
         for _ in range(0, length):
             data.append(self._read_int())
-        LOGGER.info("%s: Read %d parameters", self._host, length)
+        LOGGER.info("%s: Read %d parameters", self.__host, length)
         self._parse(parameters, data)
         return parameters
 
@@ -259,14 +273,14 @@ class LuxtronikSocketInterface:
         data = []
         self._send_ints(LUXTRONIK_CALCULATIONS_READ, 0)
         cmd = self._read_int()
-        LOGGER.debug("%s: Command %s", self._host, cmd)
+        LOGGER.debug("%s: Command %s", self.__host, cmd)
         stat = self._read_int()
-        LOGGER.debug("%s: Stat %s", self._host, stat)
+        LOGGER.debug("%s: Stat %s", self.__host, stat)
         length = self._read_int()
-        LOGGER.debug("%s: Length %s", self._host, length)
+        LOGGER.debug("%s: Length %s", self.__host, length)
         for _ in range(0, length):
             data.append(self._read_int())
-        LOGGER.info("%s: Read %d calculations", self._host, length)
+        LOGGER.info("%s: Read %d calculations", self.__host, length)
         self._parse(calculations, data)
         return calculations
 
@@ -274,19 +288,19 @@ class LuxtronikSocketInterface:
         data = []
         self._send_ints(LUXTRONIK_VISIBILITIES_READ, 0)
         cmd = self._read_int()
-        LOGGER.debug("%s: Command %s", self._host, cmd)
+        LOGGER.debug("%s: Command %s", self.__host, cmd)
         length = self._read_int()
-        LOGGER.debug("%s: Length %s", self._host, length)
+        LOGGER.debug("%s: Length %s", self.__host, length)
         for _ in range(0, length):
             data.append(self._read_char())
-        LOGGER.info("%s: Read %d visibilities", self._host, length)
+        LOGGER.info("%s: Read %d visibilities", self.__host, length)
         self._parse(visibilities, data)
         return visibilities
 
     def _send_ints(self, *ints):
         "Low-level helper to send a tuple of ints"
         data = struct.pack(">" + "i" * len(ints), *ints)
-        LOGGER.debug("%s: sending %s", self._host, data)
+        LOGGER.debug("%s: sending %s", self.__host, data)
         self._socket.sendall(data)
 
     def _read_bytes(self, count):
@@ -299,13 +313,13 @@ class LuxtronikSocketInterface:
             reading = self._socket.recv( missing )
 
             if len(reading) == 0:
-                LOGGER.error("%s: Connection died.", self._host)
-                raise ConnectionError("Connection to %s died." % self._host)
+                LOGGER.error("%s: Connection died.", self.__host)
+                raise ConnectionError("Connection to %s died." % self.__host)
 
             total_reading += reading
 
             if len(reading) is not missing:
-                LOGGER.debug("%s: received %s bytes out of %s bytes. Will read again.", self._host, len(reading), missing)
+                LOGGER.debug("%s: received %s bytes out of %s bytes. Will read again.", self.__host, len(reading), missing)
 
         return total_reading
 

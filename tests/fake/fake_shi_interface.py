@@ -17,10 +17,10 @@ class FakeShiInterface(LuxtronikSmartHomeInterface):
     @classmethod
     def for_script_test(cls):
         obj = cls.__new__(cls)
-        obj._interface = cls.dummy()
-        obj._interface._client = cls.dummy()
-        obj._interface._client._host = "host"
-        obj._interface._client._port = "port"
+        obj._LuxtronikSmartHomeInterface_interface = cls.dummy()
+        obj._LuxtronikSmartHomeInterface_interface._client = cls.dummy()
+        obj._LuxtronikSmartHomeInterface_interface._client._host = "host"
+        obj._LuxtronikSmartHomeInterface_interface._client._port = "port"
         return obj
 
     @classmethod

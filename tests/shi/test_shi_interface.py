@@ -75,7 +75,7 @@ class TestLuxtronikSmartHomeInterface:
         cls.interface = LuxtronikSmartHomeInterface(FakeModbus(), LUXTRONIK_FIRST_VERSION_WITH_SHI)
 
     def test_init(self):
-        assert isinstance(self.interface._interface, FakeModbus)
+        assert isinstance(self.interface._LuxtronikSmartHomeInterface__interface, FakeModbus)
         assert self.interface._blocks_list == []
         assert self.interface.version == LUXTRONIK_FIRST_VERSION_WITH_SHI
         assert len(self.interface._filtered_holdings) > 0

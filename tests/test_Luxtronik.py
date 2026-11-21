@@ -29,9 +29,9 @@ class TestLuxtronik:
     def test_if_init(self):
         lux = LuxtronikInterface('host', 1234, 5678)
 
-        assert lux._host == 'host'
-        assert lux._port == 1234
-        assert lux._interface._client._port == 5678
+        assert lux._LuxtronikSocketInterface__host == 'host'
+        assert lux._LuxtronikSocketInterface__port == 1234
+        assert lux._LuxtronikSmartHomeInterface__interface._client._port == 5678
         assert lux.version == (3, 99, 11, 0)
 
     def test_if_lock(self):
