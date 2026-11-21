@@ -8,6 +8,7 @@ import time
 from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import integrate_data
 from luxtronik.common import get_host_lock
+from luxtronik.definitions import LuxtronikDefinitionsList
 from luxtronik.version import VER_IGNORE, resolve_version_input
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_CFI_PORT,
@@ -20,10 +21,9 @@ from luxtronik.cfi.constants import (
     WAIT_TIME_AFTER_PARAMETER_WRITE,
     LUXTRONIK_CFI_REGISTER_BIT_SIZE,
 )
-from luxtronik.cfi.calculations import Calculations
-from luxtronik.cfi.parameters import Parameters
-from luxtronik.cfi.visibilities import Visibilities
-
+from luxtronik.cfi.calculations import Calculations, CALCULATIONS_DEFINITIONS
+from luxtronik.cfi.parameters import Parameters, PARAMETERS_DEFINITIONS
+from luxtronik.cfi.visibilities import Visibilities, VISIBILITIES_DEFINITIONS
 
 LOGGER = logging.getLogger(__name__)
 
@@ -116,17 +116,45 @@ class LuxtronikSocketInterface:
     might not be called.
     """
 
-    def __init__(self, host, port=LUXTRONIK_DEFAULT_CFI_PORT):
+    def __init__(self, host, port=LUXTRONIK_DEFAULT_CFI_PORT, version=LUXTRONIK_VERSION_IGNORE):
+        """
+        Initialize the config interface.
+
+        Args:
+            host (str): IP-Address or name of the host.
+            port (int): Port to use.
+            version (tuple[int] | str | None): Version to be used for creating fields or data vectors.
+                This ensures that the data vectors only contain valid fields.
+                If None is passed, all available fields are added.
+                Additionally, the version is used to performed some consistency checks.
+                (default: LUXTRONIK_VERSION_IGNORE)
+        """
         # Use name-mangling for unique field names. See class description.
         # Acquire a lock object for this host to ensure thread safety
+        version, do_auto_detect = resolve_version_input(version)
         self.__lock = get_host_lock(host)
         self.__host = host
         self.__port = port
         self._socket = None
+        self.__version = version # is never none
+        self._filtered_parameters = LuxtronikDefinitionsList.filtered(PARAMETERS_DEFINITIONS, version)
+        self._filtered_calculations = LuxtronikDefinitionsList.filtered(CALCULATIONS_DEFINITIONS, version)
+        self._filtered_visibilities = LuxtronikDefinitionsList.filtered(VISIBILITIES_DEFINITIONS, version)
 
     @property
     def lock(self):
         return self.__lock
+
+# Version methods ##############################################################
+
+
+    @property
+    def version(self):
+        return self.__version
+
+
+# Helper methods ##############################################################
+
 
     def _with_lock_and_connect(self, func, *args, **kwargs):
         """
@@ -162,6 +190,8 @@ class LuxtronikSocketInterface:
         self._socket = None
         return ret_val
 
+# Read methods ################################################################
+
     def read(self, data=None):
         """
         All available data will be read from the heat pump
@@ -169,7 +199,7 @@ class LuxtronikSocketInterface:
         This data object is returned afterwards, mainly for access to a newly created.
         """
         if data is None:
-            data = LuxtronikData(None, None, None, VER_IGNORE, True)
+            data = LuxtronikData(None, None, None, self.__version, True)
         return self._with_lock_and_connect(self._read, data)
 
     def read_parameters(self, parameters=None):
@@ -178,7 +208,7 @@ class LuxtronikSocketInterface:
         This dictionary is returned afterwards, mainly for access to a newly created.
         """
         if parameters is None:
-            parameters = Parameters(VER_IGNORE)
+            parameters = Parameters(self.__version)
         return self._with_lock_and_connect(self._read_parameters, parameters)
 
     def read_calculations(self, calculations=None):
@@ -187,7 +217,7 @@ class LuxtronikSocketInterface:
         This dictionary is returned afterwards, mainly for access to a newly created.
         """
         if calculations is None:
-            calculations = Calculations(VER_IGNORE)
+            calculations = Calculations(self.__version)
         return self._with_lock_and_connect(self._read_calculations, calculations)
 
     def read_visibilities(self, visibilities=None):
@@ -196,8 +226,10 @@ class LuxtronikSocketInterface:
         This dictionary is returned afterwards, mainly for access to a newly created.
         """
         if visibilities is None:
-            visibilities = Visibilities(VER_IGNORE)
+            visibilities = Visibilities(self.__version)
         return self._with_lock_and_connect(self._read_visibilities, visibilities)
+
+# Write methods ###############################################################
 
     def write(self, parameters):
         """
@@ -215,7 +247,7 @@ class LuxtronikSocketInterface:
         after a short wait time
         """
         if data is None:
-            data = LuxtronikData(None, None, None, VER_IGNORE, True)
+            data = LuxtronikData(None, None, None, self.__version, True)
         return self._with_lock_and_connect(self._write_and_read, parameters, data)
 
     def _read(self, data):
@@ -234,7 +266,7 @@ class LuxtronikSocketInterface:
             return
         count = 0
         for definition, field in parameters.items():
-            if field.write_pending:
+            if definition.version.matches(self.__version) and field.write_pending:
                 field.write_pending = False
                 value = field.raw
                 if not isinstance(definition.index, int) or not field.check_for_write(parameters.safe):
@@ -350,6 +382,9 @@ class LuxtronikSocketInterface:
         # integrate the data into the fields
         for pair in data_vector.data.items():
             definition, field = pair
+            # skip this field if not supported by the controller
+            if not definition.version.matches(self.__version):
+                continue
             # skip this field if there are not enough data
             next_idx = definition.index + definition.count
             if next_idx > raw_len:
@@ -364,9 +399,10 @@ class LuxtronikSocketInterface:
             pair.integrate_data(raw_data, LUXTRONIK_CFI_REGISTER_BIT_SIZE)
 
         # create an unknown field for additional data
-        for index in undefined:
-            # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)
-            definition = data_vector.definitions.create_unknown_definition(index)
-            field = definition.create_field()
-            integrate_data(definition, field, raw_data, LUXTRONIK_CFI_REGISTER_BIT_SIZE, index)
-            data_vector.data.add_sorted(definition, field)
+        if self.__version == VER_IGNORE:
+            for index in undefined:
+                # LOGGER.warning(f"Entry '%d' not in list of {self.name}", index)
+                definition = data_vector.definitions.create_unknown_definition(index)
+                field = definition.create_field()
+                integrate_data(definition, field, raw_data, LUXTRONIK_CFI_REGISTER_BIT_SIZE, index)
+                data_vector.data.add_sorted(definition, field)

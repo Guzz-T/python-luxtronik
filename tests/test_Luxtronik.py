@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from luxtronik.version import VER_IGNORE
 from luxtronik.shi.interface import LuxtronikSmartHomeData
 from luxtronik import (
     LuxtronikData,
@@ -32,7 +33,7 @@ class TestLuxtronik:
         assert lux._LuxtronikSocketInterface__host == 'host'
         assert lux._LuxtronikSocketInterface__port == 1234
         assert lux._LuxtronikSmartHomeInterface__interface._client._port == 5678
-        assert lux.version == (3, 99, 11, 0)
+        assert lux.version == VER_IGNORE
 
     def test_if_lock(self):
         lux = LuxtronikInterface('host', 1234, 5678)
