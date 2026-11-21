@@ -129,6 +129,8 @@ class TestVersion:
             ((1, 2),       '1.2'),
             ((2, 4, 1),    '2.4.1'),
             ((5, 1, 2, 2), '5.1.2.2'),
+            (VER_NONE,     'VER_NONE'),
+            (VER_IGNORE,   'VER_IGNORE'),
         ]
     )
     def test_version_str(self, version, result):

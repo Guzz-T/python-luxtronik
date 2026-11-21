@@ -26,16 +26,16 @@ OPERATOR_TO_STR = {func: string for string, func in OPERATORS.items()}
 VERSION_DELIMITER = "."
 REQUIREMENT_DELIMITERS = [";", ","]
 
-class DummyObjekt:
-    def __repr__(self):
-        return type(self).__name__
+class CustomStrMeta(type):
+    def __str__(cls):
+        return f"{cls.__name__}"
 
 # Object to define that all version requirements are ignored
 # Note: "None" acts like VER_IGNORE
-class VER_IGNORE(DummyObjekt):
+class VER_IGNORE(metaclass=CustomStrMeta):
     pass
 # Object to define that no version requirement will match
-class VER_NONE(DummyObjekt):
+class VER_NONE(metaclass=CustomStrMeta):
     pass
 
 ###############################################################################
@@ -146,6 +146,8 @@ def version_in_range(version, since=None, until=None):
 
 
 def get_version_str(version_tuple):
+    if version_tuple in {VER_IGNORE, VER_NONE}:
+        return str(version_tuple)
     return VERSION_DELIMITER.join(map(str, version_tuple))
 
 
