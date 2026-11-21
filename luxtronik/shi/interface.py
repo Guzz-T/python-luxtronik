@@ -10,7 +10,7 @@ from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
 )
-from luxtronik.interface import LuxtronikBaseInterface
+from luxtronik.interface import LuxtronikInterfaceInfo, LuxtronikBaseInterface
 from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.common import (
@@ -130,6 +130,12 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
         # Use name-mangling for unique field names. See class description.
         self.__interface = interface
         self.__version = version # is never none
+        self.__info = LuxtronikInterfaceInfo(
+            'SHI',
+            interface._host,
+            interface._port,
+            version
+        )
         self._blocks_list = []
         self._filtered_holdings = holdings
         self._filtered_inputs = inputs
@@ -170,6 +176,9 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
     def lock(self):
         return self.__interface._lock
 
+    @property
+    def info(self):
+        return self.__info
 
 # Version methods ##############################################################
 
@@ -604,13 +613,13 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
             else:
                 count['u'] += t.count
         if count['hr'] > 0:
-            LOGGER.info(f"{self.__interface._host}: Read {count['hr']} holdings")
+            LOGGER.info(f"{self.__info.short_desc}: Read {count['hr']} holdings")
         if count['ir'] > 0:
-            LOGGER.info(f"{self.__interface._host}: Read {count['ir']} inputs")
+            LOGGER.info(f"{self.__info.short_desc}: Read {count['ir']} inputs")
         if count['hw'] > 0:
-            LOGGER.info(f"{self.__interface._host}: Write {count['hw']} holdings")
+            LOGGER.info(f"{self.__info.short_desc}: Write {count['hw']} holdings")
         if count['u'] > 0:
-            LOGGER.info(f"{self.__interface._host}: Write {count['u']} unknowns?")
+            LOGGER.info(f"{self.__info.short_desc}: Write {count['u']} unknowns?")
         # Transfer the data from the telegrams into the fields
         success &= self._integrate_data(telegrams_data)
         return success

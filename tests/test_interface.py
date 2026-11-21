@@ -1,6 +1,8 @@
 from luxtronik.cfi import LuxtronikSocketInterface
 from luxtronik.shi import LuxtronikSmartHomeInterface
 
+from tests.fake import FakeModbus
+
 class TestInterface:
 
     def test_unique_methods_and_functions(self):
@@ -9,9 +11,10 @@ class TestInterface:
         unique function names
         """
         cfi = LuxtronikSocketInterface('host')
-        shi = LuxtronikSmartHomeInterface(None)
+        modbus = FakeModbus('host')
+        shi = LuxtronikSmartHomeInterface(modbus)
 
-        accepted_equal_names = {'read', 'write', 'write_and_read', 'version', 'determine_version', 'read_version', '_abc_impl', 'create_data', 'lock'}
+        accepted_equal_names = {'read', 'write', 'write_and_read', 'version', 'determine_version', 'read_version', '_abc_impl', 'create_data', 'lock', 'info'}
 
         attrs_cfi = {name for name in dir(cfi) if not name.startswith("__")}
         attrs_shi = {name for name in dir(shi) if not name.startswith("__")}

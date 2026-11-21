@@ -9,7 +9,7 @@ from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import integrate_data
 from luxtronik.common import get_host_lock
 from luxtronik.definitions import LuxtronikDefinitionsList
-from luxtronik.interface import LuxtronikBaseInterface
+from luxtronik.interface import LuxtronikInterfaceInfo, LuxtronikBaseInterface
 from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_CFI_PORT,
@@ -126,6 +126,12 @@ class LuxtronikSocketInterface(LuxtronikBaseInterface):
         self.__port = port
         self._socket = None
         self.__version = version # is never none
+        self.__info = LuxtronikInterfaceInfo(
+            'CFI',
+            host,
+            port,
+            version
+        )
         self._filtered_parameters = parameters
         self._filtered_calculations = calculations
         self._filtered_visibilities = visibilities
@@ -169,6 +175,10 @@ class LuxtronikSocketInterface(LuxtronikBaseInterface):
     @property
     def lock(self):
         return self.__lock
+
+    @property
+    def info(self):
+        return self.__info
 
 # Version methods ##############################################################
 

@@ -9,6 +9,7 @@ import logging
 from luxtronik.constants import LUXTRONIK_VERSION_DETECT, LUXTRONIK_VERSION_IGNORE
 from luxtronik.common import get_host_lock
 from luxtronik.discover import discover  # noqa: F401
+from luxtronik.interface import LuxtronikInterfaceInfo
 from luxtronik.version import VER_IGNORE, resolve_version_input
 
 from luxtronik.cfi import (
@@ -162,12 +163,23 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
             if version == VER_IGNORE:
                 version = LuxtronikSmartHomeInterface.determine_version(modbus_interface)
 
+        self.__info = LuxtronikInterfaceInfo(
+            'Lux',
+            host,
+            f"{port_config};{port_shi}",
+            version
+        )
+
         LuxtronikSocketInterface.__init__(self, host, port_config, version)
         LuxtronikSmartHomeInterface.__init__(self, modbus_interface, version)
 
     @property
     def lock(self):
         return self.__lock
+
+    @property
+    def info(self):
+        return self.__info
 
     # We do not need to override the determine_version() method
     # def determine_version(cls, host, port):

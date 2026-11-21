@@ -1,3 +1,5 @@
+from luxtronik.interface import LuxtronikInterfaceInfo
+from luxtronik.version import VER_IGNORE
 from luxtronik.shi import (
     LuxtronikSmartHomeInterface,
     LuxtronikSmartHomeData,
@@ -21,6 +23,12 @@ class FakeShiInterface(LuxtronikSmartHomeInterface):
         obj._LuxtronikSmartHomeInterface_interface._client = cls.dummy()
         obj._LuxtronikSmartHomeInterface_interface._client._host = "host"
         obj._LuxtronikSmartHomeInterface_interface._client._port = "port"
+        obj._LuxtronikSmartHomeInterface__info = LuxtronikInterfaceInfo(
+            "SHI",
+            "host",
+            5678,
+            VER_IGNORE
+        )
         return obj
 
     @classmethod
