@@ -10,6 +10,7 @@ from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
 )
+from luxtronik.interface import LuxtronikBaseInterface
 from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.common import (
@@ -104,7 +105,7 @@ class LuxtronikSmartHomeData:
 # Smart home interface
 ###############################################################################
 
-class LuxtronikSmartHomeInterface:
+class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
     """
     Read/write interface for Luxtronik smart home fields.
 
@@ -164,6 +165,10 @@ class LuxtronikSmartHomeInterface:
         obj = cls.__new__(cls) # this don't call __init__()
         obj.__init_instance(interface, VER_IGNORE, HOLDINGS_DEFINITIONS, INPUTS_DEFINITIONS)
         return obj
+
+    @property
+    def lock(self):
+        return self.__interface._lock
 
 
 # Version methods ##############################################################

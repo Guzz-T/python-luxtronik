@@ -9,6 +9,7 @@ from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import integrate_data
 from luxtronik.common import get_host_lock
 from luxtronik.definitions import LuxtronikDefinitionsList
+from luxtronik.interface import LuxtronikBaseInterface
 from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_CFI_PORT,
@@ -105,7 +106,7 @@ class LuxtronikData:
 # Config interface
 ###############################################################################
 
-class LuxtronikSocketInterface:
+class LuxtronikSocketInterface(LuxtronikBaseInterface):
     """
     Luxtronik read/write interface via socket.
 
@@ -216,6 +217,9 @@ class LuxtronikSocketInterface:
 
 # Helper methods ##############################################################
 
+    def create_data(self, safe=True):
+        """See LuxtronikBaseInterface.create_data description"""
+        return LuxtronikData(None, None, None, self.__version, safe)
 
     def _with_lock_and_connect(self, func, *args, **kwargs):
         """
