@@ -29,7 +29,7 @@ def dump_all(screen, client, changes, prev_data, this_data):
     update_changes(changes, prev_data.holdings, this_data.holdings)
 
     # Print changes
-    print_watch_header(screen, f"Watch SHI of {client._interface._client._host}:{client._interface._client._port}")
+    print_watch_header(screen, f"Watch SHI of {client.info.long_desc}")
     sorted_changes = OrderedDict(sorted(changes.items()))
     for key, values in sorted_changes.items():
         screen.write(values)

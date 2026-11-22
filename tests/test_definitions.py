@@ -1,11 +1,19 @@
-from luxtronik.datatypes import Base, Unknown
+
+from luxtronik.datatypes import (
+    Base,
+    Unknown,
+    FullVersion,
+    Version,
+    MajorMinorVersion
+)
 from luxtronik.definitions import (
     Keys,
     LuxtronikDefinition,
     LuxtronikDefinitionsDictionary,
     LuxtronikDefinitionsList,
+    get_version_definitions,
 )
-from luxtronik.version import VersionRequirement, VersionRequirements
+from luxtronik.version import VER_IGNORE, VersionRequirement, VersionRequirements
 import operator
 
 ###############################################################################
@@ -253,7 +261,7 @@ class TestDefinitionsList:
         assert len(definitions) == 4
         assert definitions.name == 'foo'
         assert definitions.offset == 100
-        assert definitions._version is None
+        assert definitions._version is VER_IGNORE
         assert 5 in definitions
         assert 'field_9a' in definitions
         assert definitions[7] in definitions
@@ -359,3 +367,57 @@ class TestDefinitionsList:
         definitions = LuxtronikDefinitionsList(self.def_list, 'foo', 100, '')
         text = repr(definitions)
         assert text
+
+
+def test_get_version_definitions():
+    def_list = [
+        {
+            Keys.IDX: 5,
+            Keys.TYPE: Base,
+        },
+        {
+            Keys.IDX: 6,
+            Keys.TYPE: MajorMinorVersion,
+        },
+        {
+            Keys.IDX: 8,
+            Keys.TYPE: Unknown,
+        },
+        {
+            Keys.IDX: 10,
+            Keys.TYPE: FullVersion,
+            Keys.VERSION: ">1.0"
+        },
+        {
+            Keys.IDX: 40,
+            Keys.TYPE: Version,
+        },
+        {
+            Keys.IDX: 41,
+            Keys.TYPE: MajorMinorVersion,
+        },
+    ]
+
+    definitions = LuxtronikDefinitionsList(def_list, 'bar', 100, '')
+    got_definitions = get_version_definitions(definitions)
+    assert len(got_definitions) == 4
+    assert got_definitions[0].index == 10
+    assert got_definitions[0].field_type is FullVersion
+    assert got_definitions[1].index == 40
+    assert got_definitions[1].field_type is Version
+    assert got_definitions[2].index == 6
+    assert got_definitions[2].field_type is MajorMinorVersion
+    assert got_definitions[3].index == 41
+    assert got_definitions[3].field_type is MajorMinorVersion
+
+    defs = definitions.get_version_definitions()
+    assert got_definitions == defs
+
+    got_definitions = get_version_definitions(definitions, '1.0')
+    assert len(got_definitions) == 3
+    assert got_definitions[0].index == 40
+    assert got_definitions[0].field_type is Version
+    assert got_definitions[1].index == 6
+    assert got_definitions[1].field_type is MajorMinorVersion
+    assert got_definitions[2].index == 41
+    assert got_definitions[2].field_type is MajorMinorVersion

@@ -5,8 +5,9 @@ from luxtronik.constants import (
     LUXTRONIK_LATEST_VERSION,
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
 )
-from luxtronik.datatypes import Base, Unknown
+from luxtronik.datatypes import Base, Unknown, FullVersion
 from luxtronik.definitions import LuxtronikDefinition
+from luxtronik.version import VER_IGNORE
 
 from luxtronik.shi.constants import LUXTRONIK_FIRST_VERSION_WITH_SHI
 
@@ -39,10 +40,10 @@ class TestLuxtronikSmartHomeData:
     def test_init(self):
         data1 = LuxtronikSmartHomeData()
         assert data1.holdings is not None
-        assert data1.holdings.version == LUXTRONIK_LATEST_VERSION
+        assert data1.holdings.version == VER_IGNORE
         assert data1.holdings.safe
         assert data1.inputs is not None
-        assert data1.inputs.version == LUXTRONIK_LATEST_VERSION
+        assert data1.inputs.version == VER_IGNORE
         assert data1.inputs.safe
 
         data2 = LuxtronikSmartHomeData(data1.holdings)
@@ -58,6 +59,13 @@ class TestLuxtronikSmartHomeData:
         assert data.inputs.safe
         assert data.inputs.version == (1, 2, 0, 0)
 
+    def test_get_firmware_version(self):
+        a = LuxtronikSmartHomeData()
+
+        first_version_field = a.inputs['version']
+        first_version_field.raw = [0, 8, 15]
+        assert a.inputs.get_firmware_version() == "V0.8.15"
+
 
 @patch("luxtronik.shi.LuxtronikModbusTcpInterface", FakeModbus)
 class TestLuxtronikSmartHomeInterface:
@@ -67,7 +75,7 @@ class TestLuxtronikSmartHomeInterface:
         cls.interface = LuxtronikSmartHomeInterface(FakeModbus(), LUXTRONIK_FIRST_VERSION_WITH_SHI)
 
     def test_init(self):
-        assert isinstance(self.interface._interface, FakeModbus)
+        assert isinstance(self.interface._LuxtronikSmartHomeInterface__interface, FakeModbus)
         assert self.interface._blocks_list == []
         assert self.interface.version == LUXTRONIK_FIRST_VERSION_WITH_SHI
         assert len(self.interface._filtered_holdings) > 0
@@ -1309,11 +1317,11 @@ class TestLuxtronikSmartHomeInterface:
 
     def test_create_modbus(self):
         interface = create_modbus_tcp('host', version=None)
-        assert interface.version is None
+        assert interface.version is VER_IGNORE
         self.check_definitions(interface)
 
         interface = create_modbus_tcp('host', version=1)
-        assert interface.version is None
+        assert interface.version is VER_IGNORE
         self.check_definitions(interface)
 
         interface = create_modbus_tcp('host', version="1.2.3")
@@ -1335,7 +1343,53 @@ class TestLuxtronikSmartHomeInterface:
         FakeModbus.result = False
 
         interface = create_modbus_tcp('host')
-        assert interface.version is None
+        assert interface.version is VER_IGNORE
         self.check_definitions(interface)
 
         FakeModbus.result = True
+
+
+class FakeReadInput:
+    param = None
+
+    def fake_read_input(self, definition):
+        if FakeReadInput is None:
+            return None
+        else:
+            field = FullVersion("ver")
+            field.raw = FakeReadInput.param
+            return field
+
+@patch("luxtronik.LuxtronikSmartHomeInterface.read_input", FakeReadInput.fake_read_input)
+class TestLuxtronikSmartHomeInterfaceVersion:
+
+    def test_determine_version(self):
+        modbus = FakeModbus()
+        FakeReadInput.param = [18, 12, 3, 0]
+        ver = LuxtronikSmartHomeInterface.determine_version(modbus)
+        assert ver == (18, 12, 3, 0)
+
+        FakeReadInput.param = None
+        ver = LuxtronikSmartHomeInterface.determine_version(modbus)
+        assert ver == VER_IGNORE
+
+    def test_read_version(self):
+        modbus = FakeModbus()
+        shi = LuxtronikSmartHomeInterface(modbus, None)
+
+        FakeReadInput.param = [7, 3, 3, 3]
+        ver = shi.read_version()
+        # FullVersion only transport Major.Minor.Patch
+        assert ver == (7, 3, 3, 0)
+
+        FakeReadInput.param = []
+        ver = shi.read_version()
+        assert ver == VER_IGNORE
+
+    def test_version_detect(self):
+        modbus = FakeModbus()
+        FakeReadInput.param = [5, 3, 2, 1]
+        shi = LuxtronikSmartHomeInterface(modbus, 'detect')
+        ver = shi.version
+        # FullVersion only transport Major.Minor.Patch
+        assert ver == (5, 3, 2, 0)

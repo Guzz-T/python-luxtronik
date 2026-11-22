@@ -17,7 +17,7 @@ class TestParameters:
         assert parameters.data == parameters._data
         assert parameters.safe
 
-        parameters = Parameters(False)
+        parameters = Parameters(None, False)
         assert not parameters.safe
 
     def test_data(self):

@@ -27,7 +27,7 @@ def dump_all(screen, client, changes, prev_data, this_data):
     update_changes(changes, prev_data.visibilities, this_data.visibilities)
 
     # Print changes
-    print_watch_header(screen, f"Watch CFI of {client._host}:{client._port}")
+    print_watch_header(screen, f"Watch CFI of {client.info.long_desc}")
     sorted_changes = OrderedDict(sorted(changes.items()))
     for key, values in sorted_changes.items():
         screen.write(values)
