@@ -6,8 +6,11 @@ from __future__ import annotations
 
 import logging
 
+from luxtronik.constants import LUXTRONIK_VERSION_DETECT, LUXTRONIK_VERSION_IGNORE
 from luxtronik.common import get_host_lock
 from luxtronik.discover import discover  # noqa: F401
+from luxtronik.interface import LuxtronikInterfaceInfo
+from luxtronik.version import VER_IGNORE, resolve_version_input
 
 from luxtronik.cfi import (
     LUXTRONIK_DEFAULT_CFI_PORT,
@@ -24,7 +27,6 @@ from luxtronik.shi import (
     Inputs,  # noqa: F401
     LuxtronikSmartHomeData,
     LuxtronikSmartHomeInterface,
-    resolve_version,
 )
 # endregion Imports
 
@@ -51,7 +53,7 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
         visibilities=None,
         holdings=None,
         inputs=None,
-        version=None,
+        version=LUXTRONIK_VERSION_IGNORE,
         safe=True
     ):
         """
@@ -68,32 +70,73 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
                 a new `Holdings` instance is created.
             inputs (Inputs): Optional inputs data vector. If not provided,
                 a new `Inputs` instance is created.
-            version (tuple[int] | None): Version to be used for creating the data vectors.
+            version (tuple[int] | str | None): Version to be used for creating the data vectors.
                 This ensures that the data vectors only contain valid fields.
                 If None is passed, all available fields are added.
             safe (bool): If true, prevent parameter and holding fields marked as
                 not secure from being written to.
         """
-        LuxtronikData.__init__(self, parameters, calculations, visibilities, safe)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        LuxtronikData.__init__(self, parameters, calculations, visibilities, version, safe)
         LuxtronikSmartHomeData.__init__(self, holdings, inputs, version, safe)
+
+    @classmethod
+    def empty(
+        cls,
+        version=LUXTRONIK_VERSION_IGNORE,
+        safe=True
+    ):
+        """
+        Initialize an empty LuxtronikAllData instance
+        (= no fields are added to the data-vectors).
+
+        Args:
+            version (tuple[int] | str | None): The version is added to the data vectors
+                so some checks can be performed later.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent holding fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        LuxtronikData.empty(
+            obj,
+            Parameters.empty(version, safe),
+            Calculations.empty(version),
+            Visibilities.empty(version),
+            version,
+            safe
+        )
+        LuxtronikSmartHomeData.empty(
+            obj,
+            Holdings.empty(version, safe),
+            Inputs.empty(version),
+            version,
+            safe
+        )
+        return obj
+
+    def get_firmware_version(self):
+        return LuxtronikData.get_firmware_version(self)
+
 
 class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
     """
     Combined interface that can be used to control both
     the configuration interface and the smart home interface.
 
-    For simplicity, only the basic functions are offered.
-
     Attention! It must be ensured that `LuxtronikSocketInterface` and
     `LuxtronikSmartHomeInterface` do not instantiate the same fields.
     Otherwise, the derivations will overwrite each other.
+    Luckily, there's a pytest for that.
     """
 
     def __init__(
         self,
         host,
         port_config=LUXTRONIK_DEFAULT_CFI_PORT,
-        port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT
+        port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT,
+        version=LUXTRONIK_VERSION_DETECT
     ):
         """
         Initialize the "combined" luxtronik interface.
@@ -104,18 +147,52 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
                   (default: LUXTRONIK_DEFAULT_CFI_PORT).
             port_shi (int): TCP port for the smart home interface (via modbusTCP)
                   (default: LUXTRONIK_DEFAULT_MODBUS_PORT).
+            version (tuple[int] | str | None): Version to be used for creating the interface.
+                This ensures that the created data vectors only contain valid fields.
+                If None is passed, all available fields will be added.
         """
-        self._lock = get_host_lock(host)
+        self.__lock = get_host_lock(host)
 
-        self._host = host
-        LuxtronikSocketInterface.__init__(self, host, port_config)
         modbus_interface = LuxtronikModbusTcpInterface(host, port_shi)
-        resolved_version = resolve_version(modbus_interface)
-        LuxtronikSmartHomeInterface.__init__(self, modbus_interface, resolved_version)
+
+        version, auto_detect = resolve_version_input(version)
+        if auto_detect:
+            # Use the CFI since this should always be available
+            version = LuxtronikSocketInterface.determine_version(host, port_config)
+            # If the version is still unknown, try this via the SHI
+            if version == VER_IGNORE:
+                version = LuxtronikSmartHomeInterface.determine_version(modbus_interface)
+
+        self.__info = LuxtronikInterfaceInfo(
+            'Lux',
+            host,
+            f"{port_config};{port_shi}",
+            version
+        )
+
+        LuxtronikSocketInterface.__init__(self, host, port_config, version)
+        LuxtronikSmartHomeInterface.__init__(self, modbus_interface, version)
 
     @property
     def lock(self):
-        return self._lock
+        return self.__lock
+
+    @property
+    def info(self):
+        return self.__info
+
+    # We do not need to override the determine_version() method
+    # def determine_version(cls, host, port):
+
+    @property
+    def version(self):
+        return LuxtronikSocketInterface.version.fget(self)
+
+    def read_version(self):
+        return LuxtronikSocketInterface.read_version(self)
+
+    def create_data(self, safe=True):
+        return self.create_all_data(safe)
 
     def create_all_data(self, safe=True):
         """
@@ -128,7 +205,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         Returns:
             LuxtronikAllData: The created data-collection.
         """
-        return LuxtronikAllData(None, None, None, None, None, self._version, safe)
+        return LuxtronikAllData(None, None, None, None, None, self.version, safe)
 
     def read_all(self, data=None):
         """
@@ -234,9 +311,10 @@ class Luxtronik(LuxtronikAllData):
         host,
         port=LUXTRONIK_DEFAULT_CFI_PORT,
         safe=True,
-        port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT
+        port_shi=LUXTRONIK_DEFAULT_MODBUS_PORT,
+        version=LUXTRONIK_VERSION_DETECT
     ):
-        self._interface = LuxtronikInterface(host, port, port_shi)
+        self._interface = LuxtronikInterface(host, port, port_shi, version)
         super().__init__(version=self._interface.version, safe=safe)
         self.read()
 

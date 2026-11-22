@@ -25,7 +25,7 @@ VISIBILITIES_DEFINITIONS: Final = LuxtronikDefinitionsList(
 )
 
 class Visibilities(DataVectorConfig):
-    """Class that holds all visibilities."""
+    """Class that holds visibility fields."""
 
     name = VISIBILITIES_FIELD_NAME
     definitions = VISIBILITIES_DEFINITIONS

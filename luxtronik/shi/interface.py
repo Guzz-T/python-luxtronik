@@ -3,13 +3,15 @@
 import logging
 
 from luxtronik.common import classproperty
-from luxtronik.constants import LUXTRONIK_LATEST_VERSION
+from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import get_data_arr
 from luxtronik.datatypes import Base
 from luxtronik.definitions import (
     LuxtronikDefinition,
     LuxtronikDefinitionsList,
 )
+from luxtronik.interface import LuxtronikInterfaceInfo, LuxtronikBaseInterface
+from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.shi.constants import LUXTRONIK_SHI_REGISTER_BIT_SIZE
 from luxtronik.shi.common import (
     LuxtronikSmartHomeReadHoldingsTelegram,
@@ -38,13 +40,19 @@ class LuxtronikSmartHomeData:
 
     Holds both the `holdings` and `inputs` data structures that represent
     the smart home data exposed by the Luxtronik controller.
+
+    Note: This class is grouped with other classes in the Luxtronik section.
+    Use only unique identifiers (e.g., using name mangling like `self.__version`;
+    this is checked by pytest) for methods and fields and do not use public
+    methods internally (e.g., `self.version`). Otherwise, the correct function
+    might not be called.
     """
 
     def __init__(
         self,
         holdings=None,
         inputs=None,
-        version=LUXTRONIK_LATEST_VERSION,
+        version=LUXTRONIK_VERSION_IGNORE,
         safe=SAFE
     ):
         """
@@ -55,20 +63,21 @@ class LuxtronikSmartHomeData:
                 a new `Holdings` instance is created.
             inputs (Inputs): Optional inputs data vector. If not provided,
                 a new `Inputs` instance is created.
-            version (tuple[int] | None): Version to be used for creating the data vectors.
+            version (tuple[int] | str | None): Version to be used for creating the data vectors.
                 This ensures that the data vectors only contain valid fields.
                 If None is passed, all available fields are added.
-                (default: LUXTRONIK_LATEST_VERSION)
+                (default: LUXTRONIK_VERSION_IGNORE)
             safe (bool): If true, prevent holding fields marked as
                 not secure from being written to.
         """
-        self.holdings = holdings if holdings is not None else Holdings(version, safe)
-        self.inputs = inputs if inputs is not None else Inputs(version)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        self.holdings = Holdings(version, safe) if holdings is None else holdings
+        self.inputs = Inputs(version) if inputs is None else inputs
 
     @classmethod
     def empty(
         cls,
-        version=LUXTRONIK_LATEST_VERSION,
+        version=LUXTRONIK_VERSION_IGNORE,
         safe=SAFE
     ):
         """
@@ -76,22 +85,27 @@ class LuxtronikSmartHomeData:
         (= no fields are added to the data-vectors).
 
         Args:
-            version (tuple[int] | None): The version is added to the data vectors
+            version (tuple[int] | str | None): The version is added to the data vectors
                 so some checks can be performed later.
-                (default: LUXTRONIK_LATEST_VERSION)
+                (default: LUXTRONIK_VERSION_IGNORE)
             safe (bool): If true, prevent holding fields marked as
                 not secure from being written to.
         """
         obj = cls.__new__(cls)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
         obj.holdings = Holdings.empty(version, safe)
         obj.inputs = Inputs.empty(version)
         return obj
+
+    def get_firmware_version(self):
+        return self.inputs.get_firmware_version()
+
 
 ###############################################################################
 # Smart home interface
 ###############################################################################
 
-class LuxtronikSmartHomeInterface:
+class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
     """
     Read/write interface for Luxtronik smart home fields.
 
@@ -103,29 +117,112 @@ class LuxtronikSmartHomeInterface:
     "Send" will process the entire list and then clear it. "Read" or "write" methods
     (except "raw") also adds an operation and then processes the entire list,
     which is cleared afterwards.
+
+    Note: This class is grouped with other classes in the Luxtronik section.
+    Use only unique identifiers (e.g., using name mangling like `self.__version`;
+    this is checked by pytest) for methods and fields and do not use public
+    methods internally (e.g., `self.version`). Otherwise, the correct function
+    might not be called.
     """
 
-    def __init__(self, interface, version=LUXTRONIK_LATEST_VERSION):
+    def __init_instance(self, interface, version, holdings, inputs):
+        """Re-usable method to initialize all instance variables."""
+        # Use name-mangling for unique field names. See class description.
+        self.__interface = interface
+        self.__version = version # is never none
+        self.__info = LuxtronikInterfaceInfo(
+            'SHI',
+            interface._host,
+            interface._port,
+            version
+        )
+        self._blocks_list = []
+        self._filtered_holdings = holdings
+        self._filtered_inputs = inputs
+
+    def __init__(self, interface, version=LUXTRONIK_VERSION_IGNORE):
         """
         Initialize the smart home interface.
 
         Args:
             interface: The underlying read/write interface.
-            version (tuple[int] | None): Version to be used for creating fields or data vectors.
+            version (tuple[int] | str | None): Version to be used for creating fields or data vectors.
                 This ensures that the data vectors only contain valid fields.
                 If None is passed, all available fields are added.
                 Additionally, the version is used to performed some consistency checks.
-                (default: LUXTRONIK_LATEST_VERSION)
+                (default: LUXTRONIK_VERSION_IGNORE)
         """
-        self._interface = interface
-        self._version = version
-        self._blocks_list = []
-        self._filtered_holdings = LuxtronikDefinitionsList.filtered(HOLDINGS_DEFINITIONS, version)
-        self._filtered_inputs = LuxtronikDefinitionsList.filtered(INPUTS_DEFINITIONS, version)
+        version, do_auto_detect = resolve_version_input(version)
+
+        if do_auto_detect:
+            version = LuxtronikSmartHomeInterface.determine_version(interface)
+            LOGGER.info(f"Auto-detect version {version}")
+
+        self.__init_instance(
+            interface,
+            version,
+            LuxtronikDefinitionsList.filtered(HOLDINGS_DEFINITIONS, version),
+            LuxtronikDefinitionsList.filtered(INPUTS_DEFINITIONS, version)
+        )
+
+    @classmethod
+    def __temp(cls, interface):
+        """Constructor for a temporary interface used in determine_shi_version"""
+        obj = cls.__new__(cls) # this don't call __init__()
+        obj.__init_instance(interface, VER_IGNORE, HOLDINGS_DEFINITIONS, INPUTS_DEFINITIONS)
+        return obj
+
+    @property
+    def lock(self):
+        return self.__interface._lock
+
+    @property
+    def info(self):
+        return self.__info
+
+# Version methods ##############################################################
+
+    @classmethod
+    def determine_version(cls, interface):
+        """
+        Determine the version of the luxtronik controller.
+
+        This is a little bit ugly! The controller version is required
+        to locate the version field. As workaround, probe each ever known
+        version field until one yields a valid read and a parsable version.
+        This approach works as long as the version-field has not changed.
+
+        Returns:
+            tuple[int] | None: The version of the controller on success,
+                or None if no version could be determined.
+        """
+        # Create a temporary interface, that allows any field, to read out the version info
+        shi_interface = LuxtronikSmartHomeInterface.__temp(interface)
+        return shi_interface.read_version()
 
     @property
     def version(self):
-        return self._version
+        return self.__version
+
+    def read_version(self):
+        """
+        Determine the version of the luxtronik controller, via one
+        of the valid version fields.
+
+        Returns:
+            tuple[int] | None: The version of the controller on success,
+                or None if no version could be determined.
+        """
+        definitions = INPUTS_DEFINITIONS.get_version_definitions(self.__version)
+        for definition in definitions:
+            field = self.read_input(definition)
+            if field is not None:
+                parsed = parse_version(field.get_version_str())
+                if parsed is not None:
+                    return parsed
+        LOGGER.warning("It was not possible to determine the controller version " \
+            + "via the SHI.")
+        return VER_IGNORE
 
 # Helper methods ##############################################################
 
@@ -146,8 +243,8 @@ class LuxtronikSmartHomeInterface:
             definition = definitions.get(def_name_or_idx)
         if definition is None:
             return None
-        if not definition.version.matches(self._version):
-            LOGGER.debug(f"Field {definition.name} not valid for {self._version}")
+        if not definition.version.matches(self.__version):
+            LOGGER.debug(f"Field {definition.name} not valid for {self.__version}")
             return None
         return definition
 
@@ -348,7 +445,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if all checks have been passed, False otherwise.
         """
         # Skip non-supported fields
-        if not definition.version.matches(self._version):
+        if not definition.version.matches(self.__version):
             return False
 
         return True
@@ -371,7 +468,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if all checks have been passed, False otherwise.
         """
         # Skip non-supported fields
-        if not definition.version.matches(self._version):
+        if not definition.version.matches(self.__version):
             return False
 
         # Skip fields that do not carry user-data and not data is provided
@@ -423,7 +520,7 @@ class LuxtronikSmartHomeInterface:
         definition, field = self._get_def_field_pair(def_field_name_or_idx, definitions)
 
         # create temporary definition for trial-and-error-mode
-        if self._version is None and definition is None and isinstance(def_field_name_or_idx, (int, str)):
+        if self.__version is VER_IGNORE and definition is None and isinstance(def_field_name_or_idx, (int, str)):
             definition = self._try_create_definition(def_field_name_or_idx, definitions)
             if definition is None:
                 return None
@@ -458,7 +555,7 @@ class LuxtronikSmartHomeInterface:
         if not isinstance(data_vector, DataVectorSmartHome):
             return
 
-        if self._version is None:
+        if self.__version is VER_IGNORE:
             # Trial-and-error mode: Add a block for every field
             blocks = ContiguousDataBlockList(definitions.name, read_not_write)
             if (read_not_write == READ):
@@ -503,7 +600,7 @@ class LuxtronikSmartHomeInterface:
         telegrams_data = self._create_telegrams(blocks_list)
         # Send all telegrams. The retrieved data is returned within the telegrams
         telegrams = [data[1] for data in telegrams_data]
-        success = self._interface.send(telegrams)
+        success = self.__interface.send(telegrams)
         # Report send/received data
         count = {'hr': 0, 'hw': 0, 'ir': 0, 'u': 0}
         for t in telegrams:
@@ -516,13 +613,13 @@ class LuxtronikSmartHomeInterface:
             else:
                 count['u'] += t.count
         if count['hr'] > 0:
-            LOGGER.info(f"{self._interface._host}: Read {count['hr']} holdings")
+            LOGGER.info(f"{self.__info.short_desc}: Read {count['hr']} holdings")
         if count['ir'] > 0:
-            LOGGER.info(f"{self._interface._host}: Read {count['ir']} inputs")
+            LOGGER.info(f"{self.__info.short_desc}: Read {count['ir']} inputs")
         if count['hw'] > 0:
-            LOGGER.info(f"{self._interface._host}: Write {count['hw']} holdings")
+            LOGGER.info(f"{self.__info.short_desc}: Write {count['hw']} holdings")
         if count['u'] > 0:
-            LOGGER.info(f"{self._interface._host}: Write {count['u']} unknowns?")
+            LOGGER.info(f"{self.__info.short_desc}: Write {count['u']} unknowns?")
         # Transfer the data from the telegrams into the fields
         success &= self._integrate_data(telegrams_data)
         return success
@@ -750,7 +847,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             DataVectorSmartHome: The created data-vector.
         """
-        return Holdings(self._version, safe)
+        return Holdings(self.__version, safe)
 
     def create_empty_holdings(self, safe=SAFE):
         """
@@ -763,7 +860,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             DataVectorSmartHome: The created data-vector.
         """
-        return Holdings.empty(self._version, safe)
+        return Holdings.empty(self.__version, safe)
 
     def read_holding(self, def_field_name_or_idx):
         """
@@ -912,7 +1009,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             DataVectorSmartHome: The created data-vector.
         """
-        return Inputs(self._version, SAFE)
+        return Inputs(self.__version, SAFE)
 
     def create_empty_inputs(self):
         """
@@ -921,7 +1018,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             DataVectorSmartHome: The created data-vector.
         """
-        return Inputs.empty(self._version, SAFE)
+        return Inputs.empty(self.__version, SAFE)
 
     def read_input(self, def_field_name_or_idx):
         """
@@ -977,7 +1074,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             LuxtronikSmartHomeData: The created data-collection.
         """
-        return LuxtronikSmartHomeData(None, None, self._version, safe)
+        return LuxtronikSmartHomeData(None, None, self.__version, safe)
 
     def create_empty_data(self, safe=SAFE):
         """
@@ -990,7 +1087,7 @@ class LuxtronikSmartHomeInterface:
         Returns:
             LuxtronikSmartHomeData: The created data-collection.
         """
-        return LuxtronikSmartHomeData.empty(self._version, safe)
+        return LuxtronikSmartHomeData.empty(self.__version, safe)
 
     def read_data(self, data=None):
         """
@@ -1005,7 +1102,7 @@ class LuxtronikSmartHomeInterface:
             LuxtronikSmartHomeData: The passed / created data vector collection.
         """
         if not isinstance(data, LuxtronikSmartHomeData):
-            data = self.create_data(SAFE)
+            data = LuxtronikSmartHomeData(None, None, self.__version, SAFE)
 
         self.collect_data_for_read(data)
         self.send()
@@ -1069,7 +1166,7 @@ class LuxtronikSmartHomeInterface:
                 otherwise None.
         """
         telegram = LuxtronikSmartHomeReadHoldingsTelegram(index + HOLDINGS_DEFINITIONS.offset, count)
-        success = self._interface.send(telegram)
+        success = self.__interface.send(telegram)
         return telegram.data if success else None
 
     def write_holding_raw(self, index, data_arr):
@@ -1088,7 +1185,7 @@ class LuxtronikSmartHomeInterface:
             bool: True if no errors occurred, otherwise False.
         """
         telegram = LuxtronikSmartHomeWriteHoldingsTelegram(index + HOLDINGS_DEFINITIONS.offset, data_arr)
-        return self._interface.send(telegram)
+        return self.__interface.send(telegram)
 
     def read_input_raw(self, index, count=1):
         """
@@ -1107,7 +1204,7 @@ class LuxtronikSmartHomeInterface:
                 otherwise None.
         """
         telegram = LuxtronikSmartHomeReadInputsTelegram(index + self.inputs.offset, count)
-        success = self._interface.send(telegram)
+        success = self.__interface.send(telegram)
         return telegram.data if success else None
 
 

@@ -6,27 +6,27 @@ import pytest
 
 from luxtronik.data_vector import DataVector
 from luxtronik.datatypes import Base
-from luxtronik.definitions import Keys, LuxtronikDefinition
+from luxtronik.definitions import Keys, LuxtronikDefinitionsList
+
+
+def_list = [
+    {
+        Keys.IDX: 0,
+        Keys.TYPE: Base,
+        Keys.NAMES: ["foo", "bar"],
+    }
+]
+TEST_DEFINITIONS = LuxtronikDefinitionsList(def_list, 'foo', 100, 'INT32')
 
 
 class ObsoleteDataVector(DataVector):
 
     name = "Obsolete"
+    definitions = TEST_DEFINITIONS
 
     _obsolete = {
         "baz": "foo"
     }
-
-    def __init__(self):
-        super().__init__()
-        d = LuxtronikDefinition({
-            Keys.IDX: 0,
-            Keys.TYPE: Base,
-            Keys.NAMES: ["foo", "bar"],
-        }, "type", 0)
-        self._data = {
-            d: d.create_field()
-        }
 
 
 class TestDataVector:

@@ -1058,6 +1058,11 @@ class TestVersion:
         assert Version.from_heatpump(None) is None
         assert Version.from_heatpump("a") is None
 
+    def test_version_str(self):
+        a = Version("ver")
+        a.raw = [0x56, 0x33, 0x2e, 0x39, 0x32, 0x2e, 0x32]
+        assert a.get_version_str() == '3.92.2'
+
 
 class TestCharacter:
     """Test suite for Character datatype"""
@@ -1108,6 +1113,11 @@ class TestMajorMinorVersion:
 
         assert MajorMinorVersion.from_heatpump(None) is None
 
+    def test_version_str(self):
+        a = MajorMinorVersion("numeric_version")
+        a.raw = 112
+        assert a.get_version_str() == '1.12'
+
 class TestFullVersion:
     """Test suite for FullVersion datatype"""
 
@@ -1127,6 +1137,11 @@ class TestFullVersion:
         assert FullVersion.from_heatpump(0) is None
         assert FullVersion.from_heatpump([0, 12]) is None
         assert FullVersion.from_heatpump([0, 12, 3]) == "0.12.3"
+
+    def test_version_str(self):
+        a = FullVersion("full_version")
+        a.raw = [0, 12, 3]
+        assert a.get_version_str() == '0.12.3'
 
 class TestIcon:
     """Test suite for Icon datatype"""

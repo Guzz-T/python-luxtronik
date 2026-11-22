@@ -236,7 +236,7 @@ shi = create_modbus_tcp('your.lux.ip.addr', version="latest")
 
 ### Trial-and-error mode
 
-If you pass `None’ as the version, you set the interface to trial-and-error mode.
+If you pass `None` or `ignore` as the version, you set the interface to trial-and-error mode.
 This means that no attempt is made to bundle read or write accesses,
 but that all available fields/definitions are read or written individually (possibly twice).
 Errors will occur, but as many operations as possible will be attempted.
@@ -247,7 +247,7 @@ from luxtronik.shi.interface import LuxtronikSmartHomeData
 
 shi = create_modbus_tcp('your.lux.ip.addr', version=None)
 
-data = LuxtronikSmartHomeData(version=None)
+data = LuxtronikSmartHomeData(version='ignore')
 shi.read(data)
 
 holdings = shi.create_holdings()

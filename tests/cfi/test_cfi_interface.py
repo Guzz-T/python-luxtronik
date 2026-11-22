@@ -3,9 +3,41 @@ from luxtronik import (
   Parameters,
   Calculations,
   Visibilities,
+  LuxtronikData,
   LuxtronikSocketInterface,
 )
+from luxtronik.version import VER_IGNORE
 
+class TestLuxtronikConfigData:
+
+    def test_init(self):
+        data1 = LuxtronikData()
+        assert data1.parameters is not None
+        assert data1.parameters.version == VER_IGNORE
+        assert data1.parameters.safe
+        assert data1.calculations is not None
+        assert data1.calculations.version == VER_IGNORE
+        assert data1.calculations.safe
+        assert data1.visibilities is not None
+        assert data1.visibilities.version == VER_IGNORE
+        assert data1.visibilities.safe
+
+        data2 = LuxtronikData(data1.parameters)
+        assert data2.parameters is data1.parameters
+        assert data2.calculations is not data1.calculations
+        assert data2.visibilities is not data1.visibilities
+
+    def test_empty(self):
+        data = LuxtronikData.empty((1, 2, 0, 0), False)
+        assert data.parameters is not None
+        assert not data.parameters.safe
+        assert data.parameters.version == (1, 2, 0, 0)
+        assert data.calculations is not None
+        assert data.calculations.safe
+        assert data.calculations.version == (1, 2, 0, 0)
+        assert data.visibilities is not None
+        assert data.visibilities.safe
+        assert data.visibilities.version == (1, 2, 0, 0)
 
 class TestLuxtronikSocketInterface:
 
