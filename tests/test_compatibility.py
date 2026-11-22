@@ -82,8 +82,7 @@ class IPAddress(Base):
 class TestCompatibility:
     """Test suite for compatibilities"""
 
-    def test_compatibilities(self):
-        """Test cases for compatibilities"""
+    def get_compatibility_issues(self):
 
         # Structure of entries:
         # old_name: (old_index, old_type[, type_intentionally_changed])
@@ -2232,130 +2231,137 @@ class TestCompatibility:
             [holdings, Holdings(), "Holdings"],
         ]
 
+        def get_mappings(d):
+            old_mapping = d["old"]
+            len_old = len(old_mapping)
+            new_mapping = d["new"]
+            len_new = len(new_mapping)
+            all_mapping = old_mapping | new_mapping
+            assert len(all_mapping) == len_old + len_new, "Duplicated names in 'new' and 'old' dictionary"
+            return old_mapping, new_mapping, all_mapping
+
+        values = [get_mappings(d) + (data_vector, caption) for d, data_vector, caption in values]
+
+        result = {caption: {} for _, _, _, _, caption in values}
+
         # First, we check if we can find all entries of the above dicts.
-        all_ok = True
-        with open("CHANGELOG_FIELDS.md", "w", encoding="utf-8") as f:
-            for mapping, data_vector, caption in values:
-                obsolete_found = []
-                old_not_found = []
-                old_idx_wrong = []
-                old_type_changed_info = []
-                old_type_changed_err = []
+        for old_mapping, new_mapping, all_mapping, data_vector, caption in values:
+            r = result[f"{caption}"]
+            r["obsolete_found"] = []
+            r["old_not_found"] = []
+            r["old_idx_wrong"] = []
+            r["old_type_changed_info"] = []
+            r["old_type_changed_err"] = []
 
-                old_mapping = mapping["old"]
-                len_old = len(old_mapping)
-                new_mapping = mapping["new"]
-                len_new = len(new_mapping)
-                all_mapping = old_mapping | new_mapping
-                assert len(all_mapping) == len_old + len_new, "Duplicated names in 'new' and 'old' dictionary"
+            for old_name, (old_idx, old_type, *old_type_changed) in all_mapping.items():
+                # using * old_type_changed is a list with all residual elements
+                old_type_changed = True if len(old_type_changed) > 0 and old_type_changed[0] else False
 
-                for old_name, (old_idx, old_type, *old_type_changed) in all_mapping.items():
-                    # using * old_type_changed is a list with all residual elements
-                    old_type_changed = True if len(old_type_changed) > 0 and old_type_changed[0] else False
+                # Try to get the definition of the "old name"
+                try:
+                    def_by_name = data_vector.definitions.get(old_name)
+                except Exception:
+                    def_by_name = None
+                old_found = def_by_name is not None
+                old_is_obsolete = old_name in data_vector._obsolete
 
-                    # Try to get the definition of the "old name"
-                    try:
-                        def_by_name = data_vector.definitions.get(old_name)
-                    except Exception:
-                        def_by_name = None
-                    old_found = def_by_name is not None
-                    old_is_obsolete = old_name in data_vector._obsolete
+                # Check names
+                # We do not use assert here, in order to catch all incompatibilities at once.
+                if old_found and old_is_obsolete:
+                    r["obsolete_found"].append(f"- `{old_name}` marked as obsolete, but a definition was found!")
+                    continue
 
-                    # Check names
+                if not old_found and not old_is_obsolete:
+                    r["old_not_found"].append(f"- No definition found for `{old_name}` with index `{old_idx}`\nand type `{old_type.__name__}`")
+                    continue
+
+                if old_found:
+                    if old_idx != def_by_name.index:
+                        r["old_idx_wrong"].append(f"- Index of `{old_name}` changed from `{old_idx}` to `{def_by_name.index}`")
+                        continue
+
+                    #if old_name != def_by_name.name:
+                    # new name available -> no error
+
+                    # we allow type changes if we already use a name, but the type is still unknown
+                    type_change_allowed = old_type_changed or (not old_name.lower().startswith("unknown_") and old_type == Unknown)
+                    if old_type != def_by_name.field_type:
+                        if type_change_allowed:
+                            r["old_type_changed_info"].append(f"- Type of `{old_name}` (index `{old_idx}`) changed\nfrom `{old_type.__name__}` to `{def_by_name.field_type.__name__}`")
+                        else:
+                            r["old_type_changed_err"].append(f"- Type of `{old_name}` (index `{old_idx}`) changed\nfrom `{old_type.__name__}` to `{def_by_name.field_type.__name__}`")
+
+        # Second, we check if all names are present in the above dicts.
+        for old_mapping, new_mapping, all_mapping, data_vector, caption in values:
+            r = result[f"{caption}"]
+            r["missing"] = []
+
+            for definition, field in data_vector.items():
+                for name in definition.names:
+
+                    # Check existing entries
                     # We do not use assert here, in order to catch all incompatibilities at once.
-                    if old_found and old_is_obsolete:
-                        obsolete_found.append(f"- `{old_name}` marked as obsolete, but a definition was found!")
-                        continue
+                    # The output can be copied to the dicts above
+                    if name not in all_mapping:
+                        r["missing"].append(f'"{name}": ({definition.index}, {definition.field_type.__name__}),')
 
-                    if not old_found and not old_is_obsolete:
-                        old_not_found.append(f"- No definition found for `{old_name}` with index `{old_idx}`\nand type `{old_type.__name__}`")
-                        continue
+        # Third, add all new entries
+        for old_mapping, new_mapping, all_mapping, data_vector, caption in values:
+            r = result[f"{caption}"]
+            r["new"] = []
 
-                    if old_found:
-                        if old_idx != def_by_name.index:
-                            old_idx_wrong.append(f"- Index of `{old_name}` changed from `{old_idx}` to `{def_by_name.index}`")
-                            continue
+            for new_name, (new_index, new_type, *new_type_changed) in new_mapping.items():
+                r["new"].append(f"- Add `{new_name}` (index `{new_index}`) of type `{new_type.__name__}`")
 
-                        #if old_name != def_by_name.name:
-                        # new name available -> no error
-
-                        # we allow type changes if we already use a name, but the type is still unknown
-                        type_change_allowed = old_type_changed or (not old_name.lower().startswith("unknown_") and old_type == Unknown)
-                        if old_type != def_by_name.field_type:
-                            if type_change_allowed:
-                                old_type_changed_info.append(f"- Type of `{old_name}` (index `{old_idx}`) changed\nfrom `{old_type.__name__}` to `{def_by_name.field_type.__name__}`")
-                            else:
-                                old_type_changed_err.append(f"- Type of `{old_name}` (index `{old_idx}`) changed\nfrom `{old_type.__name__}` to `{def_by_name.field_type.__name__}`")
-
-                ok = not obsolete_found and not old_not_found \
-                    and not old_idx_wrong and not old_type_changed_err
-                do_print = not ok or len(old_type_changed_info) > 0
-
-                if do_print:
-                    print(f"############################## Incompatibilities - {caption}:")
-                    if obsolete_found:
-                        print("############################## obsolete")
-                        for err in obsolete_found:
-                            print(err)
-                    if old_not_found:
-                        print("############################## not found")
-                        for err in old_not_found:
-                            print(err)
-                    if old_idx_wrong:
-                        print("############################## idx wrong")
-                        for err in old_idx_wrong:
-                            print(err)
-                    if old_type_changed_err:
-                        print("############################## type change error")
-                        for err in old_type_changed_err:
-                            print(err)
-                    if old_type_changed_info:
-                        print("############################## type change info")
-                        for err in old_type_changed_info:
-                            print(err)
-
-                if do_print or len(new_mapping) > 0:
-                    f.write(f"\n### {caption}\n\n")
-                    if old_type_changed_info:
-                        for err in old_type_changed_info:
-                            f.write(f"{err}\n")
-                    if len(new_mapping) > 0:
-                        for new_name, (new_index, new_type, *new_type_changed) in new_mapping.items():
-                            f.write(f"- Add `{new_name}` (index `{new_index}`) of type `{new_type.__name__}`\n")
+        return result
 
 
-                all_ok &= ok
-            assert all_ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
+    def test_compatibilities(self):
+        """Test cases for compatibilities"""
 
-            # Second, we check if all names are present in the above dicts.
-            all_ok = True
-            for mapping, data_vector, caption in values:
-                missing = []
+        data = self.get_compatibility_issues()
 
-                old_mapping = mapping["old"]
-                len_old = len(old_mapping)
-                new_mapping = mapping["new"]
-                len_new = len(new_mapping)
-                all_mapping = old_mapping | new_mapping
-                assert len(all_mapping) == len_old + len_new, "Duplicated names in 'new' and 'old' dictionary"
+        all_ok = True
+        for caption, item in data.items():
+            ok = not item["obsolete_found"] and not item["old_not_found"] \
+                and not item["old_idx_wrong"] and not item["old_type_changed_err"]
+            do_print = not ok or len(item["old_type_changed_info"]) > 0
 
-                for definition, field in data_vector.items():
-                    for name in definition.names:
+            if do_print:
+                print(f"############################## Incompatibilities - {caption}:")
+                if item["obsolete_found"]:
+                    print("############################## obsolete")
+                    for err in item["obsolete_found"]:
+                        print(err)
+                if item["old_not_found"]:
+                    print("############################## not found")
+                    for err in item["old_not_found"]:
+                        print(err)
+                if item["old_idx_wrong"]:
+                    print("############################## idx wrong")
+                    for err in item["old_idx_wrong"]:
+                        print(err)
+                if item["old_type_changed_err"]:
+                    print("############################## type change error")
+                    for err in item["old_type_changed_err"]:
+                        print(err)
+                if item["old_type_changed_info"]:
+                    print("############################## type change info")
+                    for err in item["old_type_changed_info"]:
+                        print(err)
+            all_ok &= ok
+        assert all_ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
 
-                        # Check existing entries
-                        # We do not use assert here, in order to catch all incompatibilities at once.
-                        # The output can be copied to the dicts above
-                        if name not in all_mapping:
-                            missing.append(f'"{name}": ({definition.index}, {definition.field_type.__name__}),')
+        all_ok = True
+        for caption, item in data.items():
+            ok = not item["missing"]
+            do_print = not ok
 
-                ok = not missing
-                do_print = not ok
+            if do_print:
+                print(f"############################## Missing - {caption}:")
+                if item["missing"]:
+                    for err in item["missing"]:
+                        print(err)
 
-                if do_print:
-                    print(f"############################## Missing - {caption}:")
-                    if missing:
-                        for err in missing:
-                            print(err)
-
-                all_ok &= ok
-            assert all_ok, "Found missing entries. Please consider to add them to the test suite."
+            all_ok &= ok
+        assert all_ok, "Found missing entries. Please consider to add them to the test suite."
