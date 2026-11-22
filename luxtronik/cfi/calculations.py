@@ -25,7 +25,7 @@ CALCULATIONS_DEFINITIONS: Final = LuxtronikDefinitionsList(
 )
 
 class Calculations(DataVectorConfig):
-    """Class that holds all calculations."""
+    """Class that holds calculation fields."""
 
     name = CALCULATIONS_FIELD_NAME
     definitions = CALCULATIONS_DEFINITIONS
