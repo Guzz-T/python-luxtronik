@@ -152,7 +152,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
                 This ensures that the created data vectors only contain valid fields.
                 If None is passed, all available fields will be added.
         """
-        self._lock = get_host_lock(host)
+        self.__lock = get_host_lock(host)
 
         self._host = host
         LuxtronikSocketInterface.__init__(self, host, port_config)
@@ -162,7 +162,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
 
     @property
     def lock(self):
-        return self._lock
+        return self.__lock
 
     def create_all_data(self, safe=True):
         """
@@ -175,7 +175,7 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         Returns:
             LuxtronikAllData: The created data-collection.
         """
-        return LuxtronikAllData(None, None, None, None, None, self._version, safe)
+        return LuxtronikAllData(None, None, None, None, None, self.version, safe)
 
     def read_all(self, data=None):
         """

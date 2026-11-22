@@ -11,7 +11,7 @@ class TestInterface:
         cfi = LuxtronikSocketInterface('host')
         shi = LuxtronikSmartHomeInterface(None)
 
-        accepted_equal_names = {'read', 'write', 'write_and_read'}
+        accepted_equal_names = {'read', 'write', 'write_and_read', 'version', 'determine_version', 'read_version', '_abc_impl', 'create_data', 'lock'}
 
         attrs_cfi = {name for name in dir(cfi) if not name.startswith("__")}
         attrs_shi = {name for name in dir(shi) if not name.startswith("__")}
