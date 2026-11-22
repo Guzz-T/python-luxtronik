@@ -9,7 +9,8 @@ import logging
 from luxtronik.constants import LUXTRONIK_VERSION_DETECT, LUXTRONIK_VERSION_IGNORE
 from luxtronik.common import get_host_lock
 from luxtronik.discover import discover  # noqa: F401
-from luxtronik.version import resolve_version_input
+from luxtronik.interface import LuxtronikInterfaceInfo
+from luxtronik.version import VER_IGNORE, resolve_version_input
 
 from luxtronik.cfi import (
     LUXTRONIK_DEFAULT_CFI_PORT,
@@ -124,8 +125,6 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
     Combined interface that can be used to control both
     the configuration interface and the smart home interface.
 
-    For simplicity, only the basic functions are offered.
-
     Attention! It must be ensured that `LuxtronikSocketInterface` and
     `LuxtronikSmartHomeInterface` do not instantiate the same fields.
     Otherwise, the derivations will overwrite each other.
@@ -154,15 +153,46 @@ class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
         """
         self.__lock = get_host_lock(host)
 
-        self._host = host
-        LuxtronikSocketInterface.__init__(self, host, port_config)
-
         modbus_interface = LuxtronikModbusTcpInterface(host, port_shi)
+
+        version, auto_detect = resolve_version_input(version)
+        if auto_detect:
+            # Use the CFI since this should always be available
+            version = LuxtronikSocketInterface.determine_version(host, port_config)
+            # If the version is still unknown, try this via the SHI
+            if version == VER_IGNORE:
+                version = LuxtronikSmartHomeInterface.determine_version(modbus_interface)
+
+        self.__info = LuxtronikInterfaceInfo(
+            'Lux',
+            host,
+            f"{port_config};{port_shi}",
+            version
+        )
+
+        LuxtronikSocketInterface.__init__(self, host, port_config, version)
         LuxtronikSmartHomeInterface.__init__(self, modbus_interface, version)
 
     @property
     def lock(self):
         return self.__lock
+
+    @property
+    def info(self):
+        return self.__info
+
+    # We do not need to override the determine_version() method
+    # def determine_version(cls, host, port):
+
+    @property
+    def version(self):
+        return LuxtronikSocketInterface.version.fget(self)
+
+    def read_version(self):
+        return LuxtronikSocketInterface.read_version(self)
+
+    def create_data(self, safe=True):
+        return self.create_all_data(safe)
 
     def create_all_data(self, safe=True):
         """

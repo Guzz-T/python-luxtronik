@@ -1364,16 +1364,18 @@ class FakeReadInput:
 class TestLuxtronikSmartHomeInterfaceVersion:
 
     def test_determine_version(self):
+        modbus = FakeModbus()
         FakeReadInput.param = [18, 12, 3, 0]
-        ver = LuxtronikSmartHomeInterface.determine_version(None)
+        ver = LuxtronikSmartHomeInterface.determine_version(modbus)
         assert ver == (18, 12, 3, 0)
 
         FakeReadInput.param = None
-        ver = LuxtronikSmartHomeInterface.determine_version(None)
+        ver = LuxtronikSmartHomeInterface.determine_version(modbus)
         assert ver == VER_IGNORE
 
     def test_read_version(self):
-        shi = LuxtronikSmartHomeInterface(None, None)
+        modbus = FakeModbus()
+        shi = LuxtronikSmartHomeInterface(modbus, None)
 
         FakeReadInput.param = [7, 3, 3, 3]
         ver = shi.read_version()
@@ -1385,8 +1387,9 @@ class TestLuxtronikSmartHomeInterfaceVersion:
         assert ver == VER_IGNORE
 
     def test_version_detect(self):
+        modbus = FakeModbus()
         FakeReadInput.param = [5, 3, 2, 1]
-        shi = LuxtronikSmartHomeInterface(None, 'detect')
+        shi = LuxtronikSmartHomeInterface(modbus, 'detect')
         ver = shi.version
         # FullVersion only transport Major.Minor.Patch
         assert ver == (5, 3, 2, 0)

@@ -1,4 +1,25 @@
 from abc import ABC, abstractmethod
+from luxtronik.version import get_version_str
+
+
+class LuxtronikInterfaceInfo:
+
+    def __init__(self, _type, host, port, version):
+        self.type = _type
+        self.host = host
+        self.port = port
+        self.version = version
+
+    def __str__(self):
+        return self.long_desc
+
+    @property
+    def short_desc(self):
+        return f"{self.host}"
+
+    @property
+    def long_desc(self):
+        return f"{self.type}={self.host}:{self.port}/{get_version_str(self.version)}"
 
 
 class LuxtronikBaseInterface(ABC):
@@ -16,6 +37,19 @@ class LuxtronikBaseInterface(ABC):
 
         Returns:
             RLock: The lock object of the interface.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def info(self):
+        """
+        Retrieve the interface information object
+        to identify the device/interface.
+
+        Returns:
+            LuxtronikInterfaceInfo: The general information
+                (host, port, ...) of the interface.
         """
         pass
 
