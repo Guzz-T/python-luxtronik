@@ -1409,6 +1409,26 @@ from `IPAddress` to `IPv4Address`
 from `IPAddress` to `IPv4Address`
 - Type of `ID_WEB_Add_StdGateway` (index `94`) changed
 from `IPAddress` to `IPv4Address`
+- Type of `ID_WEB_AnalogIn` (index `147`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut1` (index `156`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut2` (index `157`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut3` (index `162`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut4` (index `163`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_Out_VZU` (index `164`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_Out_VAB` (index `165`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogIn2` (index `168`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogIn3` (index `169`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_SEC_U_Inv` (index `202`) changed
+from `Voltage` to `Voltage2`
 - Add `ID_WEB_SoftStand_0` (index `81`) of type `Character`
 - Add `ID_WEB_SoftStand_1` (index `82`) of type `Character`
 - Add `ID_WEB_SoftStand_2` (index `83`) of type `Character`
