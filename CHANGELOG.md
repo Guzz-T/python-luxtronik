@@ -45,6 +45,7 @@ never released and has been replaced.
 - Remove outdated property to access the internal dictionary
 like `parameters.parameters`. [#221]
 
+<!-- CHANGELOG-DEFINITIONS:START -->
 ### Parameters
 
 - Type of `ID_Einst_HzMK1E_akt` (index `14`) changed
@@ -1632,6 +1633,7 @@ from `IPAddress` to `IPv4Address`
 - Add `heat_overall_level` (index `67`) of type `LevelMode`
 - Add `circulation` (index `70`) of type `OnOffMode`
 - Add `hot_water_extra` (index `71`) of type `OnOffMode`
+<!-- CHANGELOG-DEFINITIONS:END -->
 
 ## [0.3.14] - 2022-06-07
 
