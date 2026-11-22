@@ -70,6 +70,8 @@ from luxtronik.datatypes import (
     Voltage,
 )
 
+from tests.types_of_same_kind import TypesOfSameKind
+
 logging.disable(logging.CRITICAL)
 
 
@@ -1259,12 +1261,12 @@ class TestCompatibility:
                 "Unknown_Parameter_1134": (1134, Unknown),
                 "Unknown_Parameter_1135": (1135, Unknown),
                 "Unknown_Parameter_1136": (1136, Unknown),
-                "HEAT_ENERGY_INPUT": (1136, Energy, True), # See #198 -> type change allowed
+                "HEAT_ENERGY_INPUT": (1136, Energy),
                 "Unknown_Parameter_1137": (1137, Unknown),
-                "DHW_ENERGY_INPUT": (1137, Energy, True), # See #198 -> type change allowed
+                "DHW_ENERGY_INPUT": (1137, Energy),
                 "Unknown_Parameter_1138": (1138, Unknown),
                 "Unknown_Parameter_1139": (1139, Unknown),
-                "COOLING_ENERGY_INPUT": (1139, Energy, True), # See #198 -> type change allowed
+                "COOLING_ENERGY_INPUT": (1139, Energy),
                 "Unknown_Parameter_1140": (1140, Unknown),
                 "SECOND_HEAT_GENERATOR_AMOUNT_COUNTER": (1140, Unknown),
                 "Unknown_Parameter_1141": (1141, Unknown),
@@ -1476,7 +1478,7 @@ class TestCompatibility:
                 "ID_WEB_SH_SW": (144, Icon),
                 "ID_WEB_Zaehler_BetrZeitSW": (145, Unknown),
                 "ID_WEB_FreigabKuehl": (146, Bool),
-                "ID_WEB_AnalogIn": (147, Voltage, True), # See #198 -> type change allowed
+                "ID_WEB_AnalogIn": (147, Voltage),
                 "ID_WEB_SonderZeichen": (148, Unknown),
                 "ID_WEB_SH_ZIP": (149, Icon),
                 "ID_WEB_WebsrvProgrammWerteBeobarten": (150, Icon),
@@ -1485,20 +1487,20 @@ class TestCompatibility:
                 "ID_WEB_WMZ_Schwimmbad": (153, Energy),
                 "ID_WEB_WMZ_Seit": (154, Energy),
                 "ID_WEB_WMZ_Durchfluss": (155, Flow),
-                "ID_WEB_AnalogOut1": (156, Voltage, True), # See #198 -> type change allowed
-                "ID_WEB_AnalogOut2": (157, Voltage, True), # See #198 -> type change allowed
+                "ID_WEB_AnalogOut1": (156, Voltage),
+                "ID_WEB_AnalogOut2": (157, Voltage),
                 "ID_WEB_Time_Heissgas": (158, Seconds),
                 "ID_WEB_Temp_Lueftung_Zuluft": (159, Celsius),
                 "ID_WEB_Temp_Lueftung_Abluft": (160, Celsius),
                 "ID_WEB_Zaehler_BetrZeitSolar": (161, Seconds),
-                "ID_WEB_AnalogOut3": (162, Voltage, True), # See #198 -> type change allowed
-                "ID_WEB_AnalogOut4": (163, Voltage, True), # See #198 -> type change allowed
-                "ID_WEB_Out_VZU": (164, Voltage, True), # See #198 -> type change allowed
-                "ID_WEB_Out_VAB": (165, Voltage, True), # See #198 -> type change allowed
+                "ID_WEB_AnalogOut3": (162, Voltage),
+                "ID_WEB_AnalogOut4": (163, Voltage),
+                "ID_WEB_Out_VZU": (164, Voltage),
+                "ID_WEB_Out_VAB": (165, Voltage),
                 "ID_WEB_Out_VSK": (166, Bool),
                 "ID_WEB_Out_FRH": (167, Bool),
-                "ID_WEB_AnalogIn2": (168, Voltage, True), # See #198 -> type change allowed
-                "ID_WEB_AnalogIn3": (169, Voltage, True), # See #198 -> type change allowed
+                "ID_WEB_AnalogIn2": (168, Voltage),
+                "ID_WEB_AnalogIn3": (169, Voltage),
                 "ID_WEB_SAXin": (170, Bool),
                 "ID_WEB_SPLin": (171, Bool),
                 "ID_WEB_Compact_exists": (172, Bool),
@@ -1531,7 +1533,7 @@ class TestCompatibility:
                 "ID_WEB_SEC_FlussigEx": (199, Celsius),
                 "ID_WEB_SEC_UK_EEV": (200, Celsius),
                 "ID_WEB_SEC_EVI_Druck": (201, Pressure),
-                "ID_WEB_SEC_U_Inv": (202, Voltage, True), # See #198 -> type change allowed
+                "ID_WEB_SEC_U_Inv": (202, Voltage),
                 "ID_WEB_Temperatur_THG_2": (203, Celsius),
                 "ID_WEB_Temperatur_TWE_2": (204, Celsius),
                 "ID_WEB_LIN_ANSAUG_VERDAMPFER_2": (205, Celsius),
@@ -2284,7 +2286,17 @@ class TestCompatibility:
                     # new name available -> no error
 
                     # we allow type changes if we already use a name, but the type is still unknown
-                    type_change_allowed = old_type_changed or (not old_name.lower().startswith("unknown_") and old_type == Unknown)
+                    type_change_allowed = (
+                        # allowed via parameter
+                        old_type_changed
+                        # allowed from unknown to x
+                        or (
+                            not old_name.lower().startswith("unknown_")
+                            and old_type == Unknown
+                        )
+                        # allowed for similar types
+                        or TypesOfSameKind.match(old_type, def_by_name.field_type)
+                    )
                     if old_type != def_by_name.field_type:
                         if type_change_allowed:
                             r["old_type_changed_info"].append(f"- Type of `{old_name}` (index `{old_idx}`) changed\nfrom `{old_type.__name__}` to `{def_by_name.field_type.__name__}`")
