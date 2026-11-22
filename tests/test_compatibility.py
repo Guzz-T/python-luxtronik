@@ -70,6 +70,8 @@ from luxtronik.datatypes import (
     Voltage,
 )
 
+from tests.types_of_same_kind import TypesOfSameKind
+
 logging.disable(logging.CRITICAL)
 
 
@@ -2284,7 +2286,17 @@ class TestCompatibility:
                     # new name available -> no error
 
                     # we allow type changes if we already use a name, but the type is still unknown
-                    type_change_allowed = old_type_changed or (not old_name.lower().startswith("unknown_") and old_type == Unknown)
+                    type_change_allowed = (
+                        # allowed via parameter
+                        old_type_changed
+                        # allowed from unknown to x
+                        or (
+                            not old_name.lower().startswith("unknown_")
+                            and old_type == Unknown
+                        )
+                        # allowed for similar types
+                        or TypesOfSameKind.match(old_type, def_by_name.field_type)
+                    )
                     if old_type != def_by_name.field_type:
                         if type_change_allowed:
                             r["old_type_changed_info"].append(f"- Type of `{old_name}` (index `{old_idx}`) changed\nfrom `{old_type.__name__}` to `{def_by_name.field_type.__name__}`")
@@ -2325,7 +2337,7 @@ class TestCompatibility:
         for caption, item in data.items():
             ok = not item["obsolete_found"] and not item["old_not_found"] \
                 and not item["old_idx_wrong"] and not item["old_type_changed_err"]
-            do_print = not ok or len(item["old_type_changed_info"]) > 0
+            do_print = not ok #or len(item["old_type_changed_info"]) > 0
 
             if do_print:
                 print(f"############################## Incompatibilities - {caption}:")
@@ -2345,10 +2357,10 @@ class TestCompatibility:
                     print("############################## type change error")
                     for err in item["old_type_changed_err"]:
                         print(err)
-                if item["old_type_changed_info"]:
-                    print("############################## type change info")
-                    for err in item["old_type_changed_info"]:
-                        print(err)
+                #if item["old_type_changed_info"]:
+                #    print("############################## type change info")
+                #    for err in item["old_type_changed_info"]:
+                #        print(err)
             all_ok &= ok
         assert all_ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
 

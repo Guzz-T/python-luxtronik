@@ -39,6 +39,8 @@ never released and has been replaced.
 - SHI holding `66` (`heat_overall_offset`): the documented range is now
 -50..50 (+/-5.0 K) instead of -200..200.
 - Document that `LevelMode` values 1 and 2 are identical on firmware V3.92.3.
+- Change the scaling factor of 'ID_Waermemenge' parameters from 0.1 to 0.01 [#198]
+- Change the scaling factor of the voltage data fields to 0.01 [#198]
 
 ### Removed
 
@@ -1133,17 +1135,17 @@ from `Unknown` to `TimeOfDay`
 - Type of `ID_Einst_SuMk3Tg_zeit_2_13` (index `848`) changed
 from `Unknown` to `TimeOfDay`
 - Type of `ID_Waermemenge_Seit` (index `852`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_Hz` (index `854`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Zaehler_BetrZeitSW` (index `859`) changed
 from `Unknown` to `Seconds`
 - Type of `ID_Einst_Popt_Nachlauf_akt` (index `864`) changed
 from `Unknown` to `Minutes`
 - Type of `ID_Waermemenge_BW` (index `878`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_SW` (index `879`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
 - Type of `ID_Waermemenge_Datum` (index `880`) changed
 from `Unknown` to `Timestamp`
 - Type of `ID_Einst_SuLuf_akt` (index `895`) changed
@@ -1279,7 +1281,13 @@ from `Unknown` to `Hours2`
 - Type of `ID_Waermemenge_ZWE` (index `1059`) changed
 from `Unknown` to `Energy`
 - Type of `ID_Waermemenge_Reset` (index `1060`) changed
-from `Unknown` to `Energy`
+from `Unknown` to `Energy2`
+- Type of `HEAT_ENERGY_INPUT` (index `1136`) changed
+from `Energy` to `Energy2`
+- Type of `DHW_ENERGY_INPUT` (index `1137`) changed
+from `Energy` to `Energy2`
+- Type of `COOLING_ENERGY_INPUT` (index `1139`) changed
+from `Energy` to `Energy2`
 - Add `SILENT_MODE` (index `1087`) of type `OnOffMode`
 - Add `ID_Einst_SuSilence` (index `1092`) of type `TimerProgram`
 - Add `ID_Einst_SilenceTimer_0` (index `1093`) of type `TimeOfDay2`
@@ -1403,6 +1411,26 @@ from `IPAddress` to `IPv4Address`
 from `IPAddress` to `IPv4Address`
 - Type of `ID_WEB_Add_StdGateway` (index `94`) changed
 from `IPAddress` to `IPv4Address`
+- Type of `ID_WEB_AnalogIn` (index `147`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut1` (index `156`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut2` (index `157`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut3` (index `162`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogOut4` (index `163`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_Out_VZU` (index `164`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_Out_VAB` (index `165`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogIn2` (index `168`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_AnalogIn3` (index `169`) changed
+from `Voltage` to `Voltage2`
+- Type of `ID_WEB_SEC_U_Inv` (index `202`) changed
+from `Voltage` to `Voltage2`
 - Add `ID_WEB_SoftStand_0` (index `81`) of type `Character`
 - Add `ID_WEB_SoftStand_1` (index `82`) of type `Character`
 - Add `ID_WEB_SoftStand_2` (index `83`) of type `Character`
