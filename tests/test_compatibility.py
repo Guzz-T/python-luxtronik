@@ -2325,7 +2325,7 @@ class TestCompatibility:
         for caption, item in data.items():
             ok = not item["obsolete_found"] and not item["old_not_found"] \
                 and not item["old_idx_wrong"] and not item["old_type_changed_err"]
-            do_print = not ok or len(item["old_type_changed_info"]) > 0
+            do_print = not ok #or len(item["old_type_changed_info"]) > 0
 
             if do_print:
                 print(f"############################## Incompatibilities - {caption}:")
@@ -2345,10 +2345,10 @@ class TestCompatibility:
                     print("############################## type change error")
                     for err in item["old_type_changed_err"]:
                         print(err)
-                if item["old_type_changed_info"]:
-                    print("############################## type change info")
-                    for err in item["old_type_changed_info"]:
-                        print(err)
+                #if item["old_type_changed_info"]:
+                #    print("############################## type change info")
+                #    for err in item["old_type_changed_info"]:
+                #        print(err)
             all_ok &= ok
         assert all_ok, "Found incompatibilities. Please consider to add them to compatibilities.py"
 
