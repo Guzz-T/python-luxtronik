@@ -59,6 +59,13 @@ class TestLuxtronikSmartHomeData:
         assert data.inputs.safe
         assert data.inputs.version == (1, 2, 0, 0)
 
+    def test_get_firmware_version(self):
+        a = LuxtronikSmartHomeData()
+
+        first_version_field = a.inputs['version']
+        first_version_field.raw = [0, 8, 15]
+        assert a.inputs.get_firmware_version() == "V0.8.15"
+
 
 @patch("luxtronik.shi.LuxtronikModbusTcpInterface", FakeModbus)
 class TestLuxtronikSmartHomeInterface:
@@ -1358,11 +1365,11 @@ class TestLuxtronikSmartHomeInterfaceVersion:
 
     def test_determine_version(self):
         FakeReadInput.param = [18, 12, 3, 0]
-        ver = LuxtronikSmartHomeInterface.determine_shi_version(None)
+        ver = LuxtronikSmartHomeInterface.determine_version(None)
         assert ver == (18, 12, 3, 0)
 
         FakeReadInput.param = None
-        ver = LuxtronikSmartHomeInterface.determine_shi_version(None)
+        ver = LuxtronikSmartHomeInterface.determine_version(None)
         assert ver == VER_IGNORE
 
     def test_read_version(self):

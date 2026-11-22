@@ -386,6 +386,7 @@ def test_get_version_definitions():
         {
             Keys.IDX: 10,
             Keys.TYPE: FullVersion,
+            Keys.VERSION: ">1.0"
         },
         {
             Keys.IDX: 40,
@@ -411,3 +412,12 @@ def test_get_version_definitions():
 
     defs = definitions.get_version_definitions()
     assert got_definitions == defs
+
+    got_definitions = get_version_definitions(definitions, '1.0')
+    assert len(got_definitions) == 3
+    assert got_definitions[0].index == 40
+    assert got_definitions[0].field_type is Version
+    assert got_definitions[1].index == 6
+    assert got_definitions[1].field_type is MajorMinorVersion
+    assert got_definitions[2].index == 41
+    assert got_definitions[2].field_type is MajorMinorVersion

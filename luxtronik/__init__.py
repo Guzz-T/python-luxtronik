@@ -79,6 +79,10 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
         LuxtronikData.__init__(self, parameters, calculations, visibilities, safe)
         LuxtronikSmartHomeData.__init__(self, holdings, inputs, version, safe)
 
+    def get_firmware_version(self):
+        return LuxtronikData.get_firmware_version(self)
+
+
 class LuxtronikInterface(LuxtronikSocketInterface, LuxtronikSmartHomeInterface):
     """
     Combined interface that can be used to control both

@@ -37,6 +37,8 @@ class TestVersion:
             ("3.2.1",       (3, 2, 1, 0)),
             ("1.2.3.4",     (1, 2, 3, 4)),
             ("1.2.3.4.5",   (1, 2, 3, 4)),
+            ("V3.2.1",      (3, 2, 1, 0)),
+            ("v1.2.3.4.5",  (1, 2, 3, 4)),
             ("a.b",         None),
             ("hello",       None),
             ("foo.bar",     None),
@@ -129,6 +131,8 @@ class TestVersion:
             ((1, 2),       '1.2'),
             ((2, 4, 1),    '2.4.1'),
             ((5, 1, 2, 2), '5.1.2.2'),
+            (VER_NONE,     'VER_NONE'),
+            (VER_IGNORE,   'VER_IGNORE'),
         ]
     )
     def test_version_str(self, version, result):

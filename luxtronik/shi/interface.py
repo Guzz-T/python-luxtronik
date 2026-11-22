@@ -64,8 +64,8 @@ class LuxtronikSmartHomeData:
                 not secure from being written to.
         """
         version, _ = resolve_version_input(version) # no auto-detect possible here
-        self.holdings = holdings if holdings is not None else Holdings(version, safe)
-        self.inputs = inputs if inputs is not None else Inputs(version)
+        self.holdings = Holdings(version, safe) if holdings is None else holdings
+        self.inputs = Inputs(version) if inputs is None else inputs
 
     @classmethod
     def empty(
@@ -89,6 +89,9 @@ class LuxtronikSmartHomeData:
         obj.holdings = Holdings.empty(version, safe)
         obj.inputs = Inputs.empty(version)
         return obj
+
+    def get_firmware_version(self):
+        return self.inputs.get_firmware_version()
 
 ###############################################################################
 # Smart home interface
@@ -131,7 +134,7 @@ class LuxtronikSmartHomeInterface:
         version, do_auto_detect = resolve_version_input(version)
 
         if do_auto_detect:
-            version = LuxtronikSmartHomeInterface.determine_shi_version(interface)
+            version = LuxtronikSmartHomeInterface.determine_version(interface)
             LOGGER.info(f"Auto-detect version {version}")
 
         self._init_instance(
@@ -143,7 +146,7 @@ class LuxtronikSmartHomeInterface:
 
     @classmethod
     def _temp(cls, interface):
-        """Constructor for a temporary interface used in determine_shi_version"""
+        """Constructor for a temporary interface used in determine_version"""
         obj = cls.__new__(cls) # this don't call __init__()
         obj._init_instance(interface, VER_IGNORE, HOLDINGS_DEFINITIONS, INPUTS_DEFINITIONS)
         return obj
@@ -152,7 +155,7 @@ class LuxtronikSmartHomeInterface:
 # Version methods ##############################################################
 
     @classmethod
-    def determine_shi_version(cls, interface):
+    def determine_version(cls, interface):
         """
         Determine the version of the luxtronik controller.
 
@@ -182,7 +185,7 @@ class LuxtronikSmartHomeInterface:
             tuple[int] | None: The version of the controller on success,
                 or None if no version could be determined.
         """
-        definitions = INPUTS_DEFINITIONS.get_version_definitions()
+        definitions = INPUTS_DEFINITIONS.get_version_definitions(self._version)
         for definition in definitions:
             field = self.read_input(definition)
             if field is not None:
