@@ -76,8 +76,44 @@ class LuxtronikAllData(LuxtronikData, LuxtronikSmartHomeData):
                 not secure from being written to.
         """
         version, _ = resolve_version_input(version) # no auto-detect possible here
-        LuxtronikData.__init__(self, parameters, calculations, visibilities, safe)
+        LuxtronikData.__init__(self, parameters, calculations, visibilities, version, safe)
         LuxtronikSmartHomeData.__init__(self, holdings, inputs, version, safe)
+
+    @classmethod
+    def empty(
+        cls,
+        version=LUXTRONIK_VERSION_IGNORE,
+        safe=True
+    ):
+        """
+        Initialize an empty LuxtronikAllData instance
+        (= no fields are added to the data-vectors).
+
+        Args:
+            version (tuple[int] | str | None): The version is added to the data vectors
+                so some checks can be performed later.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent holding fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        LuxtronikData.empty(
+            obj,
+            Parameters.empty(version, safe),
+            Calculations.empty(version),
+            Visibilities.empty(version),
+            version,
+            safe
+        )
+        LuxtronikSmartHomeData.empty(
+            obj,
+            Holdings.empty(version, safe),
+            Inputs.empty(version),
+            version,
+            safe
+        )
+        return obj
 
     def get_firmware_version(self):
         return LuxtronikData.get_firmware_version(self)

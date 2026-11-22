@@ -5,9 +5,10 @@ import socket
 import struct
 import time
 
+from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import integrate_data
 from luxtronik.common import get_host_lock
-from luxtronik.version import VER_IGNORE
+from luxtronik.version import VER_IGNORE, resolve_version_input
 from luxtronik.cfi.constants import (
     LUXTRONIK_DEFAULT_CFI_PORT,
     LUXTRONIK_PARAMETERS_WRITE,
@@ -36,13 +37,63 @@ class LuxtronikData:
     Also provide some high level access functions to their data values.
     """
 
-    def __init__(self, parameters=None, calculations=None, visibilities=None, safe=True):
-        self.parameters = Parameters(VER_IGNORE, safe) if parameters is None else parameters
-        self.calculations = Calculations() if calculations is None else calculations
-        self.visibilities = Visibilities() if visibilities is None else visibilities
+    def __init__(
+        self,
+        parameters=None,
+        calculations=None,
+        visibilities=None,
+        version=LUXTRONIK_VERSION_IGNORE,
+        safe=True
+    ):
+        """
+        Initialize a LuxtronikData instance.
+
+        Args:
+            parameters (Parameters): Optional parameters data vector. If not provided,
+                a new `Parameters` instance is created.
+            calculations (Calculations): Optional calculations data vector. If not provided,
+                a new `Calculations` instance is created.
+            visibilities (Visibilities): Optional visibilities data vector. If not provided,
+                a new `Visibilities` instance is created.
+            version (tuple[int] | str | None): Version to be used for creating the data vectors.
+                This ensures that the data vectors only contain valid fields.
+                If None is passed, all available fields are added.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent holding fields marked as
+                not secure from being written to.
+        """
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        self.parameters = Parameters(version, safe) if parameters is None else parameters
+        self.calculations = Calculations(version) if calculations is None else calculations
+        self.visibilities = Visibilities(version) if visibilities is None else visibilities
+
+    @classmethod
+    def empty(
+        cls,
+        version=LUXTRONIK_VERSION_IGNORE,
+        safe=True
+    ):
+        """
+        Initialize an empty LuxtronikData instance
+        (= no fields are added to the data-vectors).
+
+        Args:
+            version (tuple[int] | str | None): The version is added to the data vectors
+                so some checks can be performed later.
+                (default: LUXTRONIK_VERSION_IGNORE)
+            safe (bool): If true, prevent holding fields marked as
+                not secure from being written to.
+        """
+        obj = cls.__new__(cls)
+        version, _ = resolve_version_input(version) # no auto-detect possible here
+        obj.parameters = Parameters.empty(version, safe)
+        obj.calculations = Calculations.empty(version)
+        obj.visibilities = Visibilities.empty(version)
+        return obj
 
     def get_firmware_version(self):
         return self.calculations.get_firmware_version()
+
 
 ###############################################################################
 # Config interface
@@ -104,7 +155,7 @@ class LuxtronikSocketInterface:
         This data object is returned afterwards, mainly for access to a newly created.
         """
         if data is None:
-            data = LuxtronikData(None, None, None, True)
+            data = LuxtronikData(None, None, None, VER_IGNORE, True)
         return self._with_lock_and_connect(self._read, data)
 
     def read_parameters(self, parameters=None):
@@ -113,7 +164,7 @@ class LuxtronikSocketInterface:
         This dictionary is returned afterwards, mainly for access to a newly created.
         """
         if parameters is None:
-            parameters = Parameters()
+            parameters = Parameters(VER_IGNORE)
         return self._with_lock_and_connect(self._read_parameters, parameters)
 
     def read_calculations(self, calculations=None):
@@ -122,7 +173,7 @@ class LuxtronikSocketInterface:
         This dictionary is returned afterwards, mainly for access to a newly created.
         """
         if calculations is None:
-            calculations = Calculations()
+            calculations = Calculations(VER_IGNORE)
         return self._with_lock_and_connect(self._read_calculations, calculations)
 
     def read_visibilities(self, visibilities=None):
@@ -131,7 +182,7 @@ class LuxtronikSocketInterface:
         This dictionary is returned afterwards, mainly for access to a newly created.
         """
         if visibilities is None:
-            visibilities = Visibilities()
+            visibilities = Visibilities(VER_IGNORE)
         return self._with_lock_and_connect(self._read_visibilities, visibilities)
 
     def write(self, parameters):
@@ -150,7 +201,7 @@ class LuxtronikSocketInterface:
         after a short wait time
         """
         if data is None:
-            data = LuxtronikData(None, None, None, True)
+            data = LuxtronikData(None, None, None, VER_IGNORE, True)
         return self._with_lock_and_connect(self._write_and_read, parameters, data)
 
     def _read(self, data):
