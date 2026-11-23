@@ -3,13 +3,13 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "luxtronik"
-version = "0.0.0-dev"
+name = "luxtronik-beta"
+version = "1.0.0"
 license = "MIT"
 license-files = ["LICENSE*"]
 readme = "README.md"
 authors = [
-  {name = "Bouni", email = "bouni-luxtronik@owee.de"}
+  {name = "Guzz-T", email = "126437616+Guzz-T@users.noreply.github.com"}
 ]
 description = "A luxtronik heatpump controller interface"
 keywords    = ["heatpump", "luxtronik2"]
@@ -26,9 +26,9 @@ dependencies = [
 ]
 
 [project.urls]
-"Source Code" = "https://github.com/bouni/python-luxtronik/"
-"Bug Reports" = "https://github.com/bouni/python-luxtronik/issues/"
-"Docs: Dev"   = "https://github.com/bouni/python-luxtronik/"
+"Source Code" = "https://github.com/Guzz-T/python-luxtronik/"
+"Bug Reports" = "https://github.com/Guzz-T/python-luxtronik/issues/"
+"Docs: Dev"   = "https://github.com/Guzz-T/python-luxtronik/"
 
 [project.scripts]
 luxtronik = "luxtronik.__main__:main"
