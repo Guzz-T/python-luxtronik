@@ -122,6 +122,71 @@ class TestSocketInteraction:
         assert not p[4].write_pending
         assert self.check_luxtronik_data(d)
 
+        idx = 74
+        result = lux.write_parameter(idx) # error, no value
+        s = FakeSocket.last_instance
+        assert not result
+        assert len(s.written_values) == 0
+        result = lux.write_parameter(idx, 'foo') # error, non-integer value
+        s = FakeSocket.last_instance
+        assert not result
+        assert len(s.written_values) == 0
+        result = lux.write_parameter(idx, 89) # value in user format
+        s = FakeSocket.last_instance
+        assert result
+        assert s.written_values[74] == 890
+        result = lux.write_parameter(9999999, 1) # error, index not found
+        s = FakeSocket.last_instance
+        assert not result
+        assert len(s.written_values) == 0
+        result = lux.write_parameter(9999999, 1, False) # error, index not found, but not safe
+        s = FakeSocket.last_instance
+        assert result
+        assert s.written_values[9999999] == 1
+
+        name = 'ID_Einst_BWS_Hyst_akt'
+        result = lux.write_parameter(name, 98) # value in user format
+        s = FakeSocket.last_instance
+        assert result
+        assert s.written_values[74] == 980
+        result = lux.write_parameter('foo', 1) # error, name not found
+        s = FakeSocket.last_instance
+        assert not result
+        assert len(s.written_values) == 0
+
+        p = Parameters()[74]
+        p.raw = 77
+        p.write_pending = True
+        result = lux.write_parameter(p)
+        s = FakeSocket.last_instance
+        assert result
+        assert s.written_values[74] == 77
+        assert not p.write_pending
+        p.write_pending = True
+        result = lux.write_parameter(p, 66)
+        s = FakeSocket.last_instance
+        assert result
+        assert s.written_values[74] == 660 # value in user format
+        assert not p.write_pending
+        p.raw = 'bar'
+        print(p.raw)
+        p.write_pending = True
+        result = lux.write_parameter(p) # Value invalid
+        s = FakeSocket.last_instance
+        assert not result
+        assert len(s.written_values) == 0
+        assert not p.write_pending # reset of invalid values
+
+        d = Parameters()[74]
+        result = lux.write_parameter(d) # error, no value
+        s = FakeSocket.last_instance
+        assert not result
+        assert len(s.written_values) == 0
+        result = lux.write_parameter(d, 55)
+        s = FakeSocket.last_instance
+        assert result
+        assert s.written_values[74] == 550 # value in user format
+
         # erroneous read
         FakeSocket.force_recv_result = b''
 

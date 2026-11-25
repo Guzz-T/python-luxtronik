@@ -1,7 +1,11 @@
+import pytest
 
 from luxtronik.collections import (
     get_data_arr,
     integrate_data,
+    get_and_check_def,
+    get_and_check_def_field_pair,
+    get_check_and_create_def_field_pair,
     LuxtronikDefFieldPair,
     LuxtronikFieldsDictionary,
 )
@@ -11,11 +15,105 @@ from luxtronik.datatypes import (
     Unknown,
 )
 from luxtronik.constants import LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
+from luxtronik.version import VER_IGNORE
 
 
 ###############################################################################
 # Tests
 ###############################################################################
+
+def_13 = LuxtronikDefinition({
+    'index': 13,
+    'count': 1,
+    'names': ['bar'],
+    'version': '>1.0'
+}, 'test', 100)
+def_17 = LuxtronikDefinition({
+    'index': 17,
+    'count': 1,
+    'names': ['foo'],
+    'version': '>=1.3'
+}, 'test', 100)
+def_19 = LuxtronikDefinition({
+    'index': 19,
+    'count': 1,
+    'names': ['x'],
+    'version': '<2.0'
+}, 'test', 100)
+field_17 = Base('foo')
+defs = LuxtronikDefinitionsDictionary()
+defs.add(def_13)
+defs.add(def_17)
+defs.add(def_19)
+
+
+@pytest.mark.parametrize(
+    "def_name_or_idx, version, definition",
+    [
+        (17,       VER_IGNORE, def_17),
+        ('13',     VER_IGNORE, def_13),
+        ('foo',    VER_IGNORE, def_17),
+        (None,     VER_IGNORE, None),
+        (7.3,      VER_IGNORE, None),
+        (def_17,   VER_IGNORE, def_17),
+        (field_17, VER_IGNORE, None), # fields not supported here
+        (17,       (3,0,0,0),  def_17),
+        ('foo',    (1,0,0,0),  None),
+        (def_17,   (1,0,0,0),  None),
+        (field_17, (2,0,0,0),  None),
+    ]
+    )
+def test_get_and_check_def(def_name_or_idx, version, definition):
+    d = get_and_check_def(def_name_or_idx, defs, version)
+    assert d == definition
+
+@pytest.mark.parametrize(
+    "def_field_name_or_idx, version, definition, field",
+    [
+        (17,       VER_IGNORE, def_17,   None),
+        ('13',     VER_IGNORE, def_13,   None),
+        ('foo',    VER_IGNORE, def_17,   None),
+        (None,     VER_IGNORE, None,     None),
+        (7.3,      VER_IGNORE, None,     None),
+        (def_17,   VER_IGNORE, def_17,   None),
+        (field_17, VER_IGNORE, def_17,   field_17),
+        (17,       (3,0,0,0),  def_17,   None),
+        ('foo',    (1,0,0,0),  None,     None),
+        (def_17,   (1,0,0,0),  None,     None),
+        (field_17, (1,0,0,0),  None,     field_17), # at least the given field is returned
+    ]
+    )
+def test_get_and_check_def_field_pair(def_field_name_or_idx, version, definition, field):
+    d, f = get_and_check_def_field_pair(def_field_name_or_idx, defs, version)
+    assert d == definition
+    assert f == field
+
+
+@pytest.mark.parametrize(
+    "def_field_name_or_idx, version, definition, field",
+    [
+        (17,       VER_IGNORE, def_17,   def_17.name),
+        ('13',     VER_IGNORE, def_13,   def_13.name),
+        ('foo',    VER_IGNORE, def_17,   def_17.name),
+        (None,     VER_IGNORE, None,     None),
+        (7.3,      VER_IGNORE, None,     None),
+        (def_17,   VER_IGNORE, def_17,   def_17.name),
+        (field_17, VER_IGNORE, def_17,   field_17),
+        (17,       (3,0,0,0),  def_17,   def_17.name),
+        ('foo',    (1,0,0,0),  None,     None),
+        (def_17,   (1,0,0,0),  None,     None),
+        (field_17, (1,0,0,0),  None,     field_17), # at least the given field is returned
+    ]
+    )
+def test_get_check_and_create_def_field_pair(def_field_name_or_idx, version, definition, field):
+    d, f = get_check_and_create_def_field_pair(def_field_name_or_idx, defs, version)
+    assert d == definition
+    if isinstance(field, str):
+        assert isinstance(f, d.field_type)
+        assert f.name == field
+    else:
+        assert f == field
+
 
 class TestDefinitionFieldPair:
 

@@ -3,10 +3,13 @@
 import logging
 
 from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
-from luxtronik.collections import LuxtronikFieldsDictionary
+from luxtronik.collections import (
+    get_and_check_def_field_pair,
+    get_check_and_create_def_field_pair,
+    LuxtronikFieldsDictionary
+)
 from luxtronik.datatypes import Base, Unknown
-from luxtronik.definitions import LuxtronikDefinition
-from luxtronik.version import resolve_version_input
+from luxtronik.version import VER_IGNORE, resolve_version_input
 
 
 LOGGER = logging.getLogger(__name__)
@@ -68,14 +71,8 @@ class DataVector:
         Returns:
             Base | None: The created field, or None if not found or not valid.
         """
-        if isinstance(def_name_or_idx, LuxtronikDefinition):
-            definition = def_name_or_idx
-        else:
-            # The definitions object hold all available definitions
-            definition = cls.definitions.get(def_name_or_idx)
-        if definition is not None and definition.valid:
-            return definition.create_field()
-        return None
+        _, field = get_check_and_create_def_field_pair(def_name_or_idx, cls.definitions, VER_IGNORE)
+        return field
 
     def create_field(self, def_name_or_idx):
         """
@@ -94,7 +91,7 @@ class DataVector:
         Returns:
             Base | None: The created field, or None if not found or not valid.
         """
-        definition, _ = self._get_definition(def_name_or_idx, False)
+        definition, _ = get_and_check_def_field_pair(def_name_or_idx, self._data.def_dict, VER_IGNORE)
         if definition is not None and definition.valid:
             return definition.create_field()
         return None
@@ -241,7 +238,7 @@ class DataVector:
             If multiple fields added for the same index/name, the last added takes precedence.
         """
         # Look-up the related definition
-        definition, field = self._get_definition(def_field_name_or_idx, True)
+        definition, field = get_and_check_def_field_pair(def_field_name_or_idx, self.definitions, VER_IGNORE)
         if definition is None:
             return None
 
@@ -261,44 +258,6 @@ class DataVector:
 
 
 # Get and set methods #########################################################
-
-    def _get_definition(self, def_field_name_or_idx, all_not_version_dependent):
-        """
-        Look-up a definition by name, index, a field instance or by the definition itself.
-
-        If `def_field_name_or_idx`
-        - is a definition -> lookup the definition by the definition's name
-        - is a field -> lookup the definition by the field's name
-        - is a name -> lookup the field by the name
-        - is a idx -> lookup the field by the index
-
-        Args:
-            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
-                Definition object, field object, field name or register index.
-            all_not_version_dependent (bool): If true, look up the definition
-                within the `cls.definitions` otherwise within `self._data` (which
-                contain all definitions related to all added fields)
-
-        Returns:
-            tuple[LuxtronikDefinition | None, Base | None]:
-                A definition-field-pair tuple:
-                Index 0: Return the found or given definitions, otherwise None
-                Index 1: Return the given field, otherwise None
-        """
-        definition = def_field_name_or_idx
-        field = None
-        if isinstance(def_field_name_or_idx, Base):
-            # In case we got a field, search for the description by the field name
-            definition = def_field_name_or_idx.name
-            field = def_field_name_or_idx
-        if not isinstance(def_field_name_or_idx, LuxtronikDefinition):
-            if all_not_version_dependent:
-                # definitions contains all available definitions
-                definition = self.definitions.get(definition)
-            else:
-                # _data.def_dict contains only valid and previously added definitions
-                definition = self._data.def_dict.get(definition)
-        return definition, field
 
     def get(self, def_field_name_or_idx, default=None):
         """

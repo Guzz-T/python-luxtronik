@@ -233,6 +233,16 @@ class RunTestDefinitionList:
                 assert parsed is not None, \
                     f"Version must be a valid version requirement instead of {version}: {definition}"
 
+    def test_successor(self):
+        for definition in self.definitions:
+            if Keys.SUCCESSOR in definition:
+                successor = definition[Keys.SUCCESSOR]
+                found = False
+                for d in self.definitions:
+                    if definition is not d and Keys.NAMES in d:
+                        found |= (d[Keys.NAMES][0].lower() == successor.lower())
+                assert found, \
+                    f"The successor {successor} must be defined correctly as the preferred name of another field: {definition}"
 
 ###############################################################################
 # Tests

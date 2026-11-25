@@ -4,10 +4,12 @@ import logging
 
 from luxtronik.common import classproperty
 from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
-from luxtronik.collections import get_data_arr
-from luxtronik.datatypes import Base
+from luxtronik.collections import (
+    get_data_arr,
+    get_and_check_def,
+    get_check_and_create_def_field_pair
+)
 from luxtronik.definitions import (
-    LuxtronikDefinition,
     LuxtronikDefinitionsList,
 )
 from luxtronik.interface import LuxtronikInterfaceInfo, LuxtronikBaseInterface
@@ -226,48 +228,6 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
 
 # Helper methods ##############################################################
 
-    def _get_definition(self, def_name_or_idx, definitions):
-        """
-        Retrieve a definition by name or index that is supported by the controller.
-
-        Args:
-            def_name_or_idx (LuxtronikDefinition | str | int):
-                Name, register index or the definition of the field.
-
-        Returns:
-            LuxtronikDefinition | None: The matching definition, or None if not found.
-        """
-        if isinstance(def_name_or_idx, LuxtronikDefinition):
-            definition = def_name_or_idx
-        else:
-            definition = definitions.get(def_name_or_idx)
-        if definition is None:
-            return None
-        if not definition.version.matches(self.__version):
-            LOGGER.debug(f"Field {definition.name} not valid for {self.__version}")
-            return None
-        return definition
-
-    def _get_def_field_pair(self, def_field_name_or_idx, definitions):
-        """
-        Retrieve a definition by name or index that is supported by the controller.
-        On success, additionally returns either the passed field or a newly created field.
-
-        Args:
-            def_name_or_idx (LuxtronikDefinition | Base| str | int):
-                Name, register index or the definition of the field, or the field itself.
-
-        Returns:
-            tuple[LuxtronikDefinition, Base]: The matching definition-field pair.
-        """
-        if isinstance(def_field_name_or_idx, Base):
-            definition = self._get_definition(def_field_name_or_idx.name, definitions)
-            field = def_field_name_or_idx if definition is not None else None
-        else:
-            definition = self._get_definition(def_field_name_or_idx, definitions)
-            field = definition.create_field() if definition is not None else None
-        return definition, field
-
     def _get_index_from_name(self, name):
         """
         Extract the index from an 'unknown' identifier (e.g. 'Unknown_Input_105').
@@ -298,10 +258,7 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
         Returns:
             LuxtronikDefinition | None: A valid definition, or None if not found.
         """
-        if isinstance(def_name_or_idx, LuxtronikDefinition):
-            definition = def_name_or_idx
-        else:
-            definition = definitions.get(def_name_or_idx)
+        definition = get_and_check_def(def_name_or_idx, definitions, VER_IGNORE)
         if definition is not None:
             return definition
 
@@ -517,7 +474,7 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
         if def_field_name_or_idx is None:
             return None
 
-        definition, field = self._get_def_field_pair(def_field_name_or_idx, definitions)
+        definition, field = get_check_and_create_def_field_pair(def_field_name_or_idx, definitions, self.__version)
 
         # create temporary definition for trial-and-error-mode
         if self.__version is VER_IGNORE and definition is None and isinstance(def_field_name_or_idx, (int, str)):
@@ -833,7 +790,7 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
             Base | None: On success the created field, otherwise None.
 
         """
-        _, field = self._get_def_field_pair(def_name_or_idx, HOLDINGS_DEFINITIONS)
+        _, field = get_check_and_create_def_field_pair(def_name_or_idx, HOLDINGS_DEFINITIONS, self.__version)
         return field
 
     def create_holdings(self, safe=SAFE):
@@ -999,7 +956,7 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
             Base | None: On success the created field, otherwise None.
 
         """
-        _, field = self._get_def_field_pair(def_name_or_idx, INPUTS_DEFINITIONS)
+        _, field = get_check_and_create_def_field_pair(def_name_or_idx, INPUTS_DEFINITIONS, self.__version)
         return field
 
     def create_inputs(self):
