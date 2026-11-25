@@ -5,10 +5,10 @@ import logging
 from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
 from luxtronik.collections import (
     get_and_check_def_field_pair,
+    get_check_and_create_def_field_pair,
     LuxtronikFieldsDictionary
 )
 from luxtronik.datatypes import Base, Unknown
-from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.version import VER_IGNORE, resolve_version_input
 
 
@@ -71,14 +71,8 @@ class DataVector:
         Returns:
             Base | None: The created field, or None if not found or not valid.
         """
-        if isinstance(def_name_or_idx, LuxtronikDefinition):
-            definition = def_name_or_idx
-        else:
-            # The definitions object hold all available definitions
-            definition = cls.definitions.get(def_name_or_idx)
-        if definition is not None and definition.valid:
-            return definition.create_field()
-        return None
+        _, field = get_check_and_create_def_field_pair(def_name_or_idx, cls.definitions, VER_IGNORE)
+        return field
 
     def create_field(self, def_name_or_idx):
         """

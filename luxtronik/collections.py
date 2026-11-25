@@ -203,6 +203,29 @@ def get_and_check_def_field_pair(def_field_name_or_idx, definitions, version=VER
         field = None
     return definition, field
 
+def get_check_and_create_def_field_pair(def_field_name_or_idx, definitions, version=VER_IGNORE):
+        """
+        Retrieve a definition by definition, field, name or index that is supported by the controller.
+        On success, additionally returns either the passed field or a newly created field.
+
+        Args:
+            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
+                Name, register index or the definition of the field, or the field itself.
+        definitions (LuxtronikDefinitionsDictionary | LuxtronikDefinitionsList):
+            A dictionary or list where the definition can be looked up (via `get()`)
+            by a name or a index
+        version (tuple[int]): Version of the controller.
+            The version check is not performed if this parameter is `VER_IGNORE`.
+
+        Returns:
+            tuple[LuxtronikDefinition, Base]: The matching definition-field pair.
+        """
+        definition, field = get_and_check_def_field_pair(def_field_name_or_idx, definitions, version)
+        if definition is not None and field is None and definition.valid:
+            field = definition.create_field()
+        return definition, field
+
+
 class LuxtronikDefFieldPair:
     """
     Combines a definition and a field into a single iterable object.
