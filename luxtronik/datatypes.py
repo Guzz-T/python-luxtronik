@@ -526,6 +526,8 @@ class Errorcode(SelectionBase):
         805: "sensor desuperheater",
         806: "Modbus SEC",
         807: "Lost modbus connection",
+        810: "Parallel-Operation Version",
+        816: "Multiple SHI data sources",
     }
 
 
@@ -588,12 +590,28 @@ class Energy(ScalingBase):
     scaling_factor = 0.1
 
 
+class Energy2(ScalingBase):
+    """Energy datatype, converts from and to Energy."""
+
+    datatype_class = "energy"
+    datatype_unit = "kWh"
+    scaling_factor = 0.01
+
+
 class Voltage(ScalingBase):
     """Voltage datatype, converts from and to Voltage."""
 
     datatype_class = "voltage"
     datatype_unit = "V"
     scaling_factor = 0.1
+
+
+class Voltage2(ScalingBase):
+    """Voltage datatype, converts from and to Voltage."""
+
+    datatype_class = "voltage"
+    datatype_unit = "V"
+    scaling_factor = 0.01
 
 
 class Hours(ScalingBase):

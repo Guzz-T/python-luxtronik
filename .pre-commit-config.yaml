@@ -35,4 +35,13 @@ repos:
     rev: v1.38.0
     hooks:
       - id: yamllint
+
+  - repo: local
+    hooks:
+      - id: update-changelog
+        name: Automatically Update the CHANGELOG.md
+        entry: python scripts/update_changelog.py
+        language: system
+        pass_filenames: false
+        always_run: true
 ...
