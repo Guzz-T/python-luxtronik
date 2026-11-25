@@ -6,9 +6,12 @@ import struct
 import time
 
 from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
-from luxtronik.collections import integrate_data
+from luxtronik.collections import integrate_data, get_check_and_create_def_field_pair
 from luxtronik.common import get_host_lock
-from luxtronik.definitions import LuxtronikDefinitionsList
+from luxtronik.definitions import (
+    resolve_name_or_idx_input,
+    LuxtronikDefinitionsList
+)
 from luxtronik.interface import LuxtronikInterfaceInfo, LuxtronikBaseInterface
 from luxtronik.version import VER_IGNORE, parse_version, resolve_version_input
 from luxtronik.cfi.constants import (
@@ -306,6 +309,10 @@ class LuxtronikSocketInterface(LuxtronikBaseInterface):
 
 # Write methods ###############################################################
 
+    def write_parameter(self, def_field_name_or_idx, value=None, safe=True):
+        """Calls `_write_parameter` with the lock-and-connect decorator."""
+        return self._with_lock_and_connect(self._write_parameter, def_field_name_or_idx, value, safe)
+
     def write(self, parameters):
         """
         Write all set parameters to the heat pump.
@@ -344,26 +351,68 @@ class LuxtronikSocketInterface(LuxtronikBaseInterface):
         count = 0
         for definition, field in parameters.items():
             if definition.version.matches(self.__version) and field.write_pending:
-                field.write_pending = False
-                value = field.raw
-                if not isinstance(definition.index, int) or not field.check_for_write(parameters.safe):
-                    LOGGER.warning(
-                        "%s: Parameter id '%s' or value '%s' invalid!",
-                        self.__host,
-                        definition.index,
-                        value,
-                    )
-                    continue
-                LOGGER.debug("%s: Parameter '%d' set to '%s'", self.__host, definition.index, value)
-                self._send_ints(LUXTRONIK_PARAMETERS_WRITE, definition.index, value)
-                cmd = self._read_int()
-                LOGGER.debug("%s: Command %s", self.__host, cmd)
-                val = self._read_int()
-                LOGGER.debug("%s: Value %s", self.__host, val)
-                count += 1
+                if self._do_write_field(LUXTRONIK_PARAMETERS_WRITE, \
+                        definition.index, field, parameters.safe):
+                    count += 1
         LOGGER.info("%s: Write %d parameters", self.__host, count)
         # Give the heatpump a short time to handle the value changes/calculations:
         time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
+
+    def _do_write_field(self, cmd, index, field, safe=True):
+        """
+        Write a single field to the Luxtronik controller.
+
+        This method checks whether the field can be safely written,
+        resets its write-pending flag, validates the raw value, and
+        delegates the actual write operation to _do_write_raw().
+
+        Args:
+            cmd (int): Command specifying the type of write operation.
+            index (int): Index of the field to write.
+            field (Field): Field object containing the raw value and metadata.
+            safe (bool): If True, perform safety checks before writing.
+
+        Returns:
+            bool: True if the write operation was executed, otherwise False.
+        """
+        # Reset the write_pending flag
+        field.write_pending = False
+        value = field.raw
+        if not field.check_for_write(safe):
+            LOGGER.warning(f"{self.__host} - Write: Parameter id '{index}'" \
+                + f" or value '{value}' invalid!")
+            return False
+        return self._do_write_raw(cmd, index, value)
+
+    def _do_write_raw(self, cmd, index, value):
+        """
+        Write a single raw value to the Luxtronik controller.
+
+        Args:
+            cmd (int): Command specifying the type of data to write.
+                Currently only LUXTRONIK_PARAMETERS_WRITE is supported.
+            index (int): Index of the field to write.
+            value (int): Value to write.
+
+        Returns:
+            bool: True if the write operation was executed, otherwise False.
+        """
+        if not isinstance(cmd, int):
+            LOGGER.error(f"{self.__host} - Write: Command '{cmd}' invalid! Must be an integer.")
+            return False
+        if not isinstance(index, int):
+            LOGGER.error(f"{self.__host} - Write: Index '{index}' invalid! Must be an integer.")
+            return False
+        if not isinstance(value, int):
+            LOGGER.error(f"{self.__host} - Write: Value '{value}' invalid! Must be an integer.")
+            return False
+        LOGGER.debug(f"{self.__host} - Write: Index '{index}' set to '{value}'")
+        self._send_ints(cmd, index, value)
+        command = self._read_int()
+        LOGGER.debug(f"{self.__host} - Write: Command {command}")
+        idx = self._read_int()
+        LOGGER.debug(f"{self.__host} - Write: Index {idx}")
+        return (command == cmd) and (index == idx)
 
     def _read_parameters(self, parameters):
         data = []
@@ -405,6 +454,41 @@ class LuxtronikSocketInterface(LuxtronikBaseInterface):
         LOGGER.info("%s: Read %d visibilities", self.__host, length)
         self._parse(visibilities, data)
         return visibilities
+
+    def _write_parameter(self, def_field_name_or_idx, value=None, safe=True):
+        """
+        Write a single parameter to the Luxtronik controller. Primarily used for debug purposes.
+
+        Args:
+            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
+                Target to write to. May be a definition, a field, a name, or an index.
+                Unknown indices can be written, but the safe flag must be set to false for that.
+            value (int): Value to write. Overrides the field's value if a field is provided.
+            safe (bool): If True, prevents writing if the field's writeable flag is not set.
+
+        Returns:
+            bool: True if the write operation was executed, otherwise False.
+        """
+        definition, field = get_check_and_create_def_field_pair(def_field_name_or_idx, PARAMETERS_DEFINITIONS, self.__version)
+
+        if definition is None or field is None:
+            name_or_idx = resolve_name_or_idx_input(def_field_name_or_idx)
+            if isinstance(name_or_idx, int) and not safe:
+                index = name_or_idx
+                return self._do_write_raw(LUXTRONIK_PARAMETERS_WRITE, index, value)
+            else:
+                LOGGER.warning(f"{self.__host} - Write: Target '{def_field_name_or_idx}' invalid!")
+                return False
+
+        if value is not None:
+            field.value = value
+
+        result = self._do_write_field(LUXTRONIK_PARAMETERS_WRITE, definition.index, field, safe)
+
+        # Give the heatpump a short time to handle the value changes/calculations:
+        time.sleep(WAIT_TIME_AFTER_PARAMETER_WRITE)
+
+        return result
 
     def _send_ints(self, *ints):
         "Low-level helper to send a tuple of ints"
