@@ -4,7 +4,7 @@ import logging
 
 from luxtronik.common import classproperty
 from luxtronik.constants import LUXTRONIK_VERSION_IGNORE
-from luxtronik.collections import get_data_arr
+from luxtronik.collections import get_data_arr, get_and_check_def
 from luxtronik.datatypes import Base
 from luxtronik.definitions import (
     LuxtronikDefinition,
@@ -298,10 +298,7 @@ class LuxtronikSmartHomeInterface(LuxtronikBaseInterface):
         Returns:
             LuxtronikDefinition | None: A valid definition, or None if not found.
         """
-        if isinstance(def_name_or_idx, LuxtronikDefinition):
-            definition = def_name_or_idx
-        else:
-            definition = definitions.get(def_name_or_idx)
+        definition = get_and_check_def(def_name_or_idx, definitions, VER_IGNORE)
         if definition is not None:
             return definition
 

@@ -1,7 +1,9 @@
+import pytest
 
 from luxtronik.collections import (
     get_data_arr,
     integrate_data,
+    get_and_check_def,
     LuxtronikDefFieldPair,
     LuxtronikFieldsDictionary,
 )
@@ -11,11 +13,57 @@ from luxtronik.datatypes import (
     Unknown,
 )
 from luxtronik.constants import LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE
+from luxtronik.version import VER_IGNORE
 
 
 ###############################################################################
 # Tests
 ###############################################################################
+
+def_13 = LuxtronikDefinition({
+    'index': 13,
+    'count': 1,
+    'names': ['bar'],
+    'version': '>1.0'
+}, 'test', 100)
+def_17 = LuxtronikDefinition({
+    'index': 17,
+    'count': 1,
+    'names': ['foo'],
+    'version': '>=1.3'
+}, 'test', 100)
+def_19 = LuxtronikDefinition({
+    'index': 19,
+    'count': 1,
+    'names': ['x'],
+    'version': '<2.0'
+}, 'test', 100)
+field_17 = Base('17')
+defs = LuxtronikDefinitionsDictionary()
+defs.add(def_13)
+defs.add(def_17)
+defs.add(def_19)
+
+
+@pytest.mark.parametrize(
+    "def_name_or_idx, version, result",
+    [
+        (17,       VER_IGNORE, def_17),
+        ('13',     VER_IGNORE, def_13),
+        ('foo',    VER_IGNORE, def_17),
+        (None,     VER_IGNORE, None),
+        (7.3,      VER_IGNORE, None),
+        (def_17,   VER_IGNORE, def_17),
+        (field_17, VER_IGNORE, None),
+        (17,       (3,0,0,0),  def_17),
+        ('foo',    (1,0,0,0),  None),
+        (def_17,   (1,0,0,0),  None),
+    ]
+    )
+def test_get_and_check_def(def_name_or_idx, version, result):
+    r = get_and_check_def(def_name_or_idx, defs, version)
+    assert r == result
+
 
 class TestDefinitionFieldPair:
 

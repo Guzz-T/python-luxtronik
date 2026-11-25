@@ -4,6 +4,7 @@ import logging
 
 from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinition, LuxtronikDefinitionsDictionary
+from luxtronik.version import VER_IGNORE
 
 
 LOGGER = logging.getLogger(__name__)
@@ -137,6 +138,34 @@ def integrate_data(definition, field, raw_data, num_bits, data_offset=-1):
 ###############################################################################
 # Definition / field pair
 ###############################################################################
+
+def get_and_check_def(def_name_or_idx, definitions, version=VER_IGNORE):
+    """
+    Retrieve a definition by name or index that is supported by the controller version.
+
+    Args:
+        def_name_or_idx (LuxtronikDefinition | str | int):
+            Name, register index or the definition of the field.
+        definitions (LuxtronikDefinitionsDictionary | LuxtronikDefinitionsList):
+            A dictionary or list where the definition can be looked up (via `get()`)
+            by a name or a index
+        version (tuple[int]): Version of the controller.
+            The version check is not performed if this parameter is `VER_IGNORE`.
+
+    Returns:
+        LuxtronikDefinition | None: The matching definition, or None if not found.
+    """
+    if isinstance(def_name_or_idx, LuxtronikDefinition):
+        definition = def_name_or_idx
+    else:
+        name_or_idx = def_name_or_idx
+        definition = definitions.get(name_or_idx)
+    if definition is None:
+        return None
+    if not definition.version.matches(version):
+        LOGGER.debug(f"Field {definition.name} not valid for {version}")
+        return None
+    return definition
 
 class LuxtronikDefFieldPair:
     """

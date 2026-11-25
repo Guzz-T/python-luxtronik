@@ -5,6 +5,7 @@ from luxtronik.constants import (
     LUXTRONIK_LATEST_VERSION,
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
 )
+from luxtronik.collections import get_and_check_def
 from luxtronik.datatypes import Base, Unknown, FullVersion
 from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.version import VER_IGNORE
@@ -90,7 +91,7 @@ class TestLuxtronikSmartHomeInterface:
         assert self.interface.inputs is not self.interface.get_inputs(False)
 
         # via index
-        definition = self.interface._get_definition(2, HOLDINGS_DEFINITIONS)
+        definition = get_and_check_def(2, HOLDINGS_DEFINITIONS)
         assert definition is HOLDINGS_DEFINITIONS[2]
 
         # via name
@@ -100,7 +101,7 @@ class TestLuxtronikSmartHomeInterface:
         assert field.name == definition.name
 
         # via definition
-        definition = self.interface._get_definition(HOLDINGS_DEFINITIONS[6], HOLDINGS_DEFINITIONS)
+        definition = get_and_check_def(HOLDINGS_DEFINITIONS[6], HOLDINGS_DEFINITIONS)
         assert definition is HOLDINGS_DEFINITIONS[6]
 
         # via field
