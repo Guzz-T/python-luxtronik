@@ -1,3 +1,4 @@
+import pytest
 
 from luxtronik.datatypes import (
     Base,
@@ -8,6 +9,7 @@ from luxtronik.datatypes import (
 )
 from luxtronik.definitions import (
     Keys,
+    resolve_name_or_idx_input,
     LuxtronikDefinition,
     LuxtronikDefinitionsDictionary,
     LuxtronikDefinitionsList,
@@ -19,6 +21,21 @@ import operator
 ###############################################################################
 # Tests
 ###############################################################################
+
+@pytest.mark.parametrize(
+    "name_or_idx, result",
+    [
+        (17,    17),
+        ('13',  13),
+        ('foo', 'foo'),
+        (None,  ''),
+        (7.3,   ''),
+    ]
+    )
+def test_resolve_name_or_idx_input(name_or_idx, result):
+    r = resolve_name_or_idx_input(name_or_idx)
+    assert r == result
+
 
 class TestDefinition:
 
