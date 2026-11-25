@@ -4,6 +4,7 @@ from luxtronik.collections import (
     get_data_arr,
     integrate_data,
     get_and_check_def,
+    get_and_check_def_field_pair,
     LuxtronikDefFieldPair,
     LuxtronikFieldsDictionary,
 )
@@ -38,7 +39,7 @@ def_19 = LuxtronikDefinition({
     'names': ['x'],
     'version': '<2.0'
 }, 'test', 100)
-field_17 = Base('17')
+field_17 = Base('foo')
 defs = LuxtronikDefinitionsDictionary()
 defs.add(def_13)
 defs.add(def_17)
@@ -46,7 +47,7 @@ defs.add(def_19)
 
 
 @pytest.mark.parametrize(
-    "def_name_or_idx, version, result",
+    "def_name_or_idx, version, definition",
     [
         (17,       VER_IGNORE, def_17),
         ('13',     VER_IGNORE, def_13),
@@ -54,15 +55,37 @@ defs.add(def_19)
         (None,     VER_IGNORE, None),
         (7.3,      VER_IGNORE, None),
         (def_17,   VER_IGNORE, def_17),
-        (field_17, VER_IGNORE, None),
+        (field_17, VER_IGNORE, None), # fields not supported here
         (17,       (3,0,0,0),  def_17),
         ('foo',    (1,0,0,0),  None),
         (def_17,   (1,0,0,0),  None),
+        (field_17, (2,0,0,0),  None),
     ]
     )
-def test_get_and_check_def(def_name_or_idx, version, result):
-    r = get_and_check_def(def_name_or_idx, defs, version)
-    assert r == result
+def test_get_and_check_def(def_name_or_idx, version, definition):
+    d = get_and_check_def(def_name_or_idx, defs, version)
+    assert d == definition
+
+@pytest.mark.parametrize(
+    "def_field_name_or_idx, version, definition, field",
+    [
+        (17,       VER_IGNORE, def_17,   None),
+        ('13',     VER_IGNORE, def_13,   None),
+        ('foo',    VER_IGNORE, def_17,   None),
+        (None,     VER_IGNORE, None,     None),
+        (7.3,      VER_IGNORE, None,     None),
+        (def_17,   VER_IGNORE, def_17,   None),
+        (field_17, VER_IGNORE, def_17,   field_17),
+        (17,       (3,0,0,0),  def_17,   None),
+        ('foo',    (1,0,0,0),  None,     None),
+        (def_17,   (1,0,0,0),  None,     None),
+        (field_17, (1,0,0,0),  None,     field_17), # at least the given field is returned
+    ]
+    )
+def test_get_and_check_def_field_pair(def_field_name_or_idx, version, definition, field):
+    d, f = get_and_check_def_field_pair(def_field_name_or_idx, defs, version)
+    assert d == definition
+    assert f == field
 
 
 class TestDefinitionFieldPair:
