@@ -5,6 +5,7 @@ from luxtronik.constants import (
     LUXTRONIK_LATEST_VERSION,
     LUXTRONIK_16BIT_FUNCTION_NOT_AVAILABLE,
 )
+from luxtronik.collections import get_and_check_def, get_check_and_create_def_field_pair
 from luxtronik.datatypes import Base, Unknown, FullVersion
 from luxtronik.definitions import LuxtronikDefinition
 from luxtronik.version import VER_IGNORE
@@ -90,28 +91,28 @@ class TestLuxtronikSmartHomeInterface:
         assert self.interface.inputs is not self.interface.get_inputs(False)
 
         # via index
-        definition = self.interface._get_definition(2, HOLDINGS_DEFINITIONS)
+        definition = get_and_check_def(2, HOLDINGS_DEFINITIONS)
         assert definition is HOLDINGS_DEFINITIONS[2]
 
         # via name
-        definition, field = self.interface._get_def_field_pair("hot_water_mode", HOLDINGS_DEFINITIONS)
+        definition, field = get_check_and_create_def_field_pair("hot_water_mode", HOLDINGS_DEFINITIONS)
         assert definition is HOLDINGS_DEFINITIONS[5]
         assert isinstance(field, Base)
         assert field.name == definition.name
 
         # via definition
-        definition = self.interface._get_definition(HOLDINGS_DEFINITIONS[6], HOLDINGS_DEFINITIONS)
+        definition = get_and_check_def(HOLDINGS_DEFINITIONS[6], HOLDINGS_DEFINITIONS)
         assert definition is HOLDINGS_DEFINITIONS[6]
 
         # via field
         field_52 = Base("lock_cooling", False)
-        definition, field = self.interface._get_def_field_pair(field_52, HOLDINGS_DEFINITIONS)
+        definition, field = get_check_and_create_def_field_pair(field_52, HOLDINGS_DEFINITIONS)
         assert definition is HOLDINGS_DEFINITIONS[52]
         assert field is field_52
         assert field.name == definition.name
 
         # unsupported via index
-        definition, field = self.interface._get_def_field_pair(109, INPUTS_DEFINITIONS)
+        definition, field = get_check_and_create_def_field_pair(109, INPUTS_DEFINITIONS, LUXTRONIK_FIRST_VERSION_WITH_SHI)
         assert definition is None
         assert field is None
 
@@ -119,22 +120,22 @@ class TestLuxtronikSmartHomeInterface:
         assert definition is INPUTS_DEFINITIONS[109]
 
         # unsupported via name
-        definition = self.interface._get_definition("mc1_heat_level", HOLDINGS_DEFINITIONS)
+        definition = get_and_check_def("mc1_heat_level", HOLDINGS_DEFINITIONS, LUXTRONIK_FIRST_VERSION_WITH_SHI)
         assert definition is None
 
         definition = self.interface.holdings.get("mc1_heat_level")
         assert definition is HOLDINGS_DEFINITIONS["mc1_heat_level"]
 
         # unsupported via definition
-        definition, field = self.interface._get_def_field_pair(HOLDINGS_DEFINITIONS[23], HOLDINGS_DEFINITIONS)
+        definition, field = get_check_and_create_def_field_pair(HOLDINGS_DEFINITIONS[23], HOLDINGS_DEFINITIONS, LUXTRONIK_FIRST_VERSION_WITH_SHI)
         assert definition is None
         assert field is None
 
         # unsupported via field
         field_500 = Base("unknown_input_500", False)
-        definition, field = self.interface._get_def_field_pair(field_500, INPUTS_DEFINITIONS)
+        definition, field = get_check_and_create_def_field_pair(field_500, INPUTS_DEFINITIONS, LUXTRONIK_FIRST_VERSION_WITH_SHI)
         assert definition is None
-        assert field is None
+        assert field is field_500 # At least the passed field is returned
 
     @pytest.mark.parametrize(
         "name, index",

@@ -232,6 +232,30 @@ class LuxtronikDefinition:
                 return raw != LUXTRONIK_32BIT_FUNCTION_NOT_AVAILABLE
         return True
 
+###############################################################################
+# Helper methods
+###############################################################################
+
+def resolve_name_or_idx_input(name_or_idx):
+    """
+    Safeguards to ensure that only integers, strings and integers
+    as string are valid as an input to look-up a definition.
+
+    Args:
+        name_or_idx (str | int): Definition name or register index.
+
+    Returns:
+        int | str: The input as integer or string. Returns an empty
+            string, if the input is not valid
+    """
+    if isinstance(name_or_idx, int):
+        return name_or_idx
+    if isinstance(name_or_idx, str):
+        try:
+            return int(name_or_idx)
+        except ValueError:
+            return name_or_idx
+    return '' # an empty string should not match any definition
 
 ###############################################################################
 # LuxtronikDefinitionsDictionary
@@ -314,14 +338,13 @@ class LuxtronikDefinitionsDictionary:
             If multiple definitions added for the same index/name, the last added takes precedence.
         """
         d = None
+        name_or_idx = resolve_name_or_idx_input(name_or_idx)
         if isinstance(name_or_idx, int):
-            d = self._get_definition_by_idx(name_or_idx)
+            index = name_or_idx
+            d = self._get_definition_by_idx(index)
         if isinstance(name_or_idx, str):
-            try:
-                # Numbers are not allowed as names, so it could be an index as string
-                d = self._get_definition_by_idx(int(name_or_idx))
-            except ValueError:
-                d = self._get_definition_by_name(name_or_idx)
+            name = name_or_idx
+            d = self._get_definition_by_name(name)
         return d
 
     def _get_definition_by_idx(self, idx):

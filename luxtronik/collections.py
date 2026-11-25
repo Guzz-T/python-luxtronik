@@ -4,6 +4,7 @@ import logging
 
 from luxtronik.datatypes import Base
 from luxtronik.definitions import LuxtronikDefinition, LuxtronikDefinitionsDictionary
+from luxtronik.version import VER_IGNORE
 
 
 LOGGER = logging.getLogger(__name__)
@@ -137,6 +138,93 @@ def integrate_data(definition, field, raw_data, num_bits, data_offset=-1):
 ###############################################################################
 # Definition / field pair
 ###############################################################################
+
+def get_and_check_def(def_name_or_idx, definitions, version=VER_IGNORE):
+    """
+    Retrieve a definition by name or index that is supported by the controller version.
+
+    Args:
+        def_name_or_idx (LuxtronikDefinition | str | int):
+            Name, register index or the definition of the field.
+        definitions (LuxtronikDefinitionsDictionary | LuxtronikDefinitionsList):
+            A dictionary or list where the definition can be looked up (via `get()`)
+            by a name or a index
+        version (tuple[int]): Version of the controller.
+            The version check is not performed if this parameter is `VER_IGNORE`.
+
+    Returns:
+        LuxtronikDefinition | None: The matching definition, or None if not found.
+    """
+    if isinstance(def_name_or_idx, LuxtronikDefinition):
+        definition = def_name_or_idx
+    else:
+        name_or_idx = def_name_or_idx
+        definition = definitions.get(name_or_idx)
+    if definition is None:
+        return None
+    if not definition.version.matches(version):
+        LOGGER.debug(f"Field {definition.name} not valid for {version}")
+        return None
+    return definition
+
+def get_and_check_def_field_pair(def_field_name_or_idx, definitions, version=VER_IGNORE):
+    """
+    Look-up a definition by name, index, a field instance or by the definition itself
+    that is supported by the controller version.
+
+    If `def_field_name_or_idx`
+    - is a definition -> lookup the definition by the definition's name
+    - is a field -> lookup the definition by the field's name
+    - is a name -> lookup the field by the name
+    - is a idx -> lookup the field by the index
+
+    Args:
+        def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
+            Definition object, field object, field name or register index.
+        definitions (LuxtronikDefinitionsDictionary | LuxtronikDefinitionsList):
+            A dictionary or list where the definition can be looked up (via `get()`)
+            by a name or a index
+        version (tuple[int]): Version of the controller.
+            The version check is not performed if this parameter is `VER_IGNORE`.
+
+    Returns:
+        tuple[LuxtronikDefinition | None, Base | None]:
+            A definition-field-pair tuple:
+            Index 0: Return the found or given definitions, otherwise None
+            Index 1: Return the given field, otherwise None
+    """
+    if isinstance(def_field_name_or_idx, Base):
+        # In case we got a field, search for the definition by the field name
+        field = def_field_name_or_idx
+        definition = get_and_check_def(field.name, definitions, version)
+    else:
+        def_name_or_idx = def_field_name_or_idx
+        definition = get_and_check_def(def_name_or_idx, definitions, version)
+        field = None
+    return definition, field
+
+def get_check_and_create_def_field_pair(def_field_name_or_idx, definitions, version=VER_IGNORE):
+        """
+        Retrieve a definition by definition, field, name or index that is supported by the controller.
+        On success, additionally returns either the passed field or a newly created field.
+
+        Args:
+            def_field_name_or_idx (LuxtronikDefinition | Base | str | int):
+                Name, register index or the definition of the field, or the field itself.
+        definitions (LuxtronikDefinitionsDictionary | LuxtronikDefinitionsList):
+            A dictionary or list where the definition can be looked up (via `get()`)
+            by a name or a index
+        version (tuple[int]): Version of the controller.
+            The version check is not performed if this parameter is `VER_IGNORE`.
+
+        Returns:
+            tuple[LuxtronikDefinition, Base]: The matching definition-field pair.
+        """
+        definition, field = get_and_check_def_field_pair(def_field_name_or_idx, definitions, version)
+        if definition is not None and field is None and definition.valid:
+            field = definition.create_field()
+        return definition, field
+
 
 class LuxtronikDefFieldPair:
     """
@@ -337,13 +425,7 @@ class LuxtronikFieldsDictionary:
             If multiple fields added for the same index/name,
             the last added takes precedence.
         """
-        def_name_or_idx = def_field_name_or_idx
-        if isinstance(def_name_or_idx, Base):
-            def_name_or_idx = def_name_or_idx.name
-        if isinstance(def_name_or_idx, LuxtronikDefinition):
-            definition = def_name_or_idx
-        else:
-            definition = self._def_lookup.get(def_name_or_idx)
+        definition, _ = get_and_check_def_field_pair(def_field_name_or_idx, self._def_lookup, VER_IGNORE)
         if definition is not None:
             return self._field_lookup.get(definition, default)
         return default
